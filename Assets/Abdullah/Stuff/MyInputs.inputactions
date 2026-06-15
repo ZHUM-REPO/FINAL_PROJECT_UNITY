@@ -61,9 +61,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ChangeSpell",
+                    "name": "Change Spell",
                     "type": "Button",
                     "id": "d6cd88c7-2ea4-4bae-9cf8-4c2b32c09ec9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Pause Menu",
+                    "type": "Button",
+                    "id": "158f4369-ff2e-481d-932c-329ec1d677d5",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -75,7 +84,7 @@
                     "name": "2D Vector",
                     "id": "febc1194-754b-48a9-a450-2e4270a757e7",
                     "path": "2DVector",
-                    "interactions": "",
+                    "interactions": "Hold",
                     "processors": "",
                     "groups": "",
                     "action": "Movements",
@@ -210,7 +219,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ChangeSpell",
+                    "action": "Change Spell",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -255,6 +264,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Crouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "dc4f915c-67ad-4281-aff4-719ecb341373",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pause Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9ef705fc-00ba-49ab-aaa2-996a33f63a23",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pause Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

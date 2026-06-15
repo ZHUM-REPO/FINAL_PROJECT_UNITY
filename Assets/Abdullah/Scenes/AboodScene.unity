@@ -333,7 +333,7 @@ Transform:
   m_GameObject: {fileID: 945887618}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.12041, y: 1.52, z: -1.06178}
+  m_LocalPosition: {x: 1.12041, y: 2.05, z: -1.06178}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -385,7 +385,6 @@ GameObject:
   - component: {fileID: 1036989292}
   - component: {fileID: 1036989291}
   - component: {fileID: 1036989290}
-  - component: {fileID: 1036989297}
   - component: {fileID: 1036989296}
   m_Layer: 0
   m_Name: Player
@@ -421,9 +420,9 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1036989297}
-        m_TargetAssemblyTypeName: PlayerInputs, Assembly-CSharp
-        m_MethodName: MoveInput
+      - m_Target: {fileID: 1036989296}
+        m_TargetAssemblyTypeName: MovementsTest, Assembly-CSharp
+        m_MethodName: Move
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -436,11 +435,35 @@ MonoBehaviour:
     m_ActionId: f0ca9561-5569-431a-b48e-6c8f03a6d943
     m_ActionName: 'Player/Movements[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1036989296}
+        m_TargetAssemblyTypeName: MovementsTest, Assembly-CSharp
+        m_MethodName: Look
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: b2e9c241-d2a3-4392-83dc-81ccc3b7bf79
     m_ActionName: 'Player/Camera[/Mouse/delta]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1036989296}
+        m_TargetAssemblyTypeName: MovementsTest, Assembly-CSharp
+        m_MethodName: Jump
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: dbc14eeb-ca3b-467d-920f-31c24c92dd62
     m_ActionName: 'Player/Jump[/Keyboard/space]'
   - m_PersistentCalls:
@@ -452,7 +475,19 @@ MonoBehaviour:
     m_ActionId: e7621ccb-51bb-47db-83ec-18c62fc41af1
     m_ActionName: 'Player/Interact[/Keyboard/e]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1036989296}
+        m_TargetAssemblyTypeName: MovementsTest, Assembly-CSharp
+        m_MethodName: Crouch
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 50e42078-8c8d-4fbe-92f4-cf328eb0f259
     m_ActionName: 'Player/Crouch[/Keyboard/ctrl]'
   - m_PersistentCalls:
@@ -598,26 +633,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1036989289}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52c5a6b8f96db4041b455bbaa07d260d, type: 3}
+  m_Script: {fileID: 11500000, guid: 6f87c7997ce4abb4f980dcd628e8d5fd, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AbodiMovements
+  m_EditorClassIdentifier: Assembly-CSharp::MovementsTest
   myCharacter: {fileID: 1036989291}
+  myCamera: {fileID: 1771372084}
   moveSpeed: 5
+  sprintMultiplier: 2
   gravity: -9.81
-  playerInputs: {fileID: 1036989297}
---- !u!114 &1036989297
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1036989289}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c14b0e7ac3560a747917ad93c611ab51, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputs
-  inputMove: {x: 0, y: 0}
+  jumpHeight: 3
+  crouchHeight: 1
+  normalHeight: 2
+  crouchSpeed: 2.5
+  mouseSensitivity: 1000
+  xRotation: 0
+  mySpeed: 0
 --- !u!1 &1337474248
 GameObject:
   m_ObjectHideFlags: 0
@@ -726,7 +756,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.1204, y: -0, z: -1.06178}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 5.0457, y: 5.0457, z: 5.0457}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -761,7 +791,7 @@ Transform:
   m_GameObject: {fileID: 1771372084}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.53, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

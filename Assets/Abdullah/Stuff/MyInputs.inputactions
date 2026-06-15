@@ -57,7 +57,7 @@
                     "id": "50e42078-8c8d-4fbe-92f4-cf328eb0f259",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Press",
                     "initialStateCheck": false
                 },
                 {
@@ -84,7 +84,7 @@
                     "name": "2D Vector",
                     "id": "febc1194-754b-48a9-a450-2e4270a757e7",
                     "path": "2DVector",
-                    "interactions": "Hold",
+                    "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Movements",
@@ -248,7 +248,7 @@
                 {
                     "name": "",
                     "id": "d8e8f6c9-a133-47e6-9c52-bee9b203dc05",
-                    "path": "<Keyboard>/ctrl",
+                    "path": "<Keyboard>/c",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

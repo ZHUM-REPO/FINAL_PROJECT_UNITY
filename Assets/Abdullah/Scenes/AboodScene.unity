@@ -1039,8 +1039,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AbodiMovements
   myCharacter: {fileID: 1425251830}
   moveSpeed: 5
+  crouchSpeed: 2.5
+  sprintMultiplier: 2
   gravity: -9.81
   jumpHeight: 3
+  normalHeight: 2
+  crouchHeight: 1
 --- !u!114 &1425251828
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1148,9 +1152,9 @@ MonoBehaviour:
     m_ActionName: 'Player/Interact[/Keyboard/e]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: MovementsTest, Assembly-CSharp
-        m_MethodName: Crouch
+      - m_Target: {fileID: 1425251828}
+        m_TargetAssemblyTypeName: PlayerInputs, Assembly-CSharp
+        m_MethodName: CrouchInput
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

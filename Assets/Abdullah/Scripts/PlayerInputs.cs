@@ -32,7 +32,7 @@ public class PlayerInputs : MonoBehaviour
         if (context.performed)
         {
             OnJumpInput?.Invoke();
-        }
+        } 
     }
     
     public void CrouchInput(InputAction.CallbackContext context)

@@ -1040,6 +1040,7 @@ MonoBehaviour:
   myCharacter: {fileID: 1425251830}
   moveSpeed: 5
   gravity: -9.81
+  jumpHeight: 3
 --- !u!114 &1425251828
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1126,7 +1127,19 @@ MonoBehaviour:
     m_ActionId: dbc14eeb-ca3b-467d-920f-31c24c92dd62
     m_ActionName: 'Player/Jump[/Keyboard/space]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1425251828}
+        m_TargetAssemblyTypeName: PlayerInputs, Assembly-CSharp
+        m_MethodName: SprintInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 10939bee-c64e-443f-8f6b-33779ed67ca7
     m_ActionName: 'Player/Sprint[/Keyboard/leftShift]'
   - m_PersistentCalls:
@@ -1296,7 +1309,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbodiCamera
   myCamera: {fileID: 561934358}
-  mouseSensitivity: 100
+  mouseSensitivity: 10
 --- !u!1 &1771372084
 GameObject:
   m_ObjectHideFlags: 0

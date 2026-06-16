@@ -12,7 +12,7 @@ public class AbodiMovements : MonoBehaviour
     [SerializeField] private float crouchHeight = 1f;
     // [SerializeField] private PlayerInputs playerInputs;
     private float mySpeed;
-    private float myHeight;
+    // private float myHeight;
     private Vector2 moveInput;
     private Vector3 move;
     private Vector3 velocity;
@@ -40,7 +40,7 @@ public class AbodiMovements : MonoBehaviour
     {
         myCharacter = GetComponent<CharacterController>();
         mySpeed = moveSpeed;
-        myHeight = normalHeight;
+        // myHeight = normalHeight;
     }
     private void HandleMoveInput(Vector2 mInput)
     {
@@ -70,7 +70,14 @@ public class AbodiMovements : MonoBehaviour
 
     private void HandleSprintInput()
     {
-        
+        if (myCharacter.isGrounded && !isSprinting && !isCrouching)
+        {
+            isSprinting = true;
+        }
+        else if (myCharacter.isGrounded && isSprinting)
+        {
+            isSprinting = false;
+        }
     }
 
     private void GravityLogic()
@@ -107,5 +114,13 @@ public class AbodiMovements : MonoBehaviour
 
         // myCharacter.height = myHeight;
 
+        if (isSprinting)
+        {
+            mySpeed = moveSpeed * sprintMultiplier;
+        }
+        else if (!isSprinting && !isCrouching)
+        {
+            mySpeed = moveSpeed;
+        }
     }
 }

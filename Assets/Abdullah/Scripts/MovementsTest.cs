@@ -62,12 +62,23 @@ public class MovementsTest : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
+    public void Sprint(InputAction.CallbackContext context)
+    {
+        if (context.performed && myCharacter.isGrounded && !isSprinting && !isCrouching)
+        {
+            isSprinting = true;
+        }
+        else if (context.performed && myCharacter.isGrounded && isSprinting)
+        {
+            isSprinting = false;
+        }
+    }
+
     void Update()
     {
         // Movements logic:
         Vector3 move = movement.x * transform.right + movement.y * transform.forward;
-        myCharacter.Move(move * mySpeed * Time.deltaTime);
+        
 
         // Gravity logic:
         if (myCharacter.isGrounded && velocity.y < 0)
@@ -102,12 +113,15 @@ public class MovementsTest : MonoBehaviour
         }
 
         // Sprint logic:
+        if (isSprinting)
+        {
+            mySpeed = moveSpeed * sprintMultiplier;
+        }
+        else if (!isSprinting && !isCrouching)
+        {
+            mySpeed = moveSpeed;
+        }
 
-
-
-
-
-
-
+        myCharacter.Move(move * mySpeed * Time.deltaTime);
     }
 }

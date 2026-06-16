@@ -11,21 +11,20 @@ public class PlayerInputs : MonoBehaviour
     public static event Action OnSprintInput;
     public static event Action OnPauseInput;
 
-    public Vector2 inputMove;
+    // public Vector2 inputMove;
 
 
     public void MoveInput(InputAction.CallbackContext context)
     {
-        inputMove = context.ReadValue<Vector2>();
-        OnMoveInput?.Invoke(inputMove);
+        // inputMove = context.ReadValue<Vector2>();
+        // OnMoveInput?.Invoke(inputMove);
+        OnMoveInput?.Invoke(context.ReadValue<Vector2>());
+
     }
 
     public void LookInput(InputAction.CallbackContext context)
     {
-        if (context.performed)
-        {
             OnLookInput?.Invoke(context.ReadValue<Vector2>());
-        }
     }
 
     public void JumpInput(InputAction.CallbackContext context)

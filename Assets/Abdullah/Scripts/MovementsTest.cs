@@ -15,8 +15,10 @@ public class MovementsTest : MonoBehaviour
     [SerializeField] private float mouseSensitivity = 100f;
     [SerializeField] private float xRotation = 0f;
     [SerializeField] private float mySpeed;
-    private Vector3 movement;
-    private Vector3 velocity;
+    private Vector3 moveDirection;
+    private Vector3 finalDirection;
+    private Vector2 moveInput;
+    private float verticalVelocity = -2;
     private Vector2 cameraRotation;
     private bool isJumping = false;
     private bool isCrouching = false;
@@ -33,20 +35,21 @@ public class MovementsTest : MonoBehaviour
 
     public void Move(InputAction.CallbackContext context)
     {
-        movement = context.ReadValue<Vector2>();
+        moveInput = context.ReadValue<Vector2>();
     }
 
     public void Look(InputAction.CallbackContext context)
     {
-        cameraRotation = context.ReadValue<Vector2>() * mouseSensitivity * Time.deltaTime;
+        cameraRotation = context.ReadValue<Vector2>() * mouseSensitivity;
     }
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed && myCharacter.isGrounded && !isJumping)
+        if(!myCharacter.isGrounded) return;
+
+        if (context.performed && myCharacter.isGrounded)
         {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            isJumping = true;
+            verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
     }
 
@@ -55,10 +58,14 @@ public class MovementsTest : MonoBehaviour
         if (context.performed && myCharacter.isGrounded && !isCrouching)
         {
             isCrouching = true;
+            myCharacter.height = crouchHeight;
+            mySpeed = crouchSpeed;
         }
-        else
+        else if(context.performed && myCharacter.isGrounded && isCrouching)
         {
             isCrouching = false;
+            myCharacter.height = normalHeight;
+            mySpeed = moveSpeed;
         }
     }
 
@@ -75,41 +82,16 @@ public class MovementsTest : MonoBehaviour
     }
 
     void Update()
-    {
-        // Movements logic:
-        Vector3 move = movement.x * transform.right + movement.y * transform.forward;
-        
-
+    {        
         // Gravity logic:
-        if (myCharacter.isGrounded && velocity.y < 0)
+        if (myCharacter.isGrounded && verticalVelocity < 0)
         {
-            velocity.y = -2f;
-        }
-        velocity.y += gravity * Time.deltaTime;
-        myCharacter.Move(velocity * Time.deltaTime);
-
-        // Camera rotation logic:
-        xRotation -= cameraRotation.y;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-        myCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        transform.Rotate(Vector3.up * cameraRotation.x);
-
-        // Jump logic: 
-        if (isJumping && myCharacter.isGrounded)
-        {
-           isJumping = false; 
+            verticalVelocity = -2f;
         }
 
-        // Crouch logic:
-        if (isCrouching)
+        else if(!myCharacter.isGrounded)
         {
-            myCharacter.height = crouchHeight;
-            mySpeed = crouchSpeed;
-        }
-        else if (!isCrouching)
-        {
-            myCharacter.height = normalHeight;
-            mySpeed = moveSpeed;
+            verticalVelocity += gravity * Time.deltaTime;
         }
 
         // Sprint logic:
@@ -122,6 +104,20 @@ public class MovementsTest : MonoBehaviour
             mySpeed = moveSpeed;
         }
 
-        myCharacter.Move(move * mySpeed * Time.deltaTime);
+        // Movements logic:
+        moveDirection = moveInput.x * transform.right + moveInput.y * transform.forward;
+        finalDirection = moveDirection * mySpeed;
+        finalDirection.y = verticalVelocity;
+
+        myCharacter.Move(finalDirection * Time.deltaTime);
+    }
+
+    void LateUpdate()
+    {
+        // Camera rotation logic:
+        xRotation -= cameraRotation.y;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        myCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        transform.Rotate(Vector3.up * cameraRotation.x);
     }
 }

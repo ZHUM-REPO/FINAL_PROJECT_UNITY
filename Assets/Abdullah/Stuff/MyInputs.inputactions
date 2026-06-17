@@ -162,7 +162,7 @@
                     "id": "633fc7af-d8f9-46aa-b969-58453008fbd3",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
-                    "processors": "StickDeadzone,ScaleVector2(x=1.5,y=1.5)",
+                    "processors": "DeltaTimeScale,StickDeadzone,ScaleVector2(x=1.5,y=1.5)",
                     "groups": "",
                     "action": "Camera",
                     "isComposite": false,

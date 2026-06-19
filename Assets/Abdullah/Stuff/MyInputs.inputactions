@@ -70,10 +70,37 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Shoot Spill",
+                    "type": "Button",
+                    "id": "b9092389-6041-4bfd-89bd-a9e0e203ac7e",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Pause Menu",
                     "type": "Button",
                     "id": "158f4369-ff2e-481d-932c-329ec1d677d5",
                     "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Change Spells Kit",
+                    "type": "Button",
+                    "id": "e0772a99-a6e8-4858-956b-d6e260f44dc3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Cursor?",
+                    "type": "PassThrough",
+                    "id": "18611b7f-2b47-4bb0-bf98-f87155f7f0ed",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -215,7 +242,18 @@
                 {
                     "name": "",
                     "id": "e16f9c7a-6632-4b39-86e3-eb7f65155c80",
-                    "path": "",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Change Spell",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0356e6a9-d5b8-4702-b880-ecc4fa682e1b",
+                    "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -286,6 +324,72 @@
                     "processors": "",
                     "groups": "",
                     "action": "Pause Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5441af50-4701-46e1-a1ef-2cbcd31217d8",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Shoot Spill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e2bce901-67fe-4caf-90b1-a5dc47d133ee",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Shoot Spill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f4f53816-dc8d-419d-93ad-b29096ecd4bf",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Change Spells Kit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5f118b2f-f603-4004-9a8f-4019bf9e9f70",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Change Spells Kit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "68af93d6-bf84-4f8a-a11a-2fd540dbb062",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Cursor?",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "11bacd3b-b444-4be6-9ba0-e4de3eacef04",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Cursor?",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -1118,6 +1118,7 @@ GameObject:
   - component: {fileID: 1425251828}
   - component: {fileID: 1425251827}
   - component: {fileID: 1425251835}
+  - component: {fileID: 1425251836}
   m_Layer: 0
   m_Name: Player (1)
   m_TagString: Untagged
@@ -1145,6 +1146,7 @@ MonoBehaviour:
   jumpHeight: 3
   normalHeight: 2
   crouchHeight: 1
+  playerStats: {fileID: 1425251836}
 --- !u!114 &1425251828
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1274,6 +1276,18 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 158f4369-ff2e-481d-932c-329ec1d677d5
     m_ActionName: 'Player/Pause Menu[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b9092389-6041-4bfd-89bd-a9e0e203ac7e
+    m_ActionName: 'Player/Shoot Spill[/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e0772a99-a6e8-4858-956b-d6e260f44dc3
+    m_ActionName: 'Player/Change Spells Kit[/Keyboard/tab]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 18611b7f-2b47-4bb0-bf98-f87155f7f0ed
+    m_ActionName: Player/Cursor?
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -1414,6 +1428,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AbodiCamera
   myCamera: {fileID: 561934358}
   mouseSensitivity: 10
+--- !u!114 &1425251836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425251826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60514fe4455b6dd419e86a58505e4f70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  maxEndurance: 100
+  myEndurance: 0
+  enduranceDrain: 15
+  enduranceRegain: 10
+  sprintResumeThreshold: 0.25
+  canSprint: 1
 --- !u!1 &1771372084
 GameObject:
   m_ObjectHideFlags: 0

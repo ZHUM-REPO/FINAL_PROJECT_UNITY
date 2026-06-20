@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KitDefinition
   kitName: FireKit
   kitIcon: {fileID: 0}
-  spellOnePrefab: {fileID: 6062268378900599063, guid: 146585583eac83c45ab4fd68b3db4051, type: 3}
+  spellOnePrefab: {fileID: 3033319170544889253, guid: ef3dd875badf3dd4caac77dcc1535914, type: 3}
   spellTwoPrefab: {fileID: 0}
   upgradeOneDescription: 
   upgradeTwoDescription: 

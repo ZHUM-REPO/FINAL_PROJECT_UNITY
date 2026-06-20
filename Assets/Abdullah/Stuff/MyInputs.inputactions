@@ -70,18 +70,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Shoot Spill",
+                    "name": "CastSpell",
                     "type": "Button",
                     "id": "b9092389-6041-4bfd-89bd-a9e0e203ac7e",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Pause Menu",
-                    "type": "Button",
-                    "id": "158f4369-ff2e-481d-932c-329ec1d677d5",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -97,10 +88,37 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Throw",
+                    "type": "Button",
+                    "id": "85913c69-7759-495f-bf4d-da0355ef9fa4",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Drop",
+                    "type": "Button",
+                    "id": "3b38e529-febe-4657-9360-c5660ca0644a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Cursor?",
                     "type": "PassThrough",
                     "id": "18611b7f-2b47-4bb0-bf98-f87155f7f0ed",
                     "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Pause Menu",
+                    "type": "Button",
+                    "id": "158f4369-ff2e-481d-932c-329ec1d677d5",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -334,7 +352,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Shoot Spill",
+                    "action": "CastSpell",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -345,7 +363,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Shoot Spill",
+                    "action": "CastSpell",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -384,12 +402,45 @@
                 },
                 {
                     "name": "",
-                    "id": "11bacd3b-b444-4be6-9ba0-e4de3eacef04",
-                    "path": "",
+                    "id": "3c35ee94-9543-47f1-a90b-17a76314f2d6",
+                    "path": "<Keyboard>/g",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Cursor?",
+                    "action": "Throw",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3af8a52e-7a78-4292-a85e-a11a691db681",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Throw",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "40688cea-1af3-483f-8df7-0cb453b92ff2",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drop",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7a5fbc30-a793-42a7-9207-d60f6486e477",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drop",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -1714,7 +1714,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 698a9d34683d1054da6df3afcc8f99c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IceWallSpell
-  spellName: 
+  spellName: IceWall
   manaCost: 30
   cooldown: 5
   xpReward: 10
@@ -1741,7 +1741,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 200a15366b82c9e4ab61e75d2db966c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FreezeSpell
-  spellName: 
+  spellName: Freeze
   manaCost: 25
   cooldown: 2
   xpReward: 10
@@ -1769,7 +1769,7 @@ MonoBehaviour:
   manaCost: 0
   cooldown: 2
   xpReward: 10
-  castParticles: {fileID: 0}
+  castParticles: {fileID: 82465397278485010, guid: 856f1f18fb8861d4499813c38a5963ae, type: 3}
   impactParticles: {fileID: 0}
   range: 8
   coneAngle: 30
@@ -1791,13 +1791,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea783fa0077b5a54fb08f3cf1e24dc2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FireballSpell
-  spellName: 
+  spellName: Fireball
   manaCost: 20
   cooldown: 1.5
   xpReward: 10
   castParticles: {fileID: 0}
-  impactParticles: {fileID: 0}
-  fireballPrefab: {fileID: 0}
+  impactParticles: {fileID: 6280281539998945384, guid: f78aaaec3b393e24ca74cd6de8194347, type: 3}
+  fireballPrefab: {fileID: 6062268378900599063, guid: 146585583eac83c45ab4fd68b3db4051, type: 3}
   spawnPoint: {fileID: 295247766}
   damage: 30
   upgradeIncreasedDamage: 0
@@ -1893,7 +1893,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3431212bc8f4b3744a5fd92ebeb4f591, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResurrectSpell
-  spellName: 
+  spellName: Resurrect
   manaCost: 50
   cooldown: 10
   xpReward: 10
@@ -1919,7 +1919,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eadfc395e8760684aa5f01a4012dd428, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealTeammateSpell
-  spellName: 
+  spellName: HealTeammate
   manaCost: 35
   cooldown: 4
   xpReward: 20
@@ -1947,12 +1947,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18d386c419aa72a49a162c498ab82d69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealSpell
-  spellName: 
+  spellName: Heal
   manaCost: 30
   cooldown: 3
   xpReward: 20
   castParticles: {fileID: 0}
-  impactParticles: {fileID: 0}
+  impactParticles: {fileID: 2413333106277601229, guid: 108ca465382c11742bd2c91fe4fdb13f, type: 3}
   healAmount: 40
   qteSequenceLength: 4
   upgradeIncreasedHeal: 0
@@ -1970,7 +1970,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16959c494908fe7489816dc87fddfbfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GravityMoveSpell
-  spellName: 
+  spellName: GravityMove
   manaCost: 15
   cooldown: 1
   xpReward: 10
@@ -1999,7 +1999,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5dda0e2d6ec08d346b2c58918ebd707a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GravityPushSpell
-  spellName: 
+  spellName: GravityPush
   manaCost: 25
   cooldown: 3
   xpReward: 10
@@ -2032,6 +2032,7 @@ GameObject:
   - component: {fileID: 1425251836}
   - component: {fileID: 1425251838}
   - component: {fileID: 1425251837}
+  - component: {fileID: 1425251839}
   m_Layer: 3
   m_Name: Player (1)
   m_TagString: Player
@@ -2162,7 +2163,19 @@ MonoBehaviour:
     m_ActionId: 10939bee-c64e-443f-8f6b-33779ed67ca7
     m_ActionName: 'Player/Sprint[/Keyboard/leftShift]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1425251828}
+        m_TargetAssemblyTypeName: PlayerInputs, Assembly-CSharp
+        m_MethodName: InteractInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: e7621ccb-51bb-47db-83ec-18c62fc41af1
     m_ActionName: 'Player/Interact[/Keyboard/e]'
   - m_PersistentCalls:
@@ -2182,25 +2195,105 @@ MonoBehaviour:
     m_ActionId: 50e42078-8c8d-4fbe-92f4-cf328eb0f259
     m_ActionName: 'Player/Crouch[/Keyboard/ctrl]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1425251828}
+        m_TargetAssemblyTypeName: PlayerInputs, Assembly-CSharp
+        m_MethodName: ChangeSpellInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: d6cd88c7-2ea4-4bae-9cf8-4c2b32c09ec9
     m_ActionName: Player/ChangeSpell
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1425251828}
+        m_TargetAssemblyTypeName: PlayerInputs, Assembly-CSharp
+        m_MethodName: PauseInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 158f4369-ff2e-481d-932c-329ec1d677d5
     m_ActionName: 'Player/Pause Menu[/Keyboard/escape]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1425251828}
+        m_TargetAssemblyTypeName: PlayerInputs, Assembly-CSharp
+        m_MethodName: CastSpellInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: b9092389-6041-4bfd-89bd-a9e0e203ac7e
     m_ActionName: 'Player/Shoot Spill[/Mouse/leftButton]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1425251828}
+        m_TargetAssemblyTypeName: PlayerInputs, Assembly-CSharp
+        m_MethodName: ChangeKitInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: e0772a99-a6e8-4858-956b-d6e260f44dc3
     m_ActionName: 'Player/Change Spells Kit[/Keyboard/tab]'
   - m_PersistentCalls:
       m_Calls: []
     m_ActionId: 18611b7f-2b47-4bb0-bf98-f87155f7f0ed
     m_ActionName: Player/Cursor?
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1425251828}
+        m_TargetAssemblyTypeName: PlayerInputs, Assembly-CSharp
+        m_MethodName: ThrowInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 85913c69-7759-495f-bf4d-da0355ef9fa4
+    m_ActionName: 'Player/Throw[/Keyboard/g]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1425251828}
+        m_TargetAssemblyTypeName: PlayerInputs, Assembly-CSharp
+        m_MethodName: DropInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 3b38e529-febe-4657-9360-c5660ca0644a
+    m_ActionName: 'Player/Drop[/Keyboard/f]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -2400,6 +2493,19 @@ MonoBehaviour:
   - 100
   - 250
   - 500
+--- !u!114 &1425251839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425251826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60aacf4c898685c4085a5a05b56ce8b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KitManager
+  equippedKit: {fileID: 11400000, guid: d8f419ed4ee40bd4aa5fac9c4fa4ce7e, type: 2}
 --- !u!1 &1465750277
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,6 +10,13 @@ public class PlayerInputs : MonoBehaviour
     public static event Action OnCrouchInput;
     public static event Action OnSprintInput;
     public static event Action OnPauseInput;
+    public static event Action OnCastSpellInput;
+    public static event Action OnCastSpellCanceled;
+    public static event Action OnChangeSpellInput;
+    public static event Action OnChangeKitInput;
+    public static event Action OnThrowInput;
+    public static event Action OnDropInput;
+    public static event Action OnInteractInput;
 
     // public Vector2 inputMove;
 
@@ -57,5 +64,45 @@ public class PlayerInputs : MonoBehaviour
         {
             OnPauseInput?.Invoke();
         }
+    }
+
+    public void CastSpellInput(InputAction.CallbackContext context)
+    {
+        // performed = pressed, canceled = released (for held spells)
+        if (context.performed)
+            OnCastSpellInput?.Invoke();
+
+        if (context.canceled)
+            OnCastSpellCanceled?.Invoke();
+    }
+
+    public void ChangeSpellInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            OnChangeSpellInput?.Invoke();
+    }
+
+    public void ChangeKitInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            OnChangeKitInput?.Invoke();
+    }
+
+    public void ThrowInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            OnThrowInput?.Invoke();
+    }
+
+    public void DropInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            OnDropInput?.Invoke();
+    }
+
+    public void InteractInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            OnInteractInput?.Invoke();
     }
 }

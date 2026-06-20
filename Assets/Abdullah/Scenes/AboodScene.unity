@@ -195,7 +195,7 @@ Transform:
   m_GameObject: {fileID: 295247765}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.505, y: 0, z: 0}
+  m_LocalPosition: {x: 0.11, y: 0, z: 0.492}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1684,14 +1684,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1400594134}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0.218, y: 0, z: 0.58}
-  m_LocalScale: {x: 0.34362, y: 0.03550528, z: 0.0454709}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.218, y: 0, z: 0.599}
+  m_LocalScale: {x: 0.042344294, y: 0.03550528, z: 0.27937847}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 295247766}
   m_Father: {fileID: 1425251834}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &1400594141
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2243,6 +2243,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KitManager
   equippedKit: {fileID: 11400000, guid: d8f419ed4ee40bd4aa5fac9c4fa4ce7e, type: 2}
+  spellSpawnPoint: {fileID: 295247766}
 --- !u!1 &1465750277
 GameObject:
   m_ObjectHideFlags: 0

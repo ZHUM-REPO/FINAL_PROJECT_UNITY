@@ -10,6 +10,9 @@ public class KitManager : MonoBehaviour
     private SpellBase spellTwo;
     private int activeSpellIndex = 0; // 0 = spell one, 1 = spell two
 
+    [Header("References")]
+    public Transform spellSpawnPoint; // drag SpawnPoint here in Inspector
+
     // held spell tracking
     private FireBreathSpell fireBreath;
     private GravityMoveSpell gravityMove;
@@ -61,6 +64,9 @@ public class KitManager : MonoBehaviour
             spellOne = s1.GetComponent<SpellBase>();
             spellOne.SetKitName(kit.kitName);
             CacheHeldSpells(spellOne);
+
+            // pass spawn point to spell
+            AssignSpawnPoint(spellOne);
         }
 
         // spawn spell two
@@ -70,9 +76,35 @@ public class KitManager : MonoBehaviour
             spellTwo = s2.GetComponent<SpellBase>();
             spellTwo.SetKitName(kit.kitName);
             CacheHeldSpells(spellTwo);
+
+            // pass spawn point to spell
+            AssignSpawnPoint(spellTwo);
         }
 
         Debug.Log($"Kit equipped: {kit.kitName}");
+    }
+
+    // Pass the spawn point to the next spell
+
+    private void AssignSpawnPoint(SpellBase spell)
+    {
+        if (spellSpawnPoint == null) return;
+
+        // assign to fireball
+        FireballSpell fireball = spell as FireballSpell;
+        if (fireball != null) fireball.spawnPoint = spellSpawnPoint;
+
+        // assign to fire breath
+        FireBreathSpell breath = spell as FireBreathSpell;
+        if (breath != null) breath.spawnPoint = spellSpawnPoint;
+
+        // assign to freeze
+        FreezeSpell freeze = spell as FreezeSpell;
+        if (freeze != null) freeze.spawnPoint = spellSpawnPoint;
+
+        // assign to ice wall — uses Camera.main so no spawnPoint needed
+
+        // assign to gravity move — uses Camera.main so no spawnPoint needed
     }
 
     // cache held spell references so we can call their special methods

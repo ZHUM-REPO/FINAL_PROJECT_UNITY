@@ -16,9 +16,13 @@ public class FreezeSpell : SpellBase
         PlayCastParticles();
         if (freezeProjectilePrefab == null || spawnPoint == null) return;
 
+         // use camera direction
+        Vector3 cameraForward = Camera.main.transform.forward;
+        Quaternion cameraRotation = Quaternion.LookRotation(cameraForward);
+
         GameObject proj = Instantiate(freezeProjectilePrefab,
                                       spawnPoint.position,
-                                      spawnPoint.rotation);
+                                      cameraRotation);
 
         FreezeProjectile fp = proj.GetComponent<FreezeProjectile>();
         if (fp != null)

@@ -10,7 +10,7 @@ public class AbodiMovements : MonoBehaviour
     [SerializeField] private float jumpHeight = 3f;
     [SerializeField] private float normalHeight = 2f;
     [SerializeField] private float crouchHeight = 1f;
-    // [SerializeField] private PlayerInputs playerInputs;
+    [SerializeField] private PlayerStats playerStats;
     private float mySpeed;
     private float verticalVelocity = 0f;
     // private float myHeight;
@@ -71,7 +71,7 @@ public class AbodiMovements : MonoBehaviour
 
     private void HandleSprintInput()
     {
-        if (myCharacter.isGrounded && !isSprinting && !isCrouching)
+        if (myCharacter.isGrounded && !isSprinting && !isCrouching && playerStats.canSprint)
         {
             isSprinting = true;
         }
@@ -112,10 +112,18 @@ public class AbodiMovements : MonoBehaviour
 
         if (isSprinting)
         {
+            if (!playerStats.canSprint)
+            {
+                isSprinting = false; 
+                mySpeed = moveSpeed; 
+                return;
+            }
+            playerStats.EnduranceDrain();
             mySpeed = moveSpeed * sprintMultiplier;
         }
         else if (!isSprinting && !isCrouching)
         {
+            playerStats.EnduranceRegain();
             mySpeed = moveSpeed;
         }
 

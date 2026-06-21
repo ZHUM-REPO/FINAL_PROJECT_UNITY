@@ -28,7 +28,11 @@ public class FireballSpell : SpellBase
     {
         if (fireballPrefab == null || spawnPoint == null) return;
 
-        GameObject fb = Instantiate(fireballPrefab, spawnPoint.position, spawnPoint.rotation);
+        // use camera direction instead of spawnPoint rotation
+        Vector3 cameraForward = Camera.main.transform.forward;
+        Quaternion cameraRotation = Quaternion.LookRotation(cameraForward);
+
+        GameObject fb = Instantiate(fireballPrefab, spawnPoint.position, cameraRotation);
         FireballProjectile projectile = fb.GetComponent<FireballProjectile>();
         if (projectile != null)
         {

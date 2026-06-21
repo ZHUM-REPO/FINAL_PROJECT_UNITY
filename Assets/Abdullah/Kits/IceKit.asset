@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KitDefinition
   kitName: IceKit
   kitIcon: {fileID: 0}
-  spellOnePrefab: {fileID: 0}
-  spellTwoPrefab: {fileID: 0}
+  spellOnePrefab: {fileID: 5528619892849983230, guid: 55150cdc4cdf41d4cb982b8cb030fa42, type: 3}
+  spellTwoPrefab: {fileID: 1280564268155356436, guid: b80d3f0590d015e48a7e7aff14c8f10e, type: 3}
   upgradeOneDescription: 
   upgradeTwoDescription: 
   upgradeThreeDescription: 

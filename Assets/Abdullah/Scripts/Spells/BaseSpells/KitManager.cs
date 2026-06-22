@@ -1,9 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class KitManager : MonoBehaviour
 {
     [Header("Equipped Kit")]
     public KitDefinition equippedKit;
+
+    [Header("Multi-Kit Support")]
+    private List<KitDefinition> assignedKits = new List<KitDefinition>();
+    private int activeKitIndex = 0;
+
 
     [Header("Spell References — assigned at runtime")]
     private SpellBase spellOne;
@@ -177,10 +183,22 @@ public class KitManager : MonoBehaviour
         Debug.Log($"Switched to spell: {spellName}");
     }
 
+    // call this from lobby once kits are assigned
+    public void SetAssignedKits(List<KitDefinition> kits)
+    {
+        assignedKits = kits;
+        if (assignedKits.Count > 0)
+        EquipKit(assignedKits[0]);
+    }
+
     private void HandleChangeKit()
     {
-        // for now just logs — full kit selection UI comes in office hub phase
-        Debug.Log("Change kit requested — will open kit selector in lobby.");
+        if (assignedKits.Count <= 1) return;
+
+        StopHeldSpells();
+        activeKitIndex = (activeKitIndex + 1) % assignedKits.Count;
+        EquipKit(assignedKits[activeKitIndex]);
+        Debug.Log($"Switched to kit: {assignedKits[activeKitIndex].kitName}");
     }
 
     private void HandleThrow()

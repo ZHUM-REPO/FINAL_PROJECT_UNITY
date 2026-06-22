@@ -1818,6 +1818,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 2370672555703690218, guid: 847010a4fa724b04688110ba9712adef, type: 3}
+      propertyPath: allKits.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2370672555703690218, guid: 847010a4fa724b04688110ba9712adef, type: 3}
+      propertyPath: 'allKits.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: d8f419ed4ee40bd4aa5fac9c4fa4ce7e, type: 2}
+    - target: {fileID: 2370672555703690218, guid: 847010a4fa724b04688110ba9712adef, type: 3}
+      propertyPath: 'allKits.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: cc99383a2b4d57d4a84dcd91eccdc490, type: 2}
+    - target: {fileID: 2370672555703690218, guid: 847010a4fa724b04688110ba9712adef, type: 3}
+      propertyPath: 'allKits.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 76a72e3f7bf085142abbadabd7d8d45a, type: 2}
+    - target: {fileID: 2370672555703690218, guid: 847010a4fa724b04688110ba9712adef, type: 3}
+      propertyPath: 'allKits.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 9a1f45cb1ad8eb24dbd1c54b9655d14e, type: 2}
     - target: {fileID: 3011355395178382043, guid: 847010a4fa724b04688110ba9712adef, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.12041

@@ -19,6 +19,10 @@ public class KitManager : MonoBehaviour
     [Header("References")]
     public Transform spellSpawnPoint; // drag SpawnPoint here in Inspector
 
+    [Header("Solo Test — remove before multiplayer")]
+    public bool soloTestMode = true;
+    public KitDefinition[] allKits; // drag all 4 kits here in Inspector
+
     // held spell tracking
     private FireBreathSpell fireBreath;
     private GravityMoveSpell gravityMove;
@@ -48,6 +52,20 @@ public class KitManager : MonoBehaviour
     {
         if (equippedKit != null)
             EquipKit(equippedKit);
+
+        // for testing only...
+        if (soloTestMode && allKits.Length > 0)
+        {
+            SetAssignedKits(new List<KitDefinition>(allKits));
+            Debug.Log("Solo test mode — all kits assigned.");
+        }
+        else if (equippedKit != null)
+        {
+            EquipKit(equippedKit);
+        }
+
+        if (spellSpawnPoint == null)
+            Debug.LogWarning("SpellSpawnPoint is not assigned in KitManager!");
     }
 
     // ─── Kit Equipping ────────────────────────────────────

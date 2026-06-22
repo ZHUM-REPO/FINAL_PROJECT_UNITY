@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KitDefinition
   kitName: HealKit
   kitIcon: {fileID: 0}
-  spellOnePrefab: {fileID: 2765047890779318318, guid: a39a61310d2028347a7a9d2ac54d3172, type: 3}
+  spellOnePrefab: {fileID: 8427845011608152319, guid: 54824d7564cd28949873cc5992debd3a, type: 3}
   spellTwoPrefab: {fileID: 1884040246376335505, guid: 3eb16b3a055b7bf4ea391de19c7bf8e6, type: 3}
   upgradeOneDescription: 
   upgradeTwoDescription: 

@@ -15,7 +15,7 @@ MonoBehaviour:
   kitName: FireKit
   kitIcon: {fileID: 0}
   spellOnePrefab: {fileID: 3033319170544889253, guid: ef3dd875badf3dd4caac77dcc1535914, type: 3}
-  spellTwoPrefab: {fileID: 0}
+  spellTwoPrefab: {fileID: 5001013120181414059, guid: b7be4770973375a4b943605603d374ef, type: 3}
   upgradeOneDescription: 
   upgradeTwoDescription: 
   upgradeThreeDescription: 

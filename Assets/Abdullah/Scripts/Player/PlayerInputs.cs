@@ -69,7 +69,7 @@ public class PlayerInputs : MonoBehaviour
     {
         if (context.performed)
         {
-            Debug.Log("ESC Pressed");
+            Debug.Log("ESC Pressed From Input System");
             OnPauseInput?.Invoke();
         }
     }

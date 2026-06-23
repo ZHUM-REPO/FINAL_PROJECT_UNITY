@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PauseMenuUI : MonoBehaviour
 {
@@ -91,6 +92,14 @@ public class PauseMenuUI : MonoBehaviour
 
         Time.timeScale = 0f;
         UnlockCursor();
+    }
+
+    public void ReturnToMainMenu()
+    {
+        Time.timeScale = 1f;
+        isPaused = false;
+
+        SceneManager.LoadScene("Main-Menu");
     }
 
     public void QuitGame()

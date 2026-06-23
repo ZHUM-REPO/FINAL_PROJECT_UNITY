@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3431212bc8f4b3744a5fd92ebeb4f591, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResurrectSpell
-  spellName: ResurrectSpell
+  spellName: Resurrect
   manaCost: 50
   cooldown: 10
   xpReward: 40

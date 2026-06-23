@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33a211fd6f9509544b5c9b2cb80f14bc, type: 3}
   m_Name: GravityKit
   m_EditorClassIdentifier: Assembly-CSharp::KitDefinition
-  kitName: GravityKit
+  kitName: Gravity
   kitIcon: {fileID: 0}
   spellOnePrefab: {fileID: 1222225931087844141, guid: 47e104b659c917f44b52de96dca2328d, type: 3}
   spellTwoPrefab: {fileID: 3533481840844380622, guid: 3fe0e6e53718de843997a37b38aa9ad6, type: 3}

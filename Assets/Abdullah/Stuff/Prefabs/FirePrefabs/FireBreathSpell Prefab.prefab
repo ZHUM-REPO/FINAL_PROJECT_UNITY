@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b8af4ad0a14519478652fd44a7bc54b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FireBreathSpell
-  spellName: FireBreathSpell
+  spellName: FireBreath
   manaCost: 0
   cooldown: 2
   xpReward: 15

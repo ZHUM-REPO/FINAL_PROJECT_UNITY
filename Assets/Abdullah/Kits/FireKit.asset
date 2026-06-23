@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33a211fd6f9509544b5c9b2cb80f14bc, type: 3}
   m_Name: FireKit
   m_EditorClassIdentifier: Assembly-CSharp::KitDefinition
-  kitName: FireKit
+  kitName: Fire
   kitIcon: {fileID: 0}
   spellOnePrefab: {fileID: 3033319170544889253, guid: ef3dd875badf3dd4caac77dcc1535914, type: 3}
   spellTwoPrefab: {fileID: 5001013120181414059, guid: b7be4770973375a4b943605603d374ef, type: 3}

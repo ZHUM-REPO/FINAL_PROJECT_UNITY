@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16959c494908fe7489816dc87fddfbfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GravityMoveSpell
-  spellName: GravityMoveSpell
+  spellName: GravityMove
   manaCost: 15
   cooldown: 1
   xpReward: 10

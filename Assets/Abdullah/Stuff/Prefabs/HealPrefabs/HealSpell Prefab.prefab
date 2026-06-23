@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18d386c419aa72a49a162c498ab82d69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealSpell
-  spellName: HealSpell
+  spellName: Heal
   manaCost: 30
   cooldown: 3
   xpReward: 20

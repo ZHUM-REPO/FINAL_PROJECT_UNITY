@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 200a15366b82c9e4ab61e75d2db966c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FreezeSpell
-  spellName: FreezeSpell
+  spellName: Freeze
   manaCost: 25
   cooldown: 2
   xpReward: 10

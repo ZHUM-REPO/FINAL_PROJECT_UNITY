@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 698a9d34683d1054da6df3afcc8f99c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IceWallSpell
-  spellName: IceWallSpell
+  spellName: IceWall
   manaCost: 30
   cooldown: 5
   xpReward: 15

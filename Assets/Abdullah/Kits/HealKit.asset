@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33a211fd6f9509544b5c9b2cb80f14bc, type: 3}
   m_Name: HealKit
   m_EditorClassIdentifier: Assembly-CSharp::KitDefinition
-  kitName: HealKit
+  kitName: Heal
   kitIcon: {fileID: 0}
   spellOnePrefab: {fileID: 8427845011608152319, guid: 54824d7564cd28949873cc5992debd3a, type: 3}
   spellTwoPrefab: {fileID: 1884040246376335505, guid: 3eb16b3a055b7bf4ea391de19c7bf8e6, type: 3}

@@ -4,8 +4,9 @@ public class AbodiCamera : MonoBehaviour
 {
     [SerializeField] private GameObject myCamera;
     [SerializeField] private float mouseSensitivity = 100f;
+
     private float xRotation = 0f;
-    private Vector2 _lookInput;
+    private Vector2 lookInput;
 
     private void OnEnable()
     {
@@ -17,23 +18,21 @@ public class AbodiCamera : MonoBehaviour
         PlayerInputs.OnLookInput -= HandleLookInput;
     }
 
-    public void HandleLookInput(Vector2 lookInput)
+    private void HandleLookInput(Vector2 input)
     {
-        _lookInput = lookInput;
-    }
-
-    void Start()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        lookInput = input;
+        Debug.Log("LOOK INPUT: " + input);
     }
 
     void Update()
     {
-        xRotation -= _lookInput.y * mouseSensitivity;
+        float mouseX = lookInput.x * mouseSensitivity * Time.deltaTime;
+        float mouseY = lookInput.y * mouseSensitivity * Time.deltaTime;
+
+        xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
         myCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        transform.Rotate(Vector3.up * _lookInput.x * mouseSensitivity);
+        transform.Rotate(Vector3.up * mouseX);
     }
 }

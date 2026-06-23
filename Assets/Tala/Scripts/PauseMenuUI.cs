@@ -19,45 +19,34 @@ public class PauseMenuUI : MonoBehaviour
 
     public static bool isPaused = false;
 
+    private void OnEnable()
+    {
+        PlayerInputs.OnPauseInput += TogglePause;
+    }
+
+    private void OnDisable()
+    {
+        PlayerInputs.OnPauseInput -= TogglePause;
+    }
+
     void Start()
     {
+        isPaused = false;
+        Time.timeScale = 1f;
+
         pauseMenuPanel.SetActive(false);
         settingsPanel.SetActive(false);
 
-        float savedMaster = PlayerPrefs.GetFloat("MasterVolume", 1f);
-        float savedMusic = PlayerPrefs.GetFloat("MusicVolume", 1f);
-        float savedSFX = PlayerPrefs.GetFloat("SFXVolume", 1f);
-        float savedSensitivity = PlayerPrefs.GetFloat("MouseSensitivity", 2f);
-
-        masterSlider.value = savedMaster;
-        musicSlider.value = savedMusic;
-        sfxSlider.value = savedSFX;
-        sensitivitySlider.value = savedSensitivity;
-
-        SetMasterVolume(savedMaster);
-        SetMusicVolume(savedMusic);
-        SetSFXVolume(savedSFX);
-        SetSensitivity(savedSensitivity);
-
-        Time.timeScale = 1f;
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        LoadSettings();
+        LockCursor();
     }
 
-    void Update()
+    public void TogglePause()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (isPaused)
-            {
-                ResumeGame();
-            }
-            else
-            {
-                OpenPauseMenu();
-            }
-        }
+        if (isPaused)
+            ResumeGame();
+        else
+            OpenPauseMenu();
     }
 
     public void OpenPauseMenu()
@@ -68,9 +57,7 @@ public class PauseMenuUI : MonoBehaviour
         settingsPanel.SetActive(false);
 
         Time.timeScale = 0f;
-
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        UnlockCursor();
     }
 
     public void ResumeGame()
@@ -81,25 +68,35 @@ public class PauseMenuUI : MonoBehaviour
         settingsPanel.SetActive(false);
 
         Time.timeScale = 1f;
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        LockCursor();
     }
 
     public void OpenSettings()
     {
+        isPaused = true;
+
         pauseMenuPanel.SetActive(false);
         settingsPanel.SetActive(true);
+
+        Time.timeScale = 0f;
+        UnlockCursor();
     }
 
     public void BackToPauseMenu()
     {
+        isPaused = true;
+
         settingsPanel.SetActive(false);
         pauseMenuPanel.SetActive(true);
+
+        Time.timeScale = 0f;
+        UnlockCursor();
     }
 
     public void QuitGame()
     {
+        Time.timeScale = 1f;
+
         Application.Quit();
 
 #if UNITY_EDITOR
@@ -107,48 +104,41 @@ public class PauseMenuUI : MonoBehaviour
 #endif
     }
 
+    void LoadSettings()
+    {
+        float savedMaster = PlayerPrefs.GetFloat("MasterVolume", 1f);
+        float savedMusic = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        float savedSFX = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        float savedSensitivity = PlayerPrefs.GetFloat("MouseSensitivity", 2f);
+
+        if (masterSlider != null) masterSlider.value = savedMaster;
+        if (musicSlider != null) musicSlider.value = savedMusic;
+        if (sfxSlider != null) sfxSlider.value = savedSFX;
+        if (sensitivitySlider != null) sensitivitySlider.value = savedSensitivity;
+
+        ApplyMasterVolume(savedMaster);
+        ApplyMusicVolume(savedMusic);
+        ApplySFXVolume(savedSFX);
+    }
+
     public void SetMasterVolume(float value)
     {
-        if (value < 0.0001f)
-        {
-            value = 0.0001f;
-        }
-
         PlayerPrefs.SetFloat("MasterVolume", value);
-
-        float volumeDb = Mathf.Log10(value) * 20f;
-        audioMixer.SetFloat("MasterVolume", volumeDb);
-
+        ApplyMasterVolume(value);
         PlayerPrefs.Save();
     }
 
     public void SetMusicVolume(float value)
     {
-        if (value < 0.0001f)
-        {
-            value = 0.0001f;
-        }
-
         PlayerPrefs.SetFloat("MusicVolume", value);
-
-        float volumeDb = Mathf.Log10(value) * 20f;
-        audioMixer.SetFloat("MusicVolume", volumeDb);
-
+        ApplyMusicVolume(value);
         PlayerPrefs.Save();
     }
 
     public void SetSFXVolume(float value)
     {
-        if (value < 0.0001f)
-        {
-            value = 0.0001f;
-        }
-
         PlayerPrefs.SetFloat("SFXVolume", value);
-
-        float volumeDb = Mathf.Log10(value) * 20f;
-        audioMixer.SetFloat("SFXVolume", volumeDb);
-
+        ApplySFXVolume(value);
         PlayerPrefs.Save();
     }
 
@@ -156,5 +146,43 @@ public class PauseMenuUI : MonoBehaviour
     {
         PlayerPrefs.SetFloat("MouseSensitivity", value);
         PlayerPrefs.Save();
+    }
+
+    void ApplyMasterVolume(float value)
+    {
+        if (audioMixer != null)
+            audioMixer.SetFloat("MasterVolume", ConvertToDecibel(value));
+    }
+
+    void ApplyMusicVolume(float value)
+    {
+        if (audioMixer != null)
+            audioMixer.SetFloat("MusicVolume", ConvertToDecibel(value));
+    }
+
+    void ApplySFXVolume(float value)
+    {
+        if (audioMixer != null)
+            audioMixer.SetFloat("SFXVolume", ConvertToDecibel(value));
+    }
+
+    float ConvertToDecibel(float value)
+    {
+        if (value <= 0.0001f)
+            value = 0.0001f;
+
+        return Mathf.Log10(value) * 20f;
+    }
+
+    void LockCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    void UnlockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 }

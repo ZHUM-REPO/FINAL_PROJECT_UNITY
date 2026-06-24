@@ -33,8 +33,7 @@ public class FlickeringLights : MonoBehaviour
         if (targetLight == null)
             targetLight = GetComponent<Light>();
 
-        // lights dont sync up with this code
-        _noiseOffset = Random.Range(0f, 1000f); 
+        _noiseOffset = Random.Range(0f, 1000f); // so multiple lights don't sync up
         _targetIntensity = targetLight.intensity;
     }
 

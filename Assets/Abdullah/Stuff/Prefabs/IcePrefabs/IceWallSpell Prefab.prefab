@@ -50,7 +50,7 @@ MonoBehaviour:
   xpReward: 15
   castParticles: {fileID: 0}
   impactParticles: {fileID: 0}
-  iceWallPrefab: {fileID: 0}
+  iceWallPrefab: {fileID: 4899625328151270340, guid: bddd49d9af7066f4caa590adf02f26d9, type: 3}
   wallDuration: 10
   maxPlaceDistance: 15
   placementMask:

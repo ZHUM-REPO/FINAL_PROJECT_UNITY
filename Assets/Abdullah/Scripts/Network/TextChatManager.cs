@@ -35,7 +35,7 @@ public class TextChatManager : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current.tKey.wasPressedThisFrame)
+        if (Keyboard.current.digit1Key.wasPressedThisFrame)
             ToggleChat();
 
         if (isChatOpen && Keyboard.current.enterKey.wasPressedThisFrame)

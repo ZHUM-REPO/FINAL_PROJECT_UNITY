@@ -15,9 +15,13 @@ public class PartyHUDManager : MonoBehaviour
 
     private void Start()
     {
-        // listen for players joining and leaving
         NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerJoined;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnPlayerLeft;
+
+        // if already connected (host) add card immediately
+        if (NetworkManager.Singleton.IsConnectedClient)
+            StartCoroutine(AddCardDelayed(
+                NetworkManager.Singleton.LocalClientId));
     }
 
     private void OnDestroy()

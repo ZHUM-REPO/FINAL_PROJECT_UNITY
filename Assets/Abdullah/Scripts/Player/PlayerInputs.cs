@@ -11,6 +11,7 @@ public class PlayerInputs : NetworkBehaviour
     public static event Action OnCrouchInput;
     public static event Action OnSprintInput;
     public static event Action OnPauseInput;
+
     public static event Action OnCastSpellInput;
     public static event Action OnCastSpellCanceled;
     public static event Action OnChangeSpellInput;
@@ -25,6 +26,14 @@ public class PlayerInputs : NetworkBehaviour
     public void MoveInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
+    public void MoveInput(InputAction.CallbackContext context)
+    {
+        if (PauseMenuUI.isPaused)
+        {
+            OnMoveInput?.Invoke(Vector2.zero);
+            return;
+        }
+
         OnMoveInput?.Invoke(context.ReadValue<Vector2>());
     }
 
@@ -33,11 +42,20 @@ public class PlayerInputs : NetworkBehaviour
         if (!IsLocalPlayer) return;
         if (context.performed)
             OnLookInput?.Invoke(context.ReadValue<Vector2>());
+        if (PauseMenuUI.isPaused)
+        {
+            OnLookInput?.Invoke(Vector2.zero);
+            return;
+        }
+
+        OnLookInput?.Invoke(context.ReadValue<Vector2>());
     }
 
     public void JumpInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
+        if (PauseMenuUI.isPaused) return;
+
         if (context.performed)
             OnJumpInput?.Invoke();
     }
@@ -45,6 +63,8 @@ public class PlayerInputs : NetworkBehaviour
     public void CrouchInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
+        if (PauseMenuUI.isPaused) return;
+
         if (context.performed)
             OnCrouchInput?.Invoke();
     }
@@ -52,6 +72,8 @@ public class PlayerInputs : NetworkBehaviour
     public void SprintInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
+        if (PauseMenuUI.isPaused) return;
+
         if (context.performed)
             OnSprintInput?.Invoke();
     }
@@ -60,6 +82,8 @@ public class PlayerInputs : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         if (context.performed)
+        {
+            Debug.Log("ESC Pressed From Input System");
             OnPauseInput?.Invoke();
     }
 
@@ -68,35 +92,62 @@ public class PlayerInputs : NetworkBehaviour
         if (!IsLocalPlayer) return;
         if (context.performed) OnCastSpellInput?.Invoke();
         if (context.canceled) OnCastSpellCanceled?.Invoke();
+        if (PauseMenuUI.isPaused) return;
+
+        if (context.performed)
+            OnCastSpellInput?.Invoke();
+
+        if (context.canceled)
+            OnCastSpellCanceled?.Invoke();
     }
 
     public void ChangeSpellInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
         if (context.performed) OnChangeSpellInput?.Invoke();
+        if (PauseMenuUI.isPaused) return;
+
+        if (context.performed)
+            OnChangeSpellInput?.Invoke();
     }
 
     public void ChangeKitInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
         if (context.performed) OnChangeKitInput?.Invoke();
+        if (PauseMenuUI.isPaused) return;
+
+        if (context.performed)
+            OnChangeKitInput?.Invoke();
     }
 
     public void ThrowInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
         if (context.performed) OnThrowInput?.Invoke();
+        if (PauseMenuUI.isPaused) return;
+
+        if (context.performed)
+            OnThrowInput?.Invoke();
     }
 
     public void DropInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
         if (context.performed) OnDropInput?.Invoke();
+        if (PauseMenuUI.isPaused) return;
+
+        if (context.performed)
+            OnDropInput?.Invoke();
     }
 
     public void InteractInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
         if (context.performed) OnInteractInput?.Invoke();
+        if (PauseMenuUI.isPaused) return;
+
+        if (context.performed)
+            OnInteractInput?.Invoke();
     }
 }

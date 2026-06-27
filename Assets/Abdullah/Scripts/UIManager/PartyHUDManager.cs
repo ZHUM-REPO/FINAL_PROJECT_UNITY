@@ -2,13 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Unity.Netcode;
+using System.Collections;
 using System.Collections.Generic;
 
 public class PartyHUDManager : MonoBehaviour
 {
     [Header("Party HUD Settings")]
-    public GameObject playerCardPrefab;  // prefab for each player's card
-    public Transform cardContainer;      // vertical layout group
+    public GameObject playerCardPrefab;
+    public Transform cardContainer;
 
     private Dictionary<ulong, PlayerCardUI> playerCards
         = new Dictionary<ulong, PlayerCardUI>();
@@ -18,10 +19,8 @@ public class PartyHUDManager : MonoBehaviour
         NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerJoined;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnPlayerLeft;
 
-        // if already connected (host) add card immediately
-        if (NetworkManager.Singleton.IsConnectedClient)
-            StartCoroutine(AddCardDelayed(
-                NetworkManager.Singleton.LocalClientId));
+        // keep checking for players every second
+        StartCoroutine(RefreshPlayerCards());
     }
 
     private void OnDestroy()
@@ -31,20 +30,36 @@ public class PartyHUDManager : MonoBehaviour
         NetworkManager.Singleton.OnClientDisconnectCallback -= OnPlayerLeft;
     }
 
+    // keeps checking and adding missing cards every second
+    private IEnumerator RefreshPlayerCards()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1f);
+
+            if (!NetworkManager.Singleton.IsListening) continue;
+
+            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+            {
+                if (playerCards.ContainsKey(client.ClientId)) continue;
+                if (client.PlayerObject == null) continue;
+
+                AddCard(client.ClientId, client.PlayerObject);
+            }
+        }
+    }
+
     private void OnPlayerJoined(ulong clientId)
     {
-        // wait a frame for player object to exist
         StartCoroutine(AddCardDelayed(clientId));
     }
 
-    private System.Collections.IEnumerator AddCardDelayed(ulong clientId)
+    private IEnumerator AddCardDelayed(ulong clientId)
     {
-        yield return new WaitForEndOfFrame();
-        yield return new WaitForEndOfFrame();
+        // wait for player object to be fully spawned
+        yield return new WaitForSeconds(0.5f);
 
         if (playerCards.ContainsKey(clientId)) yield break;
-
-        // find the player object
         if (!NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId))
             yield break;
 
@@ -52,25 +67,31 @@ public class PartyHUDManager : MonoBehaviour
             .ConnectedClients[clientId].PlayerObject;
         if (playerObj == null) yield break;
 
+        AddCard(clientId, playerObj);
+    }
+
+    private void AddCard(ulong clientId, NetworkObject playerObj)
+    {
+        if (playerCards.ContainsKey(clientId)) return;
+
         PlayerStats stats = playerObj.GetComponent<PlayerStats>();
         KitManager kit = playerObj.GetComponent<KitManager>();
         NetworkPlayerData netData = playerObj.GetComponent<NetworkPlayerData>();
         PlayerDeath death = playerObj.GetComponent<PlayerDeath>();
 
-        if (stats == null) yield break;
+        if (stats == null) return;
 
-        // spawn card
         GameObject card = Instantiate(playerCardPrefab, cardContainer);
         PlayerCardUI cardUI = card.GetComponent<PlayerCardUI>();
         cardUI.Setup(clientId, stats, kit, netData, death);
 
         playerCards[clientId] = cardUI;
+        Debug.Log($"Added card for player {clientId}");
     }
 
     private void OnPlayerLeft(ulong clientId)
     {
         if (!playerCards.ContainsKey(clientId)) return;
-
         Destroy(playerCards[clientId].gameObject);
         playerCards.Remove(clientId);
     }

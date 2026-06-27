@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
 public class KitManager : MonoBehaviour
 {
@@ -10,23 +11,29 @@ public class KitManager : MonoBehaviour
     private List<KitDefinition> assignedKits = new List<KitDefinition>();
     private int activeKitIndex = 0;
 
-
     [Header("Spell References — assigned at runtime")]
     private SpellBase spellOne;
     private SpellBase spellTwo;
-    private int activeSpellIndex = 0; // 0 = spell one, 1 = spell two
+    private int activeSpellIndex = 0;
 
     [Header("References")]
-    public Transform spellSpawnPoint; // drag SpawnPoint here in Inspector
+    public Transform spellSpawnPoint;
 
     [Header("Solo Test — remove before multiplayer")]
     public bool soloTestMode = true;
-    public KitDefinition[] allKits; // drag all 4 kits here in Inspector
+    public KitDefinition[] allKits;
 
     // held spell tracking
     private FireBreathSpell fireBreath;
     private GravityMoveSpell gravityMove;
     private bool isHoldingCast = false;
+
+    private NetworkObject networkObject;
+
+    private void Awake()
+    {
+        networkObject = GetComponent<NetworkObject>();
+    }
 
     private void OnEnable()
     {
@@ -50,11 +57,10 @@ public class KitManager : MonoBehaviour
 
     private void Start()
     {
-        if (equippedKit != null)
-            EquipKit(equippedKit);
+        if (spellSpawnPoint == null)
+            Debug.LogWarning("SpellSpawnPoint is not assigned in KitManager!");
 
-        // for testing only...
-        if (soloTestMode && allKits.Length > 0)
+        if (soloTestMode && allKits != null && allKits.Length > 0)
         {
             SetAssignedKits(new List<KitDefinition>(allKits));
             Debug.Log("Solo test mode — all kits assigned.");
@@ -63,16 +69,12 @@ public class KitManager : MonoBehaviour
         {
             EquipKit(equippedKit);
         }
-
-        if (spellSpawnPoint == null)
-            Debug.LogWarning("SpellSpawnPoint is not assigned in KitManager!");
     }
 
     // ─── Kit Equipping ────────────────────────────────────
 
     public void EquipKit(KitDefinition kit)
     {
-        // destroy old spells if any
         if (spellOne != null) Destroy(spellOne.gameObject);
         if (spellTwo != null) Destroy(spellTwo.gameObject);
 
@@ -81,57 +83,41 @@ public class KitManager : MonoBehaviour
         fireBreath = null;
         gravityMove = null;
 
-        // spawn spell one
         if (kit.spellOnePrefab != null)
         {
             GameObject s1 = Instantiate(kit.spellOnePrefab, transform);
             spellOne = s1.GetComponent<SpellBase>();
             spellOne.SetKitName(kit.kitName);
             CacheHeldSpells(spellOne);
-
-            // pass spawn point to spell
             AssignSpawnPoint(spellOne);
         }
 
-        // spawn spell two
         if (kit.spellTwoPrefab != null)
         {
             GameObject s2 = Instantiate(kit.spellTwoPrefab, transform);
             spellTwo = s2.GetComponent<SpellBase>();
             spellTwo.SetKitName(kit.kitName);
             CacheHeldSpells(spellTwo);
-
-            // pass spawn point to spell
             AssignSpawnPoint(spellTwo);
         }
 
         Debug.Log($"Kit equipped: {kit.kitName}");
     }
 
-    // Pass the spawn point to the next spell
-
     private void AssignSpawnPoint(SpellBase spell)
     {
         if (spellSpawnPoint == null) return;
 
-        // assign to fireball
         FireballSpell fireball = spell as FireballSpell;
         if (fireball != null) fireball.spawnPoint = spellSpawnPoint;
 
-        // assign to fire breath
         FireBreathSpell breath = spell as FireBreathSpell;
         if (breath != null) breath.spawnPoint = spellSpawnPoint;
 
-        // assign to freeze
         FreezeSpell freeze = spell as FreezeSpell;
         if (freeze != null) freeze.spawnPoint = spellSpawnPoint;
-
-        // assign to ice wall — uses Camera.main so no spawnPoint needed
-
-        // assign to gravity move — uses Camera.main so no spawnPoint needed
     }
 
-    // cache held spell references so we can call their special methods
     private void CacheHeldSpells(SpellBase spell)
     {
         if (spell is FireBreathSpell fb) fireBreath = fb;
@@ -149,51 +135,36 @@ public class KitManager : MonoBehaviour
 
     private void HandleCastSpell()
     {
+        if (networkObject != null && !networkObject.IsOwner) return;
+
         SpellBase active = GetActiveSpell();
         if (active == null) return;
 
         isHoldingCast = true;
 
-        // held spells use their own TryCast
-        if (active is FireBreathSpell fb)
-        {
-            fb.TryCast();
-            return;
-        }
+        if (active is FireBreathSpell fb) { fb.TryCast(); return; }
+        if (active is GravityMoveSpell gm) { gm.TryCast(); return; }
 
-        if (active is GravityMoveSpell gm)
-        {
-            gm.TryCast();
-            return;
-        }
-
-        // all other spells use base TryCast
         active.TryCast();
     }
 
     private void HandleCastSpellCanceled()
     {
+        if (networkObject != null && !networkObject.IsOwner) return;
+
         isHoldingCast = false;
 
         SpellBase active = GetActiveSpell();
         if (active == null) return;
 
-        // stop held spells on release
-        if (active is FireBreathSpell fb)
-        {
-            fb.TryStop();
-            return;
-        }
-
-        // gravity move doesn't stop on cast release
-        // it stops on throw or drop input instead
+        if (active is FireBreathSpell fb) fb.TryStop();
     }
 
     private void HandleChangeSpell()
     {
-        // stop any held spell before switching
-        StopHeldSpells();
+        if (networkObject != null && !networkObject.IsOwner) return;
 
+        StopHeldSpells();
         activeSpellIndex = activeSpellIndex == 0 ? 1 : 0;
 
         SpellBase active = GetActiveSpell();
@@ -201,16 +172,17 @@ public class KitManager : MonoBehaviour
         Debug.Log($"Switched to spell: {spellName}");
     }
 
-    // call this from lobby once kits are assigned
     public void SetAssignedKits(List<KitDefinition> kits)
     {
         assignedKits = kits;
         if (assignedKits.Count > 0)
-        EquipKit(assignedKits[0]);
+            EquipKit(assignedKits[0]);
     }
 
     private void HandleChangeKit()
     {
+        if (networkObject != null && !networkObject.IsOwner) return;
+
         if (assignedKits.Count <= 1) return;
 
         StopHeldSpells();
@@ -221,14 +193,14 @@ public class KitManager : MonoBehaviour
 
     private void HandleThrow()
     {
-        if (gravityMove != null)
-            gravityMove.TryThrow();
+        if (networkObject != null && !networkObject.IsOwner) return;
+        if (gravityMove != null) gravityMove.TryThrow();
     }
 
     private void HandleDrop()
     {
-        if (gravityMove != null)
-            gravityMove.TryDrop();
+        if (networkObject != null && !networkObject.IsOwner) return;
+        if (gravityMove != null) gravityMove.TryDrop();
     }
 
     private void StopHeldSpells()
@@ -238,7 +210,7 @@ public class KitManager : MonoBehaviour
         if (active is GravityMoveSpell gm) gm.TryDrop();
     }
 
-    // ─── Public API (for lobby kit selection later) ───────
+    // ─── Public API ───────────────────────────────────────
 
     public string GetActiveSpellName()
     {

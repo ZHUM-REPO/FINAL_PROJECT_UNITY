@@ -24,7 +24,7 @@ public class QTEManager : MonoBehaviour
     // all keys that can appear in the sequence
     private readonly Key[] possibleKeys = new Key[]
     {
-        Key.E, Key.R, Key.F, Key.G, Key.X, Key.C, Key.V
+        Key.E, Key.R, Key.F, Key.G, Key.X, Key.V
     };
 
     private List<Key> sequence = new List<Key>();

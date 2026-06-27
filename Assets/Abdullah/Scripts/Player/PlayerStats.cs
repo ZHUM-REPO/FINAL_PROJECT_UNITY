@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -30,6 +31,10 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
+         // only the owner updates their own stats
+        NetworkObject netObj = GetComponent<NetworkObject>();
+        if (netObj != null && !netObj.IsOwner) return;
+
         HandleManaRegen();
     }
 

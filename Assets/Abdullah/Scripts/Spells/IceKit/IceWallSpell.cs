@@ -26,7 +26,9 @@ public class IceWallSpell : SpellBase
         PlayCastParticles();
 
         // align wall to the surface normal
-        Quaternion wallRotation = Quaternion.LookRotation(hit.normal);
+        Quaternion surfaceRotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+        Quaternion modelOffset = Quaternion.Euler(-180f, 0f, 0f);
+        Quaternion wallRotation = surfaceRotation * modelOffset;
         GameObject wall = Instantiate(iceWallPrefab, hit.point, wallRotation);
 
         IceWall iceWall = wall.GetComponent<IceWall>();

@@ -63,12 +63,15 @@ public class PlayerCardUI : MonoBehaviour
 
     private void UpdateKitInfo()
     {
-        if (kitManager == null) return;
-
-        if (kitManager.equippedKit != null)
+        if (networkData != null && networkData.networkKitName.Value != "")
+            kitNameText.text = networkData.networkKitName.Value.ToString();
+        else if (kitManager != null && kitManager.equippedKit != null)
             kitNameText.text = kitManager.equippedKit.kitName;
 
-        spellNameText.text = kitManager.GetActiveSpellName();
+        if (networkData != null && networkData.networkSpellName.Value != "")
+            spellNameText.text = networkData.networkSpellName.Value.ToString();
+        else if (kitManager != null)
+            spellNameText.text = kitManager.GetActiveSpellName();
     }
 
     private void UpdateDeathState()

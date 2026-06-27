@@ -36,6 +36,12 @@ public class NetworkPlayerData : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Owner);
 
+    public NetworkVariable<Unity.Collections.FixedString64Bytes> networkSpellName =
+        new NetworkVariable<Unity.Collections.FixedString64Bytes>(
+        "",
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Owner);
+
     private PlayerStats playerStats;
     private PlayerProgression playerProgression;
     private KitManager kitManager;
@@ -65,6 +71,7 @@ public class NetworkPlayerData : NetworkBehaviour
         networkEndurance.Value = playerStats.myEndurance;
         networkIsDead.Value = playerStats.IsDead();
         networkScore.Value = playerProgression.score;
+        networkSpellName.Value = kitManager.GetActiveSpellName();
 
         if (kitManager.equippedKit != null)
             networkKitName.Value = kitManager.equippedKit.kitName;

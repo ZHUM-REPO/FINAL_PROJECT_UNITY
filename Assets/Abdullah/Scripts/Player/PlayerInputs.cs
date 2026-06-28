@@ -11,7 +11,6 @@ public class PlayerInputs : NetworkBehaviour
     public static event Action OnCrouchInput;
     public static event Action OnSprintInput;
     public static event Action OnPauseInput;
-
     public static event Action OnCastSpellInput;
     public static event Action OnCastSpellCanceled;
     public static event Action OnChangeSpellInput;
@@ -20,14 +19,12 @@ public class PlayerInputs : NetworkBehaviour
     public static event Action OnDropInput;
     public static event Action OnInteractInput;
 
-    // only fire events if this is the local player
     private bool IsLocalPlayer => IsOwner;
 
     public void MoveInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-    public void MoveInput(InputAction.CallbackContext context)
-    {
+
         if (PauseMenuUI.isPaused)
         {
             OnMoveInput?.Invoke(Vector2.zero);
@@ -40,8 +37,8 @@ public class PlayerInputs : NetworkBehaviour
     public void LookInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (context.performed)
-            OnLookInput?.Invoke(context.ReadValue<Vector2>());
+        if (!context.performed) return;
+
         if (PauseMenuUI.isPaused)
         {
             OnLookInput?.Invoke(Vector2.zero);
@@ -55,7 +52,6 @@ public class PlayerInputs : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         if (PauseMenuUI.isPaused) return;
-
         if (context.performed)
             OnJumpInput?.Invoke();
     }
@@ -64,7 +60,6 @@ public class PlayerInputs : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         if (PauseMenuUI.isPaused) return;
-
         if (context.performed)
             OnCrouchInput?.Invoke();
     }
@@ -73,7 +68,6 @@ public class PlayerInputs : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         if (PauseMenuUI.isPaused) return;
-
         if (context.performed)
             OnSprintInput?.Invoke();
     }
@@ -85,13 +79,12 @@ public class PlayerInputs : NetworkBehaviour
         {
             Debug.Log("ESC Pressed From Input System");
             OnPauseInput?.Invoke();
+        }
     }
 
     public void CastSpellInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (context.performed) OnCastSpellInput?.Invoke();
-        if (context.canceled) OnCastSpellCanceled?.Invoke();
         if (PauseMenuUI.isPaused) return;
 
         if (context.performed)
@@ -104,9 +97,7 @@ public class PlayerInputs : NetworkBehaviour
     public void ChangeSpellInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (context.performed) OnChangeSpellInput?.Invoke();
         if (PauseMenuUI.isPaused) return;
-
         if (context.performed)
             OnChangeSpellInput?.Invoke();
     }
@@ -114,9 +105,7 @@ public class PlayerInputs : NetworkBehaviour
     public void ChangeKitInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (context.performed) OnChangeKitInput?.Invoke();
         if (PauseMenuUI.isPaused) return;
-
         if (context.performed)
             OnChangeKitInput?.Invoke();
     }
@@ -124,9 +113,7 @@ public class PlayerInputs : NetworkBehaviour
     public void ThrowInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (context.performed) OnThrowInput?.Invoke();
         if (PauseMenuUI.isPaused) return;
-
         if (context.performed)
             OnThrowInput?.Invoke();
     }
@@ -134,9 +121,7 @@ public class PlayerInputs : NetworkBehaviour
     public void DropInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (context.performed) OnDropInput?.Invoke();
         if (PauseMenuUI.isPaused) return;
-
         if (context.performed)
             OnDropInput?.Invoke();
     }
@@ -144,9 +129,7 @@ public class PlayerInputs : NetworkBehaviour
     public void InteractInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (context.performed) OnInteractInput?.Invoke();
         if (PauseMenuUI.isPaused) return;
-
         if (context.performed)
             OnInteractInput?.Invoke();
     }

@@ -21,13 +21,12 @@ public class AbodiCamera : MonoBehaviour
     private void HandleLookInput(Vector2 input)
     {
         lookInput = input;
-        Debug.Log("LOOK INPUT: " + input);
     }
 
     void Update()
     {
-        float mouseX = lookInput.x * mouseSensitivity * Time.deltaTime;
-        float mouseY = lookInput.y * mouseSensitivity * Time.deltaTime;
+        float mouseX = lookInput.x * mouseSensitivity;
+        float mouseY = lookInput.y * mouseSensitivity;
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);

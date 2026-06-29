@@ -11,13 +11,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Abdullah/Scenes/AboodScene.unity
     guid: bfd47effdb3b81e4280dcc5a52574b50
-  - enabled: 1
+  - enabled: 0
     path: Assets/Tala/Scenes/Settings-Scene.unity
     guid: ad91f89b02d31244998db3e9efc07067
-  - enabled: 1
+  - enabled: 0
     path: Assets/Tala/Scenes/MultiplayerScene.unity
     guid: 702366fec45fbae4dbea4e93446341bc
-  - enabled: 1
+  - enabled: 0
     path: Assets/Tala/Scenes/Office-Level.unity
     guid: ebc44c9905eb8de4a9c921e6380fa4f5
   m_configObjects:

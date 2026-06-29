@@ -23,7 +23,11 @@ public class MultiplayerManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
         else Destroy(gameObject);
     }
 
@@ -44,25 +48,25 @@ public class MultiplayerManager : MonoBehaviour
             await VivoxService.Instance.InitializeAsync();
 
             isInitialized = true;
-            statusText.text = "Ready...";
+            if (statusText != null) statusText.text = "Ready...";
             Debug.Log($"Signed in as: {AuthenticationService.Instance.PlayerId}");
         }
         catch (Exception e)
         {
-            statusText.text = "Init failed.";
+            if (statusText != null) statusText.text = "Init failed.";
             Debug.LogError($"Service init failed: {e.Message}");
         }
     }
 
     // ─── Host ─────────────────────────────────────────────
 
-    public async void Host()
+    public async Task<bool> Host()
     {
-        if (!isInitialized) return;
+        if (!isInitialized) return false;
 
         try
         {
-            statusText.text = "Creating session...";
+            if (statusText != null) statusText.text = "Creating session...";
 
             session = await MultiplayerService.Instance.CreateSessionAsync(
                 new SessionOptions { MaxPlayers = 4, IsPrivate = false }
@@ -73,47 +77,49 @@ public class MultiplayerManager : MonoBehaviour
             voiceChannelName = "Voice_" + session.Code;
             await JoinVoiceChannel();
 
-            statusText.text = "Code: " + session.Code;
+            if (statusText != null) statusText.text = "Code: " + session.Code;
             Debug.Log($"Session created. Code: {session.Code}");
+            return true;
         }
         catch (Exception e)
         {
-            statusText.text = "Failed to host.";
+            if (statusText != null) statusText.text = "Failed to host.";
             Debug.LogError($"Host failed: {e.Message}");
+            return false;
         }
     }
 
     // ─── Join ─────────────────────────────────────────────
 
-    public async void Join()
+    public async Task<bool> Join(string code)
     {
-        if (!isInitialized) return;
-        if (string.IsNullOrEmpty(codeInput.text))
+        if (!isInitialized) return false;
+        if (string.IsNullOrEmpty(code))
         {
-            statusText.text = "Enter a code first.";
-            return;
+            if (statusText != null) statusText.text = "Enter a code first.";
+            return false;
         }
 
         try
         {
-            statusText.text = "Joining...";
+            if (statusText != null) statusText.text = "Joining...";
 
-            session = await MultiplayerService.Instance.JoinSessionByCodeAsync(
-                codeInput.text.Trim()
-            );
+            session = await MultiplayerService.Instance.JoinSessionByCodeAsync(code);
 
             NetworkManager.Singleton.StartClient();
 
-            voiceChannelName = "Voice_" + codeInput.text.Trim();
+            voiceChannelName = "Voice_" + code;
             await JoinVoiceChannel();
 
-            statusText.text = "Joined!";
+            if (statusText != null) statusText.text = "Joined!";
             Debug.Log("Joined session successfully.");
+            return true;
         }
         catch (Exception e)
         {
-            statusText.text = "Failed to join.";
+            if (statusText != null) statusText.text = "Failed to join.";
             Debug.LogError($"Join failed: {e.Message}");
+            return false;
         }
     }
 
@@ -122,7 +128,7 @@ public class MultiplayerManager : MonoBehaviour
     public void StartSolo()
     {
         NetworkManager.Singleton.StartHost();
-        statusText.text = "Solo mode.";
+        if (statusText != null) statusText.text = "Solo mode.";
         Debug.Log("Started solo session.");
     }
 
@@ -162,12 +168,20 @@ public class MultiplayerManager : MonoBehaviour
 
     // ─── Scene Loading ────────────────────────────────────
 
-    public void LoadGameScene()
+    public void LoadOfficeScene()
     {
         if (!NetworkManager.Singleton.IsServer) return;
 
         NetworkManager.Singleton.SceneManager.LoadScene(
-            "AboodScene", LoadSceneMode.Single);
+            "TheOffice", LoadSceneMode.Single);
+    }
+
+    public void LoadGameScene(string sceneName)
+    {
+        if (!NetworkManager.Singleton.IsServer) return;
+
+        NetworkManager.Singleton.SceneManager.LoadScene(
+            sceneName, LoadSceneMode.Single);
     }
 
     // ─── Leave Session ────────────────────────────────────
@@ -185,7 +199,10 @@ public class MultiplayerManager : MonoBehaviour
             }
 
             NetworkManager.Singleton.Shutdown();
-            statusText.text = "Left session.";
+            if (statusText != null) statusText.text = "Left session.";
+
+            // go back to main menu
+            SceneManager.LoadScene("MainMenu");
         }
         catch (Exception e)
         {
@@ -198,4 +215,5 @@ public class MultiplayerManager : MonoBehaviour
     public string GetSessionCode() => session?.Code ?? "";
     public int GetPlayerCount() => session?.Players.Count ?? 1;
     public bool IsHost() => NetworkManager.Singleton.IsHost;
+    public bool IsInitialized() => isInitialized;
 }

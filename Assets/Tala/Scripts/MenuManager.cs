@@ -5,7 +5,6 @@ using TMPro;
 public class MenuManager : MonoBehaviour
 {
     [Header("Panels")]
-    public GameObject mainButtonsPanel;
     public GameObject multiplayerPanel;
     public GameObject settingsPanel;
 
@@ -16,55 +15,77 @@ public class MenuManager : MonoBehaviour
 
     private void Start()
     {
-        mainButtonsPanel.SetActive(true);
-        multiplayerPanel.SetActive(false);
-        settingsPanel.SetActive(false);
+        if (multiplayerPanel != null)
+            multiplayerPanel.SetActive(false);
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
 
         if (sessionCodeText != null)
             sessionCodeText.gameObject.SetActive(false);
+
+        Debug.Log("MenuManager Started");
     }
 
-    // ─── Main Buttons ─────────────────────────────────────
-
+    // زر Play
     public void PlaySolo()
     {
+        Debug.Log("PlaySolo Pressed");
+
         MultiplayerManager.Instance.StartSolo();
         SceneManager.LoadScene("TheOffice");
     }
 
+    // فتح قائمة Multiplayer
     public void OpenMultiplayer()
     {
-        mainButtonsPanel.SetActive(false);
-        multiplayerPanel.SetActive(true);
+        Debug.Log("OpenMultiplayer Pressed");
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+
+        if (multiplayerPanel != null)
+            multiplayerPanel.SetActive(true);
     }
 
+    // إغلاق قائمة Multiplayer
     public void CloseMultiplayer()
     {
-        mainButtonsPanel.SetActive(true);
-        multiplayerPanel.SetActive(false);
+        if (multiplayerPanel != null)
+            multiplayerPanel.SetActive(false);
     }
 
+    // فتح الإعدادات
     public void OpenSettings()
     {
-        settingsPanel.SetActive(true);
+        Debug.Log("OpenSettings Pressed");
+
+        if (multiplayerPanel != null)
+            multiplayerPanel.SetActive(false);
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(true);
     }
 
+    // إغلاق الإعدادات
     public void CloseSettings()
     {
-        settingsPanel.SetActive(false);
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
     }
 
+    // خروج
     public void QuitGame()
     {
         Debug.Log("Quit Pressed");
         Application.Quit();
     }
 
-    // ─── Multiplayer ──────────────────────────────────────
-
+    // إنشاء Session
     public async void HostGame()
     {
-        if (statusText != null) statusText.text = "Creating session...";
+        if (statusText != null)
+            statusText.text = "Creating session...";
 
         bool success = await MultiplayerManager.Instance.Host();
 
@@ -72,47 +93,51 @@ public class MenuManager : MonoBehaviour
         {
             string code = MultiplayerManager.Instance.GetSessionCode();
 
-            // show code on screen
             if (sessionCodeText != null)
             {
                 sessionCodeText.gameObject.SetActive(true);
-                sessionCodeText.text = $"Code: {code}";
+                sessionCodeText.text = "Code: " + code;
             }
 
-            // copy to clipboard automatically
             GUIUtility.systemCopyBuffer = code;
 
-            if (statusText != null) statusText.text = "Session created!";
+            if (statusText != null)
+                statusText.text = "Session created! Code copied.";
 
-            // load office — synced to all clients via NetworkManager
             MultiplayerManager.Instance.LoadOfficeScene();
         }
         else
         {
-            if (statusText != null) statusText.text = "Failed to create session.";
+            if (statusText != null)
+                statusText.text = "Failed to create session.";
         }
     }
 
+    // الانضمام إلى Session
     public async void JoinGame()
     {
-        if (joinCodeInput == null || string.IsNullOrEmpty(joinCodeInput.text))
+        if (joinCodeInput == null || string.IsNullOrWhiteSpace(joinCodeInput.text))
         {
-            if (statusText != null) statusText.text = "Enter a code first.";
+            if (statusText != null)
+                statusText.text = "Enter a code first.";
+
             return;
         }
 
-        if (statusText != null) statusText.text = "Joining...";
+        if (statusText != null)
+            statusText.text = "Joining...";
 
         bool success = await MultiplayerManager.Instance.Join(joinCodeInput.text.Trim());
 
         if (success)
         {
-            if (statusText != null) statusText.text = "Joined!";
-            // client will be brought to office by host's LoadOfficeScene call
+            if (statusText != null)
+                statusText.text = "Joined!";
         }
         else
         {
-            if (statusText != null) statusText.text = "Failed to join.";
+            if (statusText != null)
+                statusText.text = "Failed to join.";
         }
     }
 }

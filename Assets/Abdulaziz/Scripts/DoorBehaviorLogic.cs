@@ -1,62 +1,49 @@
 using UnityEngine;
 
+
 [RequireComponent(typeof(Collider))]
-public class DoorToRoom : MonoBehaviour
+public class DoorBehaviorLogic : MonoBehaviour
 {
-    [Tooltip("The pedestal that decides which room this door leads to.")]
-    [SerializeField] private CubePedestal linkedPedestal;
+    [Tooltip("The spawn point this door sends the player to " +
+             "(e.g. an empty GameObject placed in the original room).")]
+    [SerializeField] private Transform destination;
 
     [Tooltip("Tag on the player object.")]
     [SerializeField] private string playerTag = "Player";
 
-    [Tooltip("Seconds before the same object can be teleported again " +
-             "(stops instant re-trigger loops at the destination).")]
+    [Tooltip("Seconds before the same object can be teleported again.")]
     [SerializeField] private float teleportCooldown = 0.5f;
 
-    private float lastTeleportTime = -999f;
+    private float _lastTeleportTime = -999f;
 
     private void Reset()
     {
-
         GetComponent<Collider>().isTrigger = true;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag(playerTag)) return;
-        if (Time.time - lastTeleportTime < teleportCooldown) return;
+        if (Time.time - _lastTeleportTime < teleportCooldown) return;
 
-        if (linkedPedestal == null)
-        {
-            Debug.LogWarning($"{name}: no pedestal linked.", this);
-            return;
-        }
-
-        Transform destination = linkedPedestal.CurrentDestination;
         if (destination == null)
         {
-            Debug.LogWarning($"{name}: pedestal has no destination set.", this);
             return;
         }
 
         Teleport(other.transform, destination);
-        lastTeleportTime = Time.time;
+        _lastTeleportTime = Time.time;
     }
 
-    private void Teleport(Transform player, Transform destination)
+    private void Teleport(Transform player, Transform dest)
     {
-
-        RoomTracker tracker = player.GetComponent<RoomTracker>();
-        if (tracker != null) tracker.RecordLocation();
-    
         CharacterController cc = player.GetComponent<CharacterController>();
         if (cc != null) cc.enabled = false;
 
-        player.SetPositionAndRotation(destination.position, destination.rotation);
+        player.SetPositionAndRotation(dest.position, dest.rotation);
 
         if (cc != null) cc.enabled = true;
     }
-
 
 
     [Header("Gizmos")]
@@ -68,22 +55,15 @@ public class DoorToRoom : MonoBehaviour
 
         DrawTriggerVolume();
 
-
-        if (linkedPedestal != null)
+        if (destination != null)
         {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(transform.position, linkedPedestal.transform.position);
+            Gizmos.color = Color.black;
+            Gizmos.DrawLine(transform.position, destination.position);
+            Gizmos.DrawWireSphere(destination.position, 0.25f);
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawRay(destination.position, destination.forward);
         }
-
-
-        if (linkedPedestal != null && linkedPedestal.CurrentDestination != null)
-        {
-            Vector3 dest = linkedPedestal.CurrentDestination.position;
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(transform.position, dest);
-            Gizmos.DrawWireSphere(dest, 0.25f);
-        }
-
     }
 
     private void DrawTriggerVolume()
@@ -91,9 +71,8 @@ public class DoorToRoom : MonoBehaviour
         Collider col = GetComponent<Collider>();
         if (col == null) return;
 
-
-        Color fill = new Color(0f, 1f, 1f, 0.15f);
-        Color wire = Color.cyan;
+        Color fill = new Color(1f, 0.5f, 0f, 0.15f);
+        Color wire = new Color(1f, 0.5f, 0f, 1f);
 
         if (col is BoxCollider box)
         {
@@ -110,7 +89,7 @@ public class DoorToRoom : MonoBehaviour
             Gizmos.matrix = Matrix4x4.identity;
         }
         else
-        {   
+        {
             Gizmos.color = wire;
             Gizmos.DrawWireCube(col.bounds.center, col.bounds.size);
         }

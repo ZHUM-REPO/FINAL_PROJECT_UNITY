@@ -50,6 +50,6 @@ public class InteractablePlayer : MonoBehaviour
 
         Gizmos.color = Color.red;
         Gizmos.DrawLine(origin, end);
-        Gizmos.DrawWireSphere(end, 0.1f);
+        Gizmos.DrawWireSphere(end, 0.5f);
     }
 }

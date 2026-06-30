@@ -99,7 +99,7 @@ public class CubePedestal : MonoBehaviour, IInteractable
 
             bool isCurrent = (i == _currentIndex);
 
-            Gizmos.color = isCurrent ? Color.green : new Color(0.55f, 0.55f, 0.55f, 0.9f);
+            Gizmos.color = isCurrent ? Color.red : new Color(0.55f, 0.55f, 0.55f, 0.9f);
             Gizmos.DrawLine(transform.position, dest.position);
             Gizmos.DrawWireSphere(dest.position, 0.3f);
 

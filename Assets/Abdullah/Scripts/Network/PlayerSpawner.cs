@@ -12,8 +12,25 @@ public class PlayerSpawner : MonoBehaviour
 
     private void Start()
     {
-        NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+        if (NetworkManager.Singleton == null)
+        {
+            Debug.LogError("NetworkManager not found!");
+            return;
+        }
+
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+
+        // if server already started (loaded via NetworkManager.SceneManager)
+        // spawn immediately for all connected clients
+        if (NetworkManager.Singleton.IsServer)
+        {
+            Debug.Log("Server already running — spawning all connected players.");
+            StartCoroutine(SpawnAllConnectedPlayers());
+        }
+        else
+        {
+            NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+        }
     }
 
     private void OnDestroy()
@@ -29,25 +46,31 @@ public class PlayerSpawner : MonoBehaviour
         SpawnPlayer(NetworkManager.Singleton.LocalClientId);
     }
 
+    private IEnumerator SpawnAllConnectedPlayers()
+    {
+        // wait a frame for everything to initialize
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            if (client.PlayerObject != null) continue;
+            SpawnPlayer(client.ClientId);
+        }
+    }
+
     private void OnClientConnected(ulong clientId)
     {
         if (!NetworkManager.Singleton.IsServer) return;
-
-        // skip host — already spawned in OnServerStarted
         if (clientId == NetworkManager.Singleton.LocalClientId) return;
 
-        Debug.Log($"Client {clientId} connected — waiting then spawning.");
-
-        // wait one frame to make sure client is fully registered
         StartCoroutine(SpawnPlayerDelayed(clientId));
     }
 
     private IEnumerator SpawnPlayerDelayed(ulong clientId)
     {
-        // wait for end of frame so NetworkManager fully registers the client
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
-
         SpawnPlayer(clientId);
     }
 
@@ -55,21 +78,18 @@ public class PlayerSpawner : MonoBehaviour
     {
         if (!NetworkManager.Singleton.IsServer) return;
 
-        // safety check
         if (!NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId))
         {
-            Debug.LogWarning($"Client {clientId} not found in ConnectedClients.");
+            Debug.LogWarning($"Client {clientId} not found.");
             return;
         }
 
-        // don't spawn if already has a player object
         if (NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject != null)
         {
-            Debug.Log($"Client {clientId} already has a player object.");
+            Debug.Log($"Client {clientId} already has a player.");
             return;
         }
 
-        // pick spawn point
         Vector3 spawnPos = Vector3.zero;
         Quaternion spawnRot = Quaternion.identity;
 
@@ -82,8 +102,7 @@ public class PlayerSpawner : MonoBehaviour
         }
 
         GameObject player = Instantiate(playerPrefab, spawnPos, spawnRot);
-        NetworkObject netObj = player.GetComponent<NetworkObject>();
-        netObj.SpawnAsPlayerObject(clientId, true);
+        player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
 
         Debug.Log($"Spawned player for ClientId: {clientId} at {spawnPos}");
     }

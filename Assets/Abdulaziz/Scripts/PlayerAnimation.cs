@@ -1,34 +1,98 @@
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerAnimation : MonoBehaviour
 {
     [Header("References")]
-    public Animator animator;
+    [SerializeField] private Animator animator;
+    [SerializeField] private CharacterController controller;
 
-    [Header("Movement Speeds")]
-    public float walkSpeed = 5f;
-    public float runSpeed = 10f;
-    public float crouchSpeed = 2.5f;
+    [Header("Blend Targets (Speed parameter values, not world speeds)")]
+    [Tooltip("Speed value fed to the blend trees while walking.")]
+    [SerializeField] private float walkBlend = 0.5f;
+    [Tooltip("Speed value fed to the Locomotion tree while running.")]
+    [SerializeField] private float runBlend = 1f;
+    [Tooltip("Speed value fed to the Crouch tree while crouch-walking.")]
+    [SerializeField] private float crouchBlend = 0.5f;
+
+    [Header("Blend Smoothing")]
+    [Tooltip("Damp time for the Speed parameter. Higher = slower, smoother blend.")]
+    [SerializeField] private float speedDampTime = 0.12f;
+
+    [Header("Jump / Gravity")]
+    [Tooltip("Desired peak jump height in metres.")]
+    [SerializeField] private float jumpHeight = 1.4f;
+    [Tooltip("Gravity magnitude (positive). 9.81 is real-world; games often use more.")]
+    [SerializeField] private float gravity = 20f;
+    [Tooltip("Small downward velocity kept while grounded so isGrounded stays reliable.")]
+    [SerializeField] private float groundedStick = -2f;
+
+    [Header("Input")]
+    [SerializeField] private KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
+    [SerializeField] private KeyCode runKey = KeyCode.LeftShift;
+
+    // Cached parameter hashes — these are set every frame, so hashing once is the right reflex.
+    private int speedHash;
+    private int crouchHash;
+    private int groundedHash;
+    private int verticalHash;
+    private int jumpHash;
 
     private bool isCrouching;
+    private float verticalVelocity;
 
-    void Update()
+    private void Awake()
+    {
+        if (animator == null) animator = GetComponent<Animator>();
+        if (controller == null) controller = GetComponent<CharacterController>();
+
+        speedHash = Animator.StringToHash("Speed");
+        crouchHash = Animator.StringToHash("IsCrouching");
+        groundedHash = Animator.StringToHash("IsGrounded");
+        verticalHash = Animator.StringToHash("VerticalSpeed");
+        jumpHash = Animator.StringToHash("Jump");
+    }
+
+    private void Update()
     {
         HandleCrouch();
-        UpdateAnimator();
+        HandleJumpAndGravity();
+        UpdateLocomotion();
     }
 
-    void HandleCrouch()
+    private void HandleCrouch()
     {
-        if (Input.GetKeyDown(KeyCode.LeftControl))
-        {
+        if (Input.GetKeyDown(crouchKey))
             isCrouching = !isCrouching;
+
+        animator.SetBool(crouchHash, isCrouching);
+    }
+
+    private void HandleJumpAndGravity()
+    {
+        bool grounded = controller.isGrounded;
+
+        // Re-seat onto the ground each frame instead of letting gravity build up forever.
+        if (grounded && verticalVelocity < 0f)
+            verticalVelocity = groundedStick;
+
+        // Jump only from the ground, and not while crouched.
+        if (grounded && !isCrouching && Input.GetKeyDown(jumpKey))
+        {
+            // v = sqrt(2 * g * h) gives exactly the velocity needed to reach jumpHeight.
+            verticalVelocity = Mathf.Sqrt(2f * gravity * jumpHeight);
+            animator.SetTrigger(jumpHash);
         }
 
-        animator.SetBool("IsCrouching", isCrouching);
+        verticalVelocity -= gravity * Time.deltaTime;
+        controller.Move(Vector3.up * verticalVelocity * Time.deltaTime);
+
+        animator.SetBool(groundedHash, grounded);
+        animator.SetFloat(verticalHash, verticalVelocity);
     }
 
-    void UpdateAnimator()
+    private void UpdateLocomotion()
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
@@ -41,28 +105,14 @@ public class PlayerAnimation : MonoBehaviour
         if (moving)
         {
             if (isCrouching)
-            {
-                // Crouch Walk
-                targetSpeed = 0.5f;
-            }
-            else if (Input.GetKey(KeyCode.LeftShift))
-            {
-                // Run
-                targetSpeed = 1f;
-            }
+                targetSpeed = crouchBlend;
+            else if (Input.GetKey(runKey))
+                targetSpeed = runBlend;
             else
-            {
-                // Walk
-                targetSpeed = 0.5f;
-            }
+                targetSpeed = walkBlend;
         }
 
-        // Smooth blend
-        float currentSpeed = animator.GetFloat("Speed");
-
-        animator.SetFloat(
-            "Speed",
-            Mathf.Lerp(currentSpeed, targetSpeed, Time.deltaTime * 10f)
-        );
+        // Built-in damping: frame-rate independent and smoother than a manual Lerp.
+        animator.SetFloat(speedHash, targetSpeed, speedDampTime, Time.deltaTime);
     }
 }

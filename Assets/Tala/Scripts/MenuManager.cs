@@ -33,7 +33,7 @@ public class MenuManager : MonoBehaviour
         Debug.Log("PlaySolo Pressed");
 
         MultiplayerManager.Instance.StartSolo();
-        SceneManager.LoadScene("TheOffice");
+        SceneManager.LoadScene("Office-Level");
     }
 
     // فتح قائمة Multiplayer

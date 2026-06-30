@@ -173,7 +173,7 @@ public class MultiplayerManager : MonoBehaviour
         if (!NetworkManager.Singleton.IsServer) return;
 
         NetworkManager.Singleton.SceneManager.LoadScene(
-            "TheOffice", LoadSceneMode.Single);
+            "Office-Level", LoadSceneMode.Single);
     }
 
     public void LoadGameScene(string sceneName)

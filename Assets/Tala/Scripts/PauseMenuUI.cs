@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class PauseMenuUI : MonoBehaviour
 {
@@ -17,6 +18,10 @@ public class PauseMenuUI : MonoBehaviour
     public Slider musicSlider;
     public Slider sfxSlider;
     public Slider sensitivitySlider;
+
+    [Header("Session Code")]
+    public TextMeshProUGUI sessionCodeText;
+    public GameObject sessionCodePanel;  // only visible to host
 
     public static bool isPaused = false;
 
@@ -37,6 +42,10 @@ public class PauseMenuUI : MonoBehaviour
 
         pauseMenuPanel.SetActive(false);
         settingsPanel.SetActive(false);
+
+        // hide code panel by default
+        if (sessionCodePanel != null)
+            sessionCodePanel.SetActive(false);
 
         LoadSettings();
         LockCursor();
@@ -59,6 +68,9 @@ public class PauseMenuUI : MonoBehaviour
 
         Time.timeScale = 0f;
         UnlockCursor();
+
+        // show session code only for host
+        UpdateSessionCodeDisplay();
     }
 
     public void ResumeGame()
@@ -99,19 +111,65 @@ public class PauseMenuUI : MonoBehaviour
         Time.timeScale = 1f;
         isPaused = false;
 
+        MultiplayerManager.Instance?.LeaveSession();
         SceneManager.LoadScene("Main-Menu");
     }
 
     public void QuitGame()
     {
         Time.timeScale = 1f;
-
         Application.Quit();
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
+
+    // ─── Session Code ─────────────────────────────────────
+
+    private void UpdateSessionCodeDisplay()
+    {
+        if (sessionCodePanel == null || sessionCodeText == null) return;
+
+        // only show code panel to host
+        bool isHost = MultiplayerManager.Instance != null &&
+                      MultiplayerManager.Instance.IsHost();
+
+        sessionCodePanel.SetActive(isHost);
+
+        if (isHost)
+        {
+            string code = MultiplayerManager.Instance.GetSessionCode();
+            sessionCodeText.text = string.IsNullOrEmpty(code)
+                ? "Solo Mode"
+                : $"Session Code: {code}";
+        }
+    }
+
+    public void CopySessionCode()
+    {
+        if (MultiplayerManager.Instance == null) return;
+
+        string code = MultiplayerManager.Instance.GetSessionCode();
+        if (!string.IsNullOrEmpty(code))
+        {
+            GUIUtility.systemCopyBuffer = code;
+            Debug.Log($"Code copied: {code}");
+
+            // show feedback
+            if (sessionCodeText != null)
+                StartCoroutine(ShowCopiedFeedback(code));
+        }
+    }
+
+    private System.Collections.IEnumerator ShowCopiedFeedback(string code)
+    {
+        sessionCodeText.text = "Copied!";
+        yield return new WaitForSecondsRealtime(1.5f);
+        sessionCodeText.text = $"Session Code: {code}";
+    }
+
+    // ─── Settings ─────────────────────────────────────────
 
     void LoadSettings()
     {

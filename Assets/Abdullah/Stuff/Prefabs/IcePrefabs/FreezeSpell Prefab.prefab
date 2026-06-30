@@ -50,7 +50,7 @@ MonoBehaviour:
   xpReward: 10
   castParticles: {fileID: 0}
   impactParticles: {fileID: 0}
-  freezeProjectilePrefab: {fileID: 0}
+  freezeProjectilePrefab: {fileID: 3971419945899672269, guid: f06f2d48e693a834aa2d45dcc38f767c, type: 3}
   spawnPoint: {fileID: 0}
   freezeDuration: 3
   upgradeLongerFreeze: 0

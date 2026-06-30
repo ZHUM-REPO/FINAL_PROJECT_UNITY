@@ -20,8 +20,6 @@ public class PlayerSpawner : MonoBehaviour
 
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
 
-        // if server already started (loaded via NetworkManager.SceneManager)
-        // spawn immediately for all connected clients
         if (NetworkManager.Singleton.IsServer)
         {
             Debug.Log("Server already running — spawning all connected players.");
@@ -48,7 +46,6 @@ public class PlayerSpawner : MonoBehaviour
 
     private IEnumerator SpawnAllConnectedPlayers()
     {
-        // wait a frame for everything to initialize
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
 
@@ -102,7 +99,19 @@ public class PlayerSpawner : MonoBehaviour
         }
 
         GameObject player = Instantiate(playerPrefab, spawnPos, spawnRot);
-        player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+
+        // disable CharacterController before repositioning to avoid
+        // physics push-out from overlapping geometry at spawn time
+        CharacterController cc = player.GetComponent<CharacterController>();
+        if (cc != null) cc.enabled = false;
+
+        player.transform.position = spawnPos;
+        player.transform.rotation = spawnRot;
+
+        if (cc != null) cc.enabled = true;
+
+        NetworkObject netObj = player.GetComponent<NetworkObject>();
+        netObj.SpawnAsPlayerObject(clientId, true);
 
         Debug.Log($"Spawned player for ClientId: {clientId} at {spawnPos}");
     }

@@ -50,7 +50,7 @@ MonoBehaviour:
   xpReward: 10
   castParticles: {fileID: 0}
   impactParticles: {fileID: 0}
-  fireballPrefab: {fileID: 6062268378900599063, guid: 146585583eac83c45ab4fd68b3db4051, type: 3}
+  fireballPrefab: {fileID: 959229363543584999, guid: 34ab7ec35cd47594a8af44e8fc7c2b61, type: 3}
   spawnPoint: {fileID: 0}
   damage: 30
   upgradeIncreasedDamage: 0

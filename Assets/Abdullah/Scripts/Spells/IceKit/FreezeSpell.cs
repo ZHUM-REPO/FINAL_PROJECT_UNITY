@@ -7,22 +7,20 @@ public class FreezeSpell : SpellBase
     public Transform spawnPoint;
     public float freezeDuration = 3f;
 
-    [HideInInspector] public bool upgradeLongerFreeze = false;      // level 1
-    [HideInInspector] public bool upgradeAreaFreeze = false;        // level 2
-    [HideInInspector] public bool upgradeInstantKillFrozen = false; // level 3
+    [HideInInspector] public bool upgradeLongerFreeze = false;
+    [HideInInspector] public bool upgradeAreaFreeze = false;
+    [HideInInspector] public bool upgradeInstantKillFrozen = false;
 
     protected override void Cast()
     {
         PlayCastParticles();
         if (freezeProjectilePrefab == null || spawnPoint == null) return;
 
-         // use camera direction
         Vector3 cameraForward = Camera.main.transform.forward;
         Quaternion cameraRotation = Quaternion.LookRotation(cameraForward);
 
         GameObject proj = Instantiate(freezeProjectilePrefab,
-                                      spawnPoint.position,
-                                      cameraRotation);
+                                      spawnPoint.position, cameraRotation);
 
         FreezeProjectile fp = proj.GetComponent<FreezeProjectile>();
         if (fp != null)
@@ -32,5 +30,10 @@ public class FreezeSpell : SpellBase
             fp.instantKillFrozen = upgradeInstantKillFrozen;
             fp.impactParticles = impactParticles;
         }
+
+        SpellSyncer syncer = GetComponentInParent<SpellSyncer>();
+        if (syncer != null)
+            syncer.BroadcastSpellVisual((int)SpellVisualType.Freeze,
+                                        spawnPoint.position, cameraRotation);
     }
 }

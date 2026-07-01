@@ -27,6 +27,7 @@ GameObject:
   - component: {fileID: -3690659398868641387}
   - component: {fileID: 5178160785394458423}
   - component: {fileID: -4462516425521662567}
+  - component: {fileID: 409065908778809798}
   m_Layer: 3
   m_Name: Player (1)
   m_TagString: Player
@@ -944,6 +945,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChatNetworkHelper
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &409065908778809798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 455798501096455056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 224339fefabd872419ddb92d61fc2d61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpellSyncer
+  ShowTopMostFoldoutHeaderGroup: 1
+  spellVisualPrefabs:
+  - {fileID: 959229363543584999, guid: 34ab7ec35cd47594a8af44e8fc7c2b61, type: 3}
+  - {fileID: 3971419945899672269, guid: f06f2d48e693a834aa2d45dcc38f767c, type: 3}
+  - {fileID: 4899625328151270340, guid: bddd49d9af7066f4caa590adf02f26d9, type: 3}
+  - {fileID: 0}
 --- !u!1 &1724064698408607734
 GameObject:
   m_ObjectHideFlags: 0

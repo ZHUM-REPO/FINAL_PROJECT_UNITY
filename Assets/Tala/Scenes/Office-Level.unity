@@ -6977,7 +6977,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
@@ -9601,6 +9601,14 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 86.67
       objectReference: {fileID: 0}
+    - target: {fileID: 1369840460591892018, guid: 4a3a12b9dddd83349a2dbea3312850d9, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 11.066157
+      objectReference: {fileID: 0}
+    - target: {fileID: 1369840460591892018, guid: 4a3a12b9dddd83349a2dbea3312850d9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.4543
+      objectReference: {fileID: 0}
     - target: {fileID: 2506122602010379188, guid: 4a3a12b9dddd83349a2dbea3312850d9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.2
@@ -9616,6 +9624,14 @@ PrefabInstance:
     - target: {fileID: 5298525431001267825, guid: 4a3a12b9dddd83349a2dbea3312850d9, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.197
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824336684178580365, guid: 4a3a12b9dddd83349a2dbea3312850d9, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 18.974136
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824336684178580365, guid: 4a3a12b9dddd83349a2dbea3312850d9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3.5061
       objectReference: {fileID: 0}
     - target: {fileID: 6204633687564732424, guid: 4a3a12b9dddd83349a2dbea3312850d9, type: 3}
       propertyPath: m_Name

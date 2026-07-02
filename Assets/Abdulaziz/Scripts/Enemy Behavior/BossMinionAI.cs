@@ -76,7 +76,7 @@ public class BossMinionAI : MonoBehaviour
         if (!hitApplied && attackTimer >= hitDelay)
         {
             hitApplied = true;
-            if (DistanceToPlayer() <= attackRange && player.TryGetComponent(out IDamageable target))
+            if (DistanceToPlayer() <= attackRange && player.TryGetComponent(out Damage target))
                 target.TakeDamage(damage);
         }
 

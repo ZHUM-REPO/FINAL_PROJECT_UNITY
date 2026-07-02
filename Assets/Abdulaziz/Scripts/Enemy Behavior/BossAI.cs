@@ -185,7 +185,7 @@ public class BossAI : MonoBehaviour
         {
             hitApplied = true;
             normalAttackCount++;
-            if (PlanarDistanceToPlayer() <= attackRange && player.TryGetComponent(out IDamageable target))
+            if (PlanarDistanceToPlayer() <= attackRange && player.TryGetComponent(out Damage target))
                 target.TakeDamage(normalDamage);
         }
 
@@ -312,7 +312,7 @@ public class BossAI : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             if (aoeBuffer[i].transform.IsChildOf(transform)) continue; // skip self
-            if (aoeBuffer[i].TryGetComponent(out IDamageable target))
+            if (aoeBuffer[i].TryGetComponent(out Damage target))
                 target.TakeDamage(heavyDamage);
         }
     }

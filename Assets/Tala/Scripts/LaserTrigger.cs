@@ -1,34 +1,76 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class LaserTrigger : MonoBehaviour
+public class TorchPuzzleManager : MonoBehaviour
 {
-    [Header("Laser Setup")]
-    [Tooltip("اسحبي مجسم الليزر الرئيسي أو الكود الخاص به هنا")]
-    public GameObject laserObject;
+    [Header("Puzzle Settings")]
+    [Tooltip("ضع المشاعل هنا بالترتيب الصحيح لحل اللغز")]
+    public List<Torch> correctOrder;
 
-    private void Start()
+    [Header("Target Object")]
+    [Tooltip("الرسالة أو الكائن الذي سيظهر بعد حل اللغز")]
+    public GameObject messageObject;
+
+    private List<Torch> currentOrder = new List<Torch>();
+    private bool isPuzzleSolved = false;
+
+    void Start()
     {
-        // التأكد من أن الليزر مغلق تماماً في بداية اللعبة
-        if (laserObject != null)
+        if (messageObject != null)
+            messageObject.SetActive(false); // إخفاء الرسالة في البداية
+    }
+
+    // يتم استدعاء هذه الدالة من سكريبت المشعل عندما يشعله اللاعب
+    public void TorchActivated(Torch torch)
+    {
+        if (isPuzzleSolved) return;
+
+        // إذا كان المشعل مشتعل مسبقاً، لا تفعل شيء
+        if (currentOrder.Contains(torch)) return;
+
+        currentOrder.Add(torch);
+        CheckPuzzleProgress();
+    }
+
+    private void CheckPuzzleProgress()
+    {
+        int currentIndex = currentOrder.Count - 1;
+
+        // التحقق إذا كان المشعل الأخير المشتعل في الترتيب الصحيح
+        if (currentOrder[currentIndex] != correctOrder[currentIndex])
         {
-            laserObject.SetActive(false);
+            // إذا أخطأ اللاعب، يتم إعادة تعيين اللغز
+            Debug.Log("ترتيب خاطئ! إعادة تعيين المشاعل...");
+            ResetPuzzle();
+            return;
+        }
+
+        // إذا وصل اللاعب لنفس عدد المشاعل الصحيحة بالترتيب الصح
+        if (currentOrder.Count == correctOrder.Count)
+        {
+            SolvePuzzle();
         }
     }
 
-    // هذه الدالة تشتغل تلقائياً أول ما يلمس كبسولة اللاعب الـ Trigger
-    private void OnTriggerEnter(Collider other)
+    private void SolvePuzzle()
     {
-        // التأكد من أن الذي دخل هو اللاعب (تأكدي أن الـ Tag للاعب هو Player)
-        if (other.CompareTag("Player"))
-        {
-            if (laserObject != null)
-            {
-                laserObject.SetActive(true); // تشغيل الليزر فوراً!
-                Debug.Log("اللاعب دخل الممر.. تم تشغيل الليزر!");
-            }
+        isPuzzleSolved = true;
+        Debug.Log("تم حل اللغز بنجاح!");
 
-            // تدمير الـ Trigger لكي لا يشتغل مرة أخرى إذا رجع اللاعب
-            Destroy(gameObject);
+        if (messageObject != null)
+        {
+            messageObject.SetActive(true); // إظهار الرسالة في المكان المحدد
+        }
+    }
+
+    public void ResetPuzzle()
+    {
+        currentOrder.Clear();
+
+        // إطفاء جميع المشاعل في اللعبة مجدداً
+        foreach (Torch torch in correctOrder)
+        {
+            torch.Extinguish();
         }
     }
 }

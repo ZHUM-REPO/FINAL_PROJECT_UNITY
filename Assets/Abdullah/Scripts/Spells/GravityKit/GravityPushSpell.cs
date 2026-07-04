@@ -56,4 +56,11 @@ public class GravityPushSpell : SpellBase
             }
         }
     }
+
+    public override void ApplyUpgradeLevel(int upgradesBought)
+    {
+        upgradeLargerRadius    = upgradesBought >= 1;
+        upgradeIncreasedForce  = upgradesBought >= 2;
+        upgradeDamageOnLanding = upgradesBought >= 3;
+    }
 }

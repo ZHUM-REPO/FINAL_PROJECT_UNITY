@@ -67,4 +67,11 @@ public class ResurrectSpell : SpellBase
 
         Debug.Log($"Resurrected teammate with {healthPercent * 100f}% health ({result.grade})");
     }
+
+    public override void ApplyUpgradeLevel(int upgradesBought)
+    {
+        upgradeMoreHealth = upgradesBought >= 1;
+        upgradeFasterQTE  = upgradesBought >= 2;
+        upgradeFullRevive = upgradesBought >= 3;
+    }
 }

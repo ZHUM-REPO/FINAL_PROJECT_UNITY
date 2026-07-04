@@ -47,4 +47,11 @@ public class FireballSpell : SpellBase
         yield return new WaitForSeconds(0.2f);
         SpawnFireball();
     }
+
+    public override void ApplyUpgradeLevel(int upgradesBought)
+    {
+        upgradeIncreasedDamage = upgradesBought >= 1;
+        upgradeExplosionRadius = upgradesBought >= 2;
+        upgradeDoubleCast      = upgradesBought >= 3;
+    }
 }

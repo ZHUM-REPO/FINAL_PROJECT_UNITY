@@ -29,10 +29,12 @@ public class KitManager : MonoBehaviour
     private bool isHoldingCast = false;
 
     private NetworkObject networkObject;
+    private PlayerProgression progression;
 
     private void Awake()
     {
         networkObject = GetComponent<NetworkObject>();
+        progression = GetComponent<PlayerProgression>();
     }
 
     private void OnEnable()
@@ -102,6 +104,18 @@ public class KitManager : MonoBehaviour
         }
 
         Debug.Log($"Kit equipped: {kit.kitName}");
+
+        // re-apply any purchased upgrades to the freshly spawned spells
+        if (progression != null && equippedKit != null)
+        {
+            int bought = progression.GetKitUpgradesBought(equippedKit.kitName);
+
+            SpellBase s1 = spellOne != null ? spellOne.GetComponent<SpellBase>() : null;
+            SpellBase s2 = spellTwo != null ? spellTwo.GetComponent<SpellBase>() : null;
+
+            if (s1 != null) s1.ApplyUpgradeLevel(bought);
+            if (s2 != null) s2.ApplyUpgradeLevel(bought);
+        }
     }
 
     private void AssignSpawnPoint(SpellBase spell)
@@ -271,5 +285,18 @@ public class KitManager : MonoBehaviour
         }
 
         Debug.Log($"Kit removed: {kit.kitName}");
+    }
+
+    public void ReapplyUpgrades()
+    {
+        if (progression == null || equippedKit == null) return;
+
+        int bought = progression.GetKitUpgradesBought(equippedKit.kitName);
+
+        SpellBase s1 = spellOne != null ? spellOne.GetComponent<SpellBase>() : null;
+        SpellBase s2 = spellTwo != null ? spellTwo.GetComponent<SpellBase>() : null;
+
+        if (s1 != null) s1.ApplyUpgradeLevel(bought);
+        if (s2 != null) s2.ApplyUpgradeLevel(bought);
     }
 }

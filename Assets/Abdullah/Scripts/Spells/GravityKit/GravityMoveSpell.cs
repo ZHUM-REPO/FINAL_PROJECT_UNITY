@@ -96,4 +96,11 @@ public class GravityMoveSpell : SpellBase
         heldObject.MovePosition(
             Vector3.Lerp(heldObject.position, targetPos, Time.deltaTime * 10f));
     }
+
+    public override void ApplyUpgradeLevel(int upgradesBought)
+    {
+        upgradeLongerRange    = upgradesBought >= 1;
+        upgradeHeavierObjects = upgradesBought >= 2;
+        upgradeStrongerThrow  = upgradesBought >= 3;
+    }
 }

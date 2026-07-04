@@ -44,4 +44,11 @@ public class IceWallSpell : SpellBase
         if (syncer != null)
             syncer.BroadcastSpellVisual((int)SpellVisualType.IceWall, hit.point, wallRotation);
     }
+
+    public override void ApplyUpgradeLevel(int upgradesBought)
+    {
+        upgradeLongerDuration = upgradesBought >= 1;
+        upgradeWiderWall      = upgradesBought >= 2;
+        upgradeFreezeOnTouch  = upgradesBought >= 3;
+    }
 }

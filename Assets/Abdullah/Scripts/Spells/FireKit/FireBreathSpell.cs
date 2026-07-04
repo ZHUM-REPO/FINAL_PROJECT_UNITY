@@ -84,4 +84,11 @@ public class FireBreathSpell : SpellBase
                 enemy.TakeDamage(actualDPS * Time.deltaTime);
         }
     }
+
+    public override void ApplyUpgradeLevel(int upgradesBought)
+    {
+        upgradeLongerRange     = upgradesBought >= 1;
+        upgradeWiderCone       = upgradesBought >= 2;
+        upgradeIncreasedDamage = upgradesBought >= 3;
+    }
 }

@@ -36,4 +36,11 @@ public class FreezeSpell : SpellBase
             syncer.BroadcastSpellVisual((int)SpellVisualType.Freeze,
                                         spawnPoint.position, cameraRotation);
     }
+
+    public override void ApplyUpgradeLevel(int upgradesBought)
+    {
+        upgradeLongerFreeze      = upgradesBought >= 1;
+        upgradeAreaFreeze        = upgradesBought >= 2;
+        upgradeInstantKillFrozen = upgradesBought >= 3;
+    }
 }

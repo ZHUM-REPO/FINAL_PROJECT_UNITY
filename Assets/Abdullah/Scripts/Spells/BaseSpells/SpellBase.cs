@@ -90,4 +90,9 @@ public abstract class SpellBase : MonoBehaviour
 
     // each spell implements its own cast logic
     protected abstract void Cast();
+
+    // applies purchased upgrades to this spell.
+    // upgradesBought = 0..3 (how many of this kit's upgrades the player owns)
+    // each spell overrides this to flip its own flags.
+    public virtual void ApplyUpgradeLevel(int upgradesBought) { }
 }

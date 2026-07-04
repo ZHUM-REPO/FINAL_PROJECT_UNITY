@@ -230,4 +230,46 @@ public class KitManager : MonoBehaviour
     }
 
     public int GetActiveSpellIndex() => activeSpellIndex;
+
+    public void AddKit(KitDefinition kit)
+    {
+        if (networkObject != null && !networkObject.IsOwner) return;
+        if (assignedKits.Contains(kit)) return;
+
+        assignedKits.Add(kit);
+
+        // equip it right away if it's the only kit
+        if (assignedKits.Count == 1)
+        {
+            activeKitIndex = 0;
+            EquipKit(assignedKits[0]);
+        }
+
+        Debug.Log($"Kit added: {kit.kitName}");
+    }
+
+    public void RemoveKit(KitDefinition kit)
+    {
+        if (networkObject != null && !networkObject.IsOwner) return;
+        if (!assignedKits.Contains(kit)) return;
+
+        assignedKits.Remove(kit);
+
+        // if we removed the equipped kit, equip another or clear
+        if (assignedKits.Count > 0)
+        {
+            activeKitIndex = 0;
+            EquipKit(assignedKits[0]);
+        }
+        else
+        {
+            if (spellOne != null) Destroy(spellOne.gameObject);
+            if (spellTwo != null) Destroy(spellTwo.gameObject);
+            spellOne = null;
+            spellTwo = null;
+            equippedKit = null;
+        }
+
+        Debug.Log($"Kit removed: {kit.kitName}");
+    }
 }

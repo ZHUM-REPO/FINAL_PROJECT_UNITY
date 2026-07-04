@@ -137,8 +137,12 @@ public class MultiplayerManager : MonoBehaviour
             return;
         }
 
-        // solo is single-machine, so a plain localhost host is fine here
         NetworkManager.Singleton.StartHost();
+
+        // load the office through the NETWORKED scene manager (same as hosting)
+        // so scene NetworkObjects like KitSelectionManager spawn properly
+        NetworkManager.Singleton.SceneManager.LoadScene("Office-Level", LoadSceneMode.Single);
+
         if (statusText != null) statusText.text = "Solo mode.";
         Debug.Log("Started solo session.");
     }

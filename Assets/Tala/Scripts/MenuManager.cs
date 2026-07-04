@@ -30,10 +30,9 @@ public class MenuManager : MonoBehaviour
     // زر Play
     public void PlaySolo()
     {
-        Debug.Log("PlaySolo Pressed");
-
+        // StartSolo now starts the host AND loads the office via the
+        // networked scene manager, so we don't load the scene here.
         MultiplayerManager.Instance.StartSolo();
-        SceneManager.LoadScene("Office-Level");
     }
 
     // فتح قائمة Multiplayer

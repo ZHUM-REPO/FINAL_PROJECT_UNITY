@@ -136,6 +136,7 @@ public class KitManager : MonoBehaviour
     private void HandleCastSpell()
     {
         if (networkObject != null && !networkObject.IsOwner) return;
+        if (OfficeComputerUI.IsAnyComputerOpen) return;
 
         SpellBase active = GetActiveSpell();
         if (active == null) return;
@@ -151,6 +152,7 @@ public class KitManager : MonoBehaviour
     private void HandleCastSpellCanceled()
     {
         if (networkObject != null && !networkObject.IsOwner) return;
+        if (OfficeComputerUI.IsAnyComputerOpen) return;
 
         isHoldingCast = false;
 
@@ -163,6 +165,7 @@ public class KitManager : MonoBehaviour
     private void HandleChangeSpell()
     {
         if (networkObject != null && !networkObject.IsOwner) return;
+        if (OfficeComputerUI.IsAnyComputerOpen) return;
 
         StopHeldSpells();
         activeSpellIndex = activeSpellIndex == 0 ? 1 : 0;
@@ -194,12 +197,14 @@ public class KitManager : MonoBehaviour
     private void HandleThrow()
     {
         if (networkObject != null && !networkObject.IsOwner) return;
+        if (OfficeComputerUI.IsAnyComputerOpen) return;
         if (gravityMove != null) gravityMove.TryThrow();
     }
 
     private void HandleDrop()
     {
         if (networkObject != null && !networkObject.IsOwner) return;
+        if (OfficeComputerUI.IsAnyComputerOpen) return;
         if (gravityMove != null) gravityMove.TryDrop();
     }
 

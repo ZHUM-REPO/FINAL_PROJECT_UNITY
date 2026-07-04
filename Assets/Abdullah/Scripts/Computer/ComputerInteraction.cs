@@ -68,8 +68,15 @@ public class ComputerInteraction : MonoBehaviour
 
     private void HandleInteract()
     {
-        // open only if near and not already open
-        if (!playerInRange || isInUse) return;
+        // if this computer is already open, E closes it
+        if (isInUse)
+        {
+            computerUI.CloseComputer();
+            return;
+        }
+
+        // otherwise, open it if in range
+        if (!playerInRange) return;
         if (computerUI == null) return;
 
         isInUse = true;

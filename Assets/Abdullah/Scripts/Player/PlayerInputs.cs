@@ -75,6 +75,10 @@ public class PlayerInputs : NetworkBehaviour
     public void PauseInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
+
+        // don't open the pause menu while using the computer
+        if (OfficeComputerUI.IsAnyComputerOpen) return;
+        
         if (context.performed)
         {
             Debug.Log("ESC Pressed From Input System");

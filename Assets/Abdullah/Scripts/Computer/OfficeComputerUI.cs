@@ -1,20 +1,23 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Cinemachine;
-using UnityEngine.InputSystem;
 using System;
 
 public class OfficeComputerUI : MonoBehaviour
 {
+    // true whenever the LOCAL player has a computer open
+    public static bool IsAnyComputerOpen = false;
+
     [Header("Screen UI (World-Space)")]
-    public Canvas screenCanvas;          // world-space canvas on the monitor
-    public GameObject screenContent;     // the kit/upgrade UI root (can stay always visible)
-    public GraphicRaycaster screenRaycaster; // on the world-space canvas
+    public GraphicRaycaster screenRaycaster;      // MEDIUM screen
+    public GraphicRaycaster bigScreenRaycaster;   // BIG screen
 
     [Header("Camera")]
-    public CinemachineCamera computerCamera; // vcam framed on the monitor screen
+    public CinemachineCamera computerCamera;
     public int activePriority = 20;
-    public int inactivePriority = 0;
+
+    [Header("HUD to hide while using computer")]
+    public GameObject partyHUD;   // drag your PartyHUD object here
 
     private Action onClosed;
     private Transform user;
@@ -23,19 +26,13 @@ public class OfficeComputerUI : MonoBehaviour
     private void Start()
     {
         if (computerCamera != null)
-            computerCamera.Priority = inactivePriority;
+        {
+            computerCamera.Priority = activePriority;
+            computerCamera.gameObject.SetActive(false);
+        }
 
-        // the screen is always physically on, but not clickable until in use
-        if (screenRaycaster != null)
-            screenRaycaster.enabled = false;
-    }
-
-    private void Update()
-    {
-        if (!isOpen) return;
-
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-            CloseComputer();
+        if (screenRaycaster != null) screenRaycaster.enabled = false;
+        if (bigScreenRaycaster != null) bigScreenRaycaster.enabled = false;
     }
 
     public void OpenComputer(Transform player, Action closedCallback)
@@ -43,14 +40,16 @@ public class OfficeComputerUI : MonoBehaviour
         user = player;
         onClosed = closedCallback;
         isOpen = true;
+        IsAnyComputerOpen = true;
 
-        // blend camera in to frame the monitor
         if (computerCamera != null)
-            computerCamera.Priority = activePriority;
+            computerCamera.gameObject.SetActive(true);
 
-        // make the world-space screen clickable + free the cursor
-        if (screenRaycaster != null)
-            screenRaycaster.enabled = true;
+        if (screenRaycaster != null) screenRaycaster.enabled = true;
+        if (bigScreenRaycaster != null) bigScreenRaycaster.enabled = true;
+
+        // hide the party HUD so it doesn't block the small screen
+        if (partyHUD != null) partyHUD.SetActive(false);
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -61,12 +60,16 @@ public class OfficeComputerUI : MonoBehaviour
     public void CloseComputer()
     {
         isOpen = false;
+        IsAnyComputerOpen = false;
 
         if (computerCamera != null)
-            computerCamera.Priority = inactivePriority;
+            computerCamera.gameObject.SetActive(false);
 
-        if (screenRaycaster != null)
-            screenRaycaster.enabled = false;
+        if (screenRaycaster != null) screenRaycaster.enabled = false;
+        if (bigScreenRaycaster != null) bigScreenRaycaster.enabled = false;
+
+        // bring the party HUD back
+        if (partyHUD != null) partyHUD.SetActive(true);
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

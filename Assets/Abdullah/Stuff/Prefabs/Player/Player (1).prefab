@@ -528,7 +528,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KitManager
   equippedKit: {fileID: 0}
   spellSpawnPoint: {fileID: 6144023745086927370}
-  soloTestMode: 1
+  soloTestMode: 0
   allKits:
   - {fileID: 11400000, guid: d8f419ed4ee40bd4aa5fac9c4fa4ce7e, type: 2}
   - {fileID: 11400000, guid: cc99383a2b4d57d4a84dcd91eccdc490, type: 2}

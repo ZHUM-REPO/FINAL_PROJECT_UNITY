@@ -5,9 +5,24 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 0
+    path: Assets/Abdullah/Scenes/AboodScene.unity
+    guid: bfd47effdb3b81e4280dcc5a52574b50
+  - enabled: 0
+    path: Assets/Tala/Scenes/Settings-Scene.unity
+    guid: ad91f89b02d31244998db3e9efc07067
+  - enabled: 0
+    path: Assets/Tala/Scenes/MultiplayerScene.unity
+    guid: 702366fec45fbae4dbea4e93446341bc
+  - enabled: 1
+    path: Assets/Tala/Scenes/Main-Menu.unity
+    guid: 8a57d156655a90e4aa97d6fd46a90af5
+  - enabled: 1
+    path: Assets/Tala/Scenes/Office-Level.unity
+    guid: ebc44c9905eb8de4a9c921e6380fa4f5
   m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: d223fb5e18d3e9844a7c9485616a05ea, type: 3}
   m_UseUCBPForAssetBundles: 0

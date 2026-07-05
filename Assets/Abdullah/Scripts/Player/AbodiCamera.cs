@@ -1,0 +1,46 @@
+using UnityEngine;
+
+public class AbodiCamera : MonoBehaviour
+{
+    [SerializeField] private GameObject myCamera;
+    [SerializeField] private float mouseSensitivity = 100f;
+
+    private float xRotation = 0f;
+    private Vector2 lookInput;
+
+    private void OnEnable()
+    {
+        PlayerInputs.OnLookInput += HandleLookInput;
+    }
+
+    private void OnDisable()
+    {
+        PlayerInputs.OnLookInput -= HandleLookInput;
+    }
+
+    private void HandleLookInput(Vector2 input)
+    {
+        lookInput = input;
+    }
+
+    void Update()
+    {
+        float mouseX = lookInput.x * mouseSensitivity;
+        float mouseY = lookInput.y * mouseSensitivity;
+
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        myCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        transform.Rotate(Vector3.up * mouseX);
+    }
+
+    // ─── Network Reset ──────────────────────────────────────
+
+    public void ResetRotation()
+    {
+        xRotation = 0f;
+        lookInput = Vector2.zero;
+        myCamera.transform.localRotation = Quaternion.identity;
+    }
+}

@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 5001013120181414059}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.4848, y: 1.40402, z: -1.40416}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -55,6 +55,7 @@ MonoBehaviour:
   damagePerSecond: 20
   manaPerSecond: 10
   spawnPoint: {fileID: 0}
+  flamePrefab: {fileID: 8400424712307853490, guid: 366377810aaf4fc4ab2be725a54c5712, type: 3}
   upgradeLongerRange: 0
   upgradeWiderCone: 0
   upgradeIncreasedDamage: 0

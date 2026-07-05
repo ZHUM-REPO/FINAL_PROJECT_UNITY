@@ -22,6 +22,8 @@ public class LevelInfoPopup : MonoBehaviour
     public TextMeshProUGUI takeContractLabel;
     public Button closeButton;
 
+    public static float lastClosedTime = -1f;
+
     public bool IsOpen { get; private set; }
 
     private LevelDefinition currentLevel;
@@ -32,6 +34,16 @@ public class LevelInfoPopup : MonoBehaviour
         if (panel != null) panel.SetActive(false);
         if (closeButton != null) closeButton.onClick.AddListener(Close);
         if (takeContractButton != null) takeContractButton.onClick.AddListener(TakeContract);
+    }
+
+    private void OnEnable()
+    {
+        PlayerInputs.OnInteractInput += HandleInteractWhileOpen;
+    }
+
+    private void OnDisable()
+    {
+        PlayerInputs.OnInteractInput -= HandleInteractWhileOpen;
     }
 
     public void Open(LevelDefinition level, int levelIndex)
@@ -92,9 +104,18 @@ public class LevelInfoPopup : MonoBehaviour
     {
         IsOpen = false;
         AnyPopupOpen = false;
+        lastClosedTime = Time.time;   // record when we closed
+
         if (panel != null) panel.SetActive(false);
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+     private void HandleInteractWhileOpen()
+    {
+        // if the popup is open, E closes it
+        if (IsOpen)
+            Close();
     }
 }

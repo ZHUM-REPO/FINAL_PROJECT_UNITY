@@ -151,6 +151,7 @@ public class KitManager : MonoBehaviour
     {
         if (networkObject != null && !networkObject.IsOwner) return;
         if (OfficeComputerUI.IsAnyComputerOpen) return;
+        if (LevelInfoPopup.AnyPopupOpen) return;
 
         SpellBase active = GetActiveSpell();
         if (active == null) return;

@@ -7,6 +7,7 @@ public class LevelHolder : MonoBehaviour
     public LevelDefinition level;
     public int levelIndex = 0;              // matches LevelSelectionManager order
     public float interactRange = 3f;
+    private float reopenBlockTimer = 0f;
     public GameObject interactPrompt;       // "Press E to view", hidden by default
 
     [Header("Popup")]
@@ -25,6 +26,9 @@ public class LevelHolder : MonoBehaviour
 
     private void Update()
     {
+        if (reopenBlockTimer > 0f)
+            reopenBlockTimer -= Time.deltaTime;
+
         if (localPlayer == null) { localPlayer = FindLocalPlayer(); return; }
 
         bool popupOpen = popup != null && popup.IsOpen;
@@ -41,6 +45,9 @@ public class LevelHolder : MonoBehaviour
     private void HandleInteract()
     {
         if (!inRange || popup == null) return;
+        if (popup.IsOpen) return;
+        if (Time.time - LevelInfoPopup.lastClosedTime < 0.2f) return; // just closed, ignore
+
         popup.Open(level, levelIndex);
     }
 

@@ -9,7 +9,7 @@ public class BossAI : MonoBehaviour
 
     [Header("Target")]
     [SerializeField] Transform player;
-    [SerializeField] Damage damageable;
+    [SerializeField] Damage damageable; // the boss's health component (see Awake for how it's resolved)
 
     [Header("Intro")]
     [SerializeField] float wakeDelay = 3f;         // clapping / resting pose duration before standing
@@ -44,6 +44,9 @@ public class BossAI : MonoBehaviour
     [SerializeField] Transform[] minionSpawnPoints;
     [SerializeField] float minionSpawnInterval = 30f;
 
+    [Header("Debug")]
+    [SerializeField] bool debugLogs = true; // logs each health/phase/death event to the Console
+
     public event Action StoodUp;             // fire the stand-up animation
     public event Action FightStarted;        // gameplay begins (health bar / music)
     public event Action PhaseTwoStarted;     // 50% hp reached
@@ -75,7 +78,16 @@ public class BossAI : MonoBehaviour
         agent.updateRotation = false; // rotate manually for tight facing
         agent.speed = runSpeed;
 
+        // Resolve the Damage component. Look on this object first, then children
+        // (the Damage component is often on the model child, not the root).
         if (damageable == null) damageable = GetComponent<Damage>();
+        if (damageable == null) damageable = GetComponentInChildren<Damage>();
+
+        // If this fires, the boss will NEVER take phase-2 or death actions, because
+        // there is no Damage whose events it can subscribe to. Assign one in the inspector.
+        if (damageable == null)
+            Debug.LogError("[BossAI] No Damage component found on the boss or its children. " +
+                           "Phase 2 and death will never trigger. Drag the boss's Damage into the field.", this);
 
         if (player == null)
         {
@@ -96,13 +108,27 @@ public class BossAI : MonoBehaviour
         if (damageable != null)
         {
             damageable.Invulnerable = true; // safe until fully stood up
+
+            // SUBSCRIBE: these are invoked from inside Damage.TakeDamage.
+            //   Damage.HealthChanged  -> OnHealthChanged  (drives the 50% phase-2 check)
+            //   Damage.Died           -> OnDied           (drives the death state)
             damageable.HealthChanged += OnHealthChanged;
             damageable.Died += OnDied;
+
+            // Startup confirmation: if you never see this line in the Console, the boss
+            // was never enabled (or the project didn't compile) — nothing downstream can run.
+            if (debugLogs)
+                Debug.Log($"[BossAI] Enabled & subscribed to Damage. HP = {damageable.CurrentHealth}/{damageable.MaxHealth}", this);
+        }
+        else
+        {
+            Debug.LogError("[BossAI] damageable is null in OnEnable — no health events subscribed.", this);
         }
     }
 
     void OnDisable()
     {
+        // UNSUBSCRIBE symmetrically so we never double-subscribe on re-enable.
         if (damageable != null)
         {
             damageable.HealthChanged -= OnHealthChanged;
@@ -157,6 +183,9 @@ public class BossAI : MonoBehaviour
         introTimer += Time.deltaTime;
         if (introTimer >= standUpDuration)
         {
+            // Drop invulnerability here so the boss can actually take damage once standing.
+            // If this line never runs (e.g. standUpDuration too long / state stuck),
+            // the boss stays invulnerable forever and health never changes.
             if (damageable != null) damageable.Invulnerable = false;
             FightStarted?.Invoke();
             EnterChase();
@@ -270,29 +299,51 @@ public class BossAI : MonoBehaviour
             agent.SetDestination(target);
     }
 
+    // CALLED BY: Damage.HealthChanged (fired inside Damage.TakeDamage on every hit).
     void OnHealthChanged(float current)
     {
+        if (debugLogs)
+            Debug.Log($"[BossAI] HealthChanged received: {current}/{damageable.MaxHealth} " +
+                      $"(phase-2 threshold = {damageable.MaxHealth * secondPhaseHealthFraction})", this);
+
         if (secondPhaseStarted || damageable.IsDead) return;
+
         if (current <= damageable.MaxHealth * secondPhaseHealthFraction)
         {
             secondPhaseStarted = true;
             minionSpawnTimer = minionSpawnInterval;
-            SpawnMinions(); // first wave right away
-            PhaseTwoStarted?.Invoke();
+
+            if (debugLogs) Debug.Log("[BossAI] Phase 2 reached — spawning first minion wave.", this);
+
+            SpawnMinions();           // first wave right away
+            PhaseTwoStarted?.Invoke(); // notify UI / music / VFX
         }
     }
 
+    // CALLED BY: Damage.Died (fired inside Damage.TakeDamage when health hits 0).
     void OnDied()
     {
         if (state == State.Dead) return;
+
+        if (debugLogs) Debug.Log("[BossAI] Died received — entering Dead state, firing death animation.", this);
+
         state = State.Dead;
         StopAgent();
-        Died?.Invoke();
+        Died?.Invoke(); // BossAnimation pulls the Death trigger; BossAudio/UI react here too
     }
 
     void SpawnMinions()
     {
-        if (minionPrefab == null || minionSpawnPoints == null) return;
+        if (minionPrefab == null)
+        {
+            Debug.LogWarning("[BossAI] Phase 2 fired but Minion Prefab is empty — no minions will spawn.", this);
+            return;
+        }
+        if (minionSpawnPoints == null || minionSpawnPoints.Length == 0)
+        {
+            Debug.LogWarning("[BossAI] Phase 2 fired but Minion Spawn Points is empty — no minions will spawn.", this);
+            return;
+        }
 
         foreach (Transform point in minionSpawnPoints)
         {

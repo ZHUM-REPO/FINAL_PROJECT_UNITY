@@ -3,25 +3,27 @@ using UnityEngine;
 
 public class Damage : MonoBehaviour
 {
+    [Header("Health")]
     [SerializeField] float maxHealth = 100f;
+    [SerializeField] float currentHealth = 100f; // visible in the inspector; drains live at runtime
 
     public event Action<float> HealthChanged; // passes current health
     public event Action Died;
 
     public float MaxHealth => maxHealth;
-    public float CurrentHealth { get; private set; }
-    public bool IsDead => CurrentHealth <= 0f;
+    public float CurrentHealth => currentHealth;
+    public bool IsDead => currentHealth <= 0f;
     public bool Invulnerable { get; set; }
 
-    void Awake() => CurrentHealth = maxHealth;
+    void Awake() => currentHealth = maxHealth;
 
     public void TakeDamage(float amount)
     {
         if (IsDead || Invulnerable || amount <= 0f) return;
 
-        CurrentHealth = Mathf.Max(0f, CurrentHealth - amount);
-        HealthChanged?.Invoke(CurrentHealth);
+        currentHealth = Mathf.Max(0f, currentHealth - amount);
+        HealthChanged?.Invoke(currentHealth);
 
-        if (CurrentHealth <= 0f) Died?.Invoke();
+        if (currentHealth <= 0f) Died?.Invoke();
     }
 }

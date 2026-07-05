@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class BossHealthUI : MonoBehaviour
 {
@@ -9,8 +10,8 @@ public class BossHealthUI : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] GameObject container;  // whole bar; hidden until the fight starts
-    [SerializeField] Image fillImage;       // Image set to Filled / Horizontal
-    [SerializeField] Text nameLabel;        // optional (swap for TMP_Text if you use TextMeshPro)
+    [SerializeField] RawImage fillImage;    // its RectTransform pivot MUST be Left (0, 0.5)
+    [SerializeField] TMP_Text nameLabel;    // optional boss name
     [SerializeField] string bossName = "Boss";
 
     [Header("Phase 2")]
@@ -22,6 +23,7 @@ public class BossHealthUI : MonoBehaviour
     [SerializeField] float hideDelayAfterDeath = 1f;
 
     float targetFill = 1f;
+    float currentFill = 1f;
 
     void OnEnable()
     {
@@ -50,15 +52,27 @@ public class BossHealthUI : MonoBehaviour
     void Update()
     {
         if (fillImage == null) return;
-        fillImage.fillAmount = fillLerpSpeed > 0f
-            ? Mathf.MoveTowards(fillImage.fillAmount, targetFill, fillLerpSpeed * Time.deltaTime)
+
+        currentFill = fillLerpSpeed > 0f
+            ? Mathf.MoveTowards(currentFill, targetFill, fillLerpSpeed * Time.deltaTime)
             : targetFill;
+
+        ApplyFill(currentFill);
+    }
+
+    void ApplyFill(float fraction)
+    {
+        // RawImage has no fillAmount, so drain by scaling width (pivot must be Left)
+        Vector3 scale = fillImage.rectTransform.localScale;
+        scale.x = Mathf.Clamp01(fraction);
+        fillImage.rectTransform.localScale = scale;
     }
 
     void OnFightStarted()
     {
         targetFill = 1f;
-        if (fillImage != null) fillImage.fillAmount = 1f;
+        currentFill = 1f;
+        ApplyFill(1f);
         if (nameLabel != null) nameLabel.text = bossName;
         if (container != null) container.SetActive(true);
     }

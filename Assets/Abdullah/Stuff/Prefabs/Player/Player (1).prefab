@@ -591,7 +591,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3831312458
+  GlobalObjectIdHash: 2188834531
   InScenePlacedSourceGlobalObjectIdHash: 2188834531
   DeferredDespawnTick: 0
   Ownership: 1
@@ -726,7 +726,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KitManager
   equippedKit: {fileID: 0}
   spellSpawnPoint: {fileID: 6144023745086927370}
-  soloTestMode: 1
+  soloTestMode: 0
   allKits:
   - {fileID: 11400000, guid: d8f419ed4ee40bd4aa5fac9c4fa4ce7e, type: 2}
   - {fileID: 11400000, guid: cc99383a2b4d57d4a84dcd91eccdc490, type: 2}
@@ -1202,7 +1202,7 @@ MonoBehaviour:
   crouchBlend: 0.5
   speedDampTime: 0.12
   jumpKey: 32
-  crouchKey: 306
+  crouchKey: 99
   runKey: 304
 --- !u!95 &9174194200868887427
 Animator:
@@ -1253,6 +1253,18 @@ MonoBehaviour:
       NameHash: -1154928320
       Synchronize: 1
       ParameterType: 4
+    - name: IsGrounded
+      NameHash: 507951781
+      Synchronize: 1
+      ParameterType: 4
+    - name: VerticalSpeed
+      NameHash: -1148172834
+      Synchronize: 1
+      ParameterType: 1
+    - name: Jump
+      NameHash: 125937960
+      Synchronize: 1
+      ParameterType: 9
   AnimatorParametersExpanded: 0
 --- !u!1 &458183076852621349
 GameObject:

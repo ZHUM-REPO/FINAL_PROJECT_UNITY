@@ -28,6 +28,7 @@ public class PlayerAnimation : NetworkBehaviour
     private int jumpHash;
 
     private bool isCrouching;
+    private bool hasValidAnimator;
 
     private void Awake()
     {
@@ -39,12 +40,27 @@ public class PlayerAnimation : NetworkBehaviour
         groundedHash = Animator.StringToHash("IsGrounded");
         verticalHash = Animator.StringToHash("VerticalSpeed");
         jumpHash = Animator.StringToHash("Jump");
+
+        // check this animator actually has the parameters we need
+        hasValidAnimator = animator != null && HasParameter("Speed");
+
+        if (!hasValidAnimator)
+            Debug.LogWarning($"PlayerAnimation on '{gameObject.name}' has an animator " +
+                             $"without the right parameters — disabling it here.");
+    }
+
+    private bool HasParameter(string paramName)
+    {
+        if (animator == null) return false;
+        foreach (var p in animator.parameters)
+            if (p.name == paramName) return true;
+        return false;
     }
 
     private void Update()
     {
-        // only the player who owns this character drives its animation
         if (!IsOwner) return;
+        if (!hasValidAnimator) return;   // skip if wrong animator — no more warnings
 
         HandleCrouch();
         UpdateState();
@@ -63,14 +79,11 @@ public class PlayerAnimation : NetworkBehaviour
         bool grounded = controller.isGrounded;
         animator.SetBool(groundedHash, grounded);
 
-        // vertical speed straight from the controller (driven by AbodiMovements)
         animator.SetFloat(verticalHash, controller.velocity.y);
 
-        // jump trigger
         if (grounded && !isCrouching && Input.GetKeyDown(jumpKey))
             animator.SetTrigger(jumpHash);
 
-        // horizontal movement speed from the controller's actual velocity
         Vector3 horizontalVel = controller.velocity;
         horizontalVel.y = 0f;
         bool moving = horizontalVel.magnitude > 0.1f;

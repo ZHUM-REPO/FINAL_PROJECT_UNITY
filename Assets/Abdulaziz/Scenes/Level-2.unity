@@ -7828,42 +7828,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3343782898715764992, guid: cf56775f5965b814ead4bc9e87b8ef4d, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3343782898715764992, guid: cf56775f5965b814ead4bc9e87b8ef4d, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3343782898715764992, guid: cf56775f5965b814ead4bc9e87b8ef4d, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3343782898715764992, guid: cf56775f5965b814ead4bc9e87b8ef4d, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3343782898715764992, guid: cf56775f5965b814ead4bc9e87b8ef4d, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3343782898715764992, guid: cf56775f5965b814ead4bc9e87b8ef4d, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3343782898715764992, guid: cf56775f5965b814ead4bc9e87b8ef4d, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6864845173996707259, guid: cf56775f5965b814ead4bc9e87b8ef4d, type: 3}
-      propertyPath: m_Height
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6864845173996707259, guid: cf56775f5965b814ead4bc9e87b8ef4d, type: 3}
-      propertyPath: m_Center.y
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8110384035665810888, guid: cf56775f5965b814ead4bc9e87b8ef4d, type: 3}
       propertyPath: m_Name
       value: MainPlayerOne 1
@@ -9937,13 +9901,46 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2345979622196373782, guid: 04c0a65defd8c8a4b96e4d853260302e, type: 3}
       propertyPath: m_Name
-      value: Cube-Unityfbx
+      value: CubePedestal For Doors
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2345979622196373782, guid: 04c0a65defd8c8a4b96e4d853260302e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1894629937}
   m_SourcePrefab: {fileID: 100100000, guid: 04c0a65defd8c8a4b96e4d853260302e, type: 3}
+--- !u!1 &1894629936 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2345979622196373782, guid: 04c0a65defd8c8a4b96e4d853260302e, type: 3}
+  m_PrefabInstance: {fileID: 1894629935}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1894629937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1894629936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 722665687df0a064c9e5c89007df7bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CubePedestal
+  _cube: {fileID: 1894629938}
+  _rotationStep: 90
+  _rotationSpeed: 360
+  _rotationAxis: {x: 0, y: 1, z: 0}
+  roomDestinations:
+  - {fileID: 0}
+  - {fileID: 0}
+  drawGizmos: 1
+--- !u!4 &1894629938 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1690398789807415069, guid: 04c0a65defd8c8a4b96e4d853260302e, type: 3}
+  m_PrefabInstance: {fileID: 1894629935}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1902904973
 GameObject:
   m_ObjectHideFlags: 0
@@ -19711,7 +19708,7 @@ GameObject:
   - component: {fileID: 6106040519061498213}
   - component: {fileID: 7456476429478523577}
   - component: {fileID: 7463800889503554516}
-  - component: {fileID: 7463800889503554515}
+  - component: {fileID: 7463800889503554517}
   m_Layer: 0
   m_Name: Door30
   m_TagString: Untagged
@@ -49074,22 +49071,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 543450653480104916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7463800889503554515
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1151421189304526963}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d5eba04032e92247ad68d7f2ec0594e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DoorBehaviorLogic
-  destination: {fileID: 0}
-  playerTag: Player
-  teleportCooldown: 0.5
-  drawGizmos: 1
 --- !u!65 &7463800889503554516
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -49111,6 +49092,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 113.58545, y: 355.86084, z: 158.34229}
   m_Center: {x: -2784.7983, y: -1178.5312, z: 2555.7058}
+--- !u!114 &7463800889503554517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1151421189304526963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddda49d13c7571948970e684dafc0c45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomDoor
+  linkedPedestal: {fileID: 1894629937}
+  playerTag: Player
+  teleportCooldown: 0.5
+  drawGizmos: 1
 --- !u!33 &7474189773297169751
 MeshFilter:
   m_ObjectHideFlags: 0

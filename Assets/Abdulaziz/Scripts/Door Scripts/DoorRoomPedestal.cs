@@ -1,51 +1,60 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
-public class RoomDoor : MonoBehaviour
+/// <summary>
+/// A doorway marked with a card shape. When the player walks through it,
+/// the door checks the linked pedestal's cube:
+///  - face matches this door's shape -> teleport to the intended level.
+///  - face doesn't match             -> teleport back to the spawn point.
+/// </summary>
+public class DoorRoomPedestal : MonoBehaviour
 {
-    [Tooltip("The pedestal that decides which room this door leads to.")]
+    [Header("Shape")]
+    [Tooltip("The card shape displayed on this door. The cube must show " +
+             "this face for the door to lead to its level.")]
+    [SerializeField] private CubeFace requiredFace;
+
+    [Tooltip("The CubePedestal whose cube must match this door's shape.")]
     [SerializeField] private CubePedestal linkedPedestal;
 
-    [Tooltip("Tag on the player object.")]
+    [Header("Destinations")]
+    [Tooltip("Where the player goes when the cube's face matches this door.")]
+    [SerializeField] private Transform levelDestination;
+
+    [Tooltip("Where the player goes when the face does NOT match " +
+             "(the spawn point plane/transform).")]
+    [SerializeField] private Transform spawnPoint;
+
+    [Header("Player")]
+    [Tooltip("The tag the door uses to recognize the player.")]
     [SerializeField] private string playerTag = "Player";
 
-    [Tooltip("Seconds before the same object can be teleported again " +
-             "(stops instant re-trigger loops at the destination).")]
-    [SerializeField] private float teleportCooldown = 0.5f;
+    [Tooltip("Seconds before the door can teleport again. Prevents an " +
+             "instant re-trigger loop if a destination overlaps another trigger.")]
+    [SerializeField] private float teleportCooldown = 1f;
 
-    private float lastTeleportTime = -999f;
-
-    private void Reset()
-    {
-
-        GetComponent<Collider>().isTrigger = true;
-    }
+    private float _lastTeleportTime = -999f;
 
     private void OnTriggerEnter(Collider other)
     {
+        if (Time.time - _lastTeleportTime < teleportCooldown) return;
         if (!other.CompareTag(playerTag)) return;
-        if (Time.time - lastTeleportTime < teleportCooldown) return;
+        if (linkedPedestal == null) { Debug.LogWarning($"{name}: no Linked Pedestal assigned.", this); return; }
 
-        if (linkedPedestal == null)
-        {
-            Debug.LogWarning($"{name}: no pedestal linked.", this);
-            return;
-        }
+        // The whole puzzle in one line: right face -> the level, wrong face -> spawn.
+        Transform destination = (linkedPedestal.CurrentFace == requiredFace)
+            ? levelDestination
+            : spawnPoint;
 
-        Transform destination = linkedPedestal.CurrentDestination;
-        if (destination == null)
-        {
-            Debug.LogWarning($"{name}: pedestal has no destination set.", this);
-            return;
-        }
+        if (destination == null) return;
 
+        _lastTeleportTime = Time.time;
         Teleport(other.transform, destination);
-        lastTeleportTime = Time.time;
     }
 
     private void Teleport(Transform player, Transform destination)
     {
-
+        // A CharacterController fights direct transform moves, so disable it
+        // while repositioning, then turn it back on.
         CharacterController cc = player.GetComponent<CharacterController>();
         if (cc != null) cc.enabled = false;
 
@@ -54,8 +63,6 @@ public class RoomDoor : MonoBehaviour
         if (cc != null) cc.enabled = true;
     }
 
-
-
     [Header("Gizmos")]
     [SerializeField] private bool drawGizmos = true;
 
@@ -63,57 +70,35 @@ public class RoomDoor : MonoBehaviour
     {
         if (!drawGizmos) return;
 
-        DrawTriggerVolume();
+        // Cyan box: the door's trigger volume.
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+        {
+            Gizmos.color = new Color(0f, 1f, 1f, 0.6f);
+            Gizmos.DrawWireCube(col.bounds.center, col.bounds.size);
+        }
 
+        // Yellow line: which pedestal controls this door.
         if (linkedPedestal != null)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, linkedPedestal.transform.position);
         }
 
-        // Green line: where the door currently leads.
-        if (linkedPedestal != null && linkedPedestal.CurrentDestination != null)
+        // Green line: the level this door leads to on a match.
+        if (levelDestination != null)
         {
-            Vector3 dest = linkedPedestal.CurrentDestination.position;
             Gizmos.color = Color.green;
-            Gizmos.DrawLine(transform.position, dest);
-            Gizmos.DrawWireSphere(dest, 0.25f);
+            Gizmos.DrawLine(transform.position, levelDestination.position);
+            Gizmos.DrawWireSphere(levelDestination.position, 0.3f);
         }
 
-#if UNITY_EDITOR
-        UnityEditor.Handles.color = Color.cyan;
-        UnityEditor.Handles.Label(transform.position + Vector3.up * 0.3f, "Door");
-#endif
-    }
-
-    private void DrawTriggerVolume()
-    {
-        Collider col = GetComponent<Collider>();
-        if (col == null) return;
-
-
-        Color fill = new Color(0f, 1f, 1f, 0.15f);
-        Color wire = Color.cyan;
-
-        if (col is BoxCollider box)
+        // Red line: where a mismatch sends the player.
+        if (spawnPoint != null)
         {
-            Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.color = fill; Gizmos.DrawCube(box.center, box.size);
-            Gizmos.color = wire; Gizmos.DrawWireCube(box.center, box.size);
-            Gizmos.matrix = Matrix4x4.identity;
-        }
-        else if (col is SphereCollider sphere)
-        {
-            Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.color = fill; Gizmos.DrawSphere(sphere.center, sphere.radius);
-            Gizmos.color = wire; Gizmos.DrawWireSphere(sphere.center, sphere.radius);
-            Gizmos.matrix = Matrix4x4.identity;
-        }
-        else
-        {
-
-            Gizmos.color = wire;
-            Gizmos.DrawWireCube(col.bounds.center, col.bounds.size);
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, spawnPoint.position);
+            Gizmos.DrawWireSphere(spawnPoint.position, 0.3f);
         }
     }
 }

@@ -1047,7 +1047,7 @@ Transform:
   m_GameObject: {fileID: 2731867405309461976}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2905,12 +2905,11 @@ GameObject:
   - component: {fileID: 3814765654926702386}
   - component: {fileID: 6864845173996707259}
   - component: {fileID: 266617152534458135}
-  - component: {fileID: 85801106057386025}
   - component: {fileID: 7351049794414336768}
   - component: {fileID: 7932204273334858926}
   - component: {fileID: 4822716770596840817}
   m_Layer: 0
-  m_Name: MainPlayerOne 1
+  m_Name: MainPlayerOne 1 (AZ)
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2983,13 +2982,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 1.1574825
+  m_Height: 2
   m_Radius: 0.5
   m_SlopeLimit: 90
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!64 &266617152534458135
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -3012,30 +3011,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
---- !u!114 &85801106057386025
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8110384035665810888}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df6db7b727bd13f46955e4399a8a4a08, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationController
-  animator: {fileID: 3814765654926702386}
-  controller: {fileID: 6864845173996707259}
-  walkBlend: 0.5
-  runBlend: 1
-  crouchBlend: 0.5
-  speedDampTime: 0.12
-  jumpHeight: 1.4
-  gravity: 20
-  groundedStick: -2
-  jumpKey: 32
-  crouchKey: 306
-  runKey: 304
 --- !u!114 &7351049794414336768
 MonoBehaviour:
   m_ObjectHideFlags: 0

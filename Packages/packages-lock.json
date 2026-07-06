@@ -219,8 +219,6 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-    "com.unity.settings-manager": {
-      "version": "2.1.1",
     "com.unity.services.authentication": {
       "version": "3.6.1",
       "depth": 0,
@@ -679,5 +677,4 @@
       }
     }
   }
-}
 }

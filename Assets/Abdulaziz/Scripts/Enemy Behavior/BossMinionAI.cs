@@ -11,7 +11,7 @@ public class BossMinionAI : MonoBehaviour, IDamageable
     [Header("Health")]
     [SerializeField] float maxHealth = 20f;
     [SerializeField] float currentHealth = 20f; // shown in the inspector; drains live at runtime
-    [SerializeField] float deathDuration = 2f;  // how long the death clip plays before despawn
+    [SerializeField] float destroyDelay = 5f;   // seconds after death before the minion is destroyed
 
     [Header("Target")]
     [SerializeField] Transform player;
@@ -93,7 +93,7 @@ public class BossMinionAI : MonoBehaviour, IDamageable
         if (TryGetComponent(out Collider col)) col.enabled = false;
 
         animator.SetTrigger(DeathHash);
-        Destroy(gameObject, deathDuration); // despawn after the death clip finishes
+        Destroy(gameObject, destroyDelay); // despawn after the death anim plays
     }
 
     // CO-OP TARGETING

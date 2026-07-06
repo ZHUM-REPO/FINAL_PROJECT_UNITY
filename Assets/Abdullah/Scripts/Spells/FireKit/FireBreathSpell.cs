@@ -112,16 +112,32 @@ public class FireBreathSpell : SpellBase
             float angle = Vector3.Angle(forward, dirToTarget);
             if (angle > actualAngle) continue;
 
-            EnemyHealth enemy = hit.GetComponent<EnemyHealth>();
-            if (enemy != null)
-                enemy.TakeDamage(actualDPS * Time.deltaTime);
+            ApplyDamage(hit, actualDPS * Time.deltaTime);
         }
+    }
+
+    // Boss & minions implement IDamageable (via the Damage component);
+    // legacy enemies use EnemyHealth. Check the collider and its parents.
+    private void ApplyDamage(Collider target, float amount)
+    {
+        if (amount <= 0f) return;
+
+        IDamageable damageable = target.GetComponentInParent<IDamageable>();
+        if (damageable != null)
+        {
+            damageable.TakeDamage(amount);
+            return;
+        }
+
+        EnemyHealth enemy = target.GetComponentInParent<EnemyHealth>();
+        if (enemy != null)
+            enemy.TakeDamage(amount);
     }
 
     public override void ApplyUpgradeLevel(int upgradesBought)
     {
-        upgradeLongerRange     = upgradesBought >= 1;
-        upgradeWiderCone       = upgradesBought >= 2;
+        upgradeLongerRange = upgradesBought >= 1;
+        upgradeWiderCone = upgradesBought >= 2;
         upgradeIncreasedDamage = upgradesBought >= 3;
     }
 }

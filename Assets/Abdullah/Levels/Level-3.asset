@@ -16,6 +16,6 @@ MonoBehaviour:
   sceneName: Level-3
   description: Do you have the courage? Let's test it
   kitNeeded: Any
-  requiredLevel: {fileID: 11400000, guid: d1135e3ccc2645647810d2cd5a341dff, type: 2}
+  requiredLevel: {fileID: 0}
   scoreReward: 2000
   rewardDescription: 

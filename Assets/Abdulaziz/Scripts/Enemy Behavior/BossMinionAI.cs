@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,6 +10,11 @@ public class BossMinionAI : MonoBehaviour
 
     [Header("Target")]
     [SerializeField] Transform player;
+
+    [Header("Targeting")]
+    [SerializeField] string playerTag = "Player";
+    [SerializeField] float targetSwitchInterval = 30f; // switch to a different player this often (seconds)
+    [SerializeField] bool ignoreDeadPlayers = true;    // skip downed players when picking a target
 
     [Header("Attack")]
     [SerializeField] float attackRange = 2f;
@@ -24,6 +30,7 @@ public class BossMinionAI : MonoBehaviour
     State state;
     float attackTimer;
     bool hitApplied;
+    float targetSwitchTimer;
 
     static readonly int SpeedHash = Animator.StringToHash("Speed");
     static readonly int AttackHash = Animator.StringToHash("Attack");
@@ -33,17 +40,15 @@ public class BossMinionAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
 
-        if (player == null)
-        {
-            var found = GameObject.FindGameObjectWithTag("Player");
-            if (found != null) player = found.transform;
-        }
+        // Targeting is resolved dynamically at runtime (see UpdateTarget) so the minion
+        // chases active players in the level — never a disabled/hidden prefab.
     }
 
     void OnEnable() => state = State.Chase;
 
     void Update()
     {
+        UpdateTarget(); // co-op: rotate between active players every targetSwitchInterval
         if (player == null) return;
 
         switch (state)
@@ -54,6 +59,49 @@ public class BossMinionAI : MonoBehaviour
 
         float speed01 = agent.speed > 0f ? Mathf.Clamp01(agent.velocity.magnitude / agent.speed) : 0f;
         animator.SetFloat(SpeedHash, speed01, speedDampTime, Time.deltaTime);
+    }
+
+    // CO-OP TARGETING
+    // Rotates the minion's focus between active players every targetSwitchInterval
+    // seconds so they don't all fixate on one. Switches immediately if the current
+    // target goes inactive or dies. Inactive objects (disabled prefabs) are filtered out.
+    void UpdateTarget()
+    {
+        targetSwitchTimer -= Time.deltaTime;
+
+        bool targetInvalid = player == null
+                             || !player.gameObject.activeInHierarchy
+                             || (ignoreDeadPlayers && player.TryGetComponent(out PlayerStats ps) && ps.IsDead());
+
+        if (!targetInvalid && targetSwitchTimer > 0f) return;
+
+        targetSwitchTimer = targetSwitchInterval;
+        player = PickDifferentPlayer();
+    }
+
+    Transform PickDifferentPlayer()
+    {
+        GameObject[] tagged = GameObject.FindGameObjectsWithTag(playerTag);
+        List<Transform> valid = new List<Transform>();
+
+        foreach (GameObject p in tagged)
+        {
+            if (p == null || !p.activeInHierarchy) continue;
+            if (ignoreDeadPlayers && p.TryGetComponent(out PlayerStats ps) && ps.IsDead()) continue;
+            valid.Add(p.transform);
+        }
+
+        if (valid.Count == 0) return null;
+        if (valid.Count == 1) return valid[0]; // only one player — nothing to switch to
+
+        // pick a random player that isn't the current one; with two players this alternates
+        List<Transform> others = new List<Transform>();
+        foreach (Transform t in valid)
+            if (t != player) others.Add(t);
+
+        return others.Count > 0
+            ? others[Random.Range(0, others.Count)]
+            : valid[0];
     }
 
     void TickChase()
@@ -76,8 +124,11 @@ public class BossMinionAI : MonoBehaviour
         if (!hitApplied && attackTimer >= hitDelay)
         {
             hitApplied = true;
-            if (DistanceToPlayer() <= attackRange && player.TryGetComponent(out IDamageable target))
-                target.TakeDamage(damage);
+            if (DistanceToPlayer() <= attackRange)
+            {
+                IDamageable target = player.GetComponentInParent<IDamageable>();
+                if (target != null) target.TakeDamage(damage);
+            }
         }
 
         if (attackTimer >= attackDuration)

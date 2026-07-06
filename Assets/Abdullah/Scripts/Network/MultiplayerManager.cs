@@ -133,7 +133,7 @@ public class MultiplayerManager : MonoBehaviour
         if (NetworkManager.Singleton == null)
         {
             Debug.LogWarning("NetworkManager not found — loading office directly.");
-            SceneManager.LoadScene("Level2Scene");
+            SceneManager.LoadScene("Office-Level");
             return;
         }
 
@@ -141,7 +141,7 @@ public class MultiplayerManager : MonoBehaviour
 
         // load the office through the NETWORKED scene manager (same as hosting)
         // so scene NetworkObjects like KitSelectionManager spawn properly
-        NetworkManager.Singleton.SceneManager.LoadScene("Level2Scene", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene("Office-Level", LoadSceneMode.Single);
 
         if (statusText != null) statusText.text = "Solo mode.";
         Debug.Log("Started solo session.");

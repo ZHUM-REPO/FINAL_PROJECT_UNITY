@@ -16,6 +16,6 @@ MonoBehaviour:
   sceneName: Level-2
   description: 'Doors will be your friends '
   kitNeeded: Any
-  requiredLevel: {fileID: 11400000, guid: c0d232f6443961b41a38a152d2ab5f77, type: 2}
+  requiredLevel: {fileID: 0}
   scoreReward: 1000
   rewardDescription: 

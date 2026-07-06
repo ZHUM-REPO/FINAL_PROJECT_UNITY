@@ -6,6 +6,7 @@ public class FreezeSpell : SpellBase
     public GameObject freezeProjectilePrefab;
     public Transform spawnPoint;
     public float freezeDuration = 3f;
+    public float damage = 20f; // HP damage dealt on hit (passed to the projectile)
 
     [HideInInspector] public bool upgradeLongerFreeze = false;
     [HideInInspector] public bool upgradeAreaFreeze = false;
@@ -28,6 +29,7 @@ public class FreezeSpell : SpellBase
             fp.freezeDuration = upgradeLongerFreeze ? freezeDuration * 2f : freezeDuration;
             fp.hasAreaFreeze = upgradeAreaFreeze;
             fp.instantKillFrozen = upgradeInstantKillFrozen;
+            fp.damage = damage; // deal HP damage in addition to freezing
             fp.impactParticles = impactParticles;
         }
 
@@ -39,8 +41,8 @@ public class FreezeSpell : SpellBase
 
     public override void ApplyUpgradeLevel(int upgradesBought)
     {
-        upgradeLongerFreeze      = upgradesBought >= 1;
-        upgradeAreaFreeze        = upgradesBought >= 2;
+        upgradeLongerFreeze = upgradesBought >= 1;
+        upgradeAreaFreeze = upgradesBought >= 2;
         upgradeInstantKillFrozen = upgradesBought >= 3;
     }
 }

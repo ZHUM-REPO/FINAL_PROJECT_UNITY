@@ -1,7 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 
-public class PlayerStats : MonoBehaviour
+public class PlayerStats : MonoBehaviour, IDamageable
 {
     [Header("Health")]
     public float maxHealth = 100f;
@@ -31,7 +31,7 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
-         // only the owner updates their own stats
+        // only the owner updates their own stats
         NetworkObject netObj = GetComponent<NetworkObject>();
         if (netObj != null && !netObj.IsOwner) return;
 
@@ -65,6 +65,7 @@ public class PlayerStats : MonoBehaviour
 
     // ─── Health ───────────────────────────────────────────
 
+    // IDamageable: the boss and minions call this when they hit the player.
     public void TakeDamage(float amount)
     {
         myHealth -= amount;
@@ -101,8 +102,8 @@ public class PlayerStats : MonoBehaviour
 
     // ─── Stat Upgrades (called by PlayerProgression) ──────
 
-    public void UpgradeMaxHealth(float amount) 
-    { 
+    public void UpgradeMaxHealth(float amount)
+    {
         maxHealth += amount;
         myHealth += amount; // current health scales up with the upgrade
     }

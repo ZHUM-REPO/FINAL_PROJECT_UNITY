@@ -18,11 +18,13 @@ public class FreezeProjectile : ProjectileBase
             foreach (Collider hit in hits)
             {
                 if (hit.CompareTag("Player")) continue;
+                ApplyDamage(hit, damage); // 'damage' comes from ProjectileBase
                 ApplyFreeze(hit);
             }
         }
         else
         {
+            ApplyDamage(other, damage);
             ApplyFreeze(other);
         }
     }
@@ -32,5 +34,23 @@ public class FreezeProjectile : ProjectileBase
         IFreezable freezable = target.GetComponent<IFreezable>();
         if (freezable != null)
             freezable.Freeze(freezeDuration, instantKillFrozen);
+    }
+
+    // Boss & minions implement IDamageable (via the Damage component);
+    // legacy enemies use EnemyHealth. Check the collider and its parents.
+    private void ApplyDamage(Collider target, float amount)
+    {
+        if (amount <= 0f) return;
+
+        IDamageable damageable = target.GetComponentInParent<IDamageable>();
+        if (damageable != null)
+        {
+            damageable.TakeDamage(amount);
+            return;
+        }
+
+        EnemyHealth enemy = target.GetComponentInParent<EnemyHealth>();
+        if (enemy != null)
+            enemy.TakeDamage(amount);
     }
 }

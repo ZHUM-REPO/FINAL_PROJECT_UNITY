@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,6 +11,11 @@ public class BossAI : MonoBehaviour
     [Header("Target")]
     [SerializeField] Transform player;
     [SerializeField] Damage damageable; // the boss's health component (see Awake for how it's resolved)
+
+    [Header("Targeting")]
+    [SerializeField] string playerTag = "Player";
+    [SerializeField] float targetSwitchInterval = 30f; // switch to a different player this often (seconds)
+    [SerializeField] bool ignoreDeadPlayers = true;    // skip downed players when picking a target
 
     [Header("Intro")]
     [SerializeField] float wakeDelay = 3f;         // clapping / resting pose duration before standing
@@ -30,6 +36,7 @@ public class BossAI : MonoBehaviour
     [SerializeField] float heavyDamage = 25f;
     [SerializeField] float heavyHitDelay = 0.7f;
     [SerializeField] float heavyAttackDuration = 1.4f;
+    [SerializeField] float heavyRecovery = 0.5f;  // extra hold after the anim before moving/rotating again
     [SerializeField] float heavyCooldown = 8f;
     [SerializeField] float heavyRadius = 4f;
     [SerializeField] LayerMask damageableMask;
@@ -41,7 +48,9 @@ public class BossAI : MonoBehaviour
     [Header("Phase 2")]
     [SerializeField] float secondPhaseHealthFraction = 0.5f;
     [SerializeField] GameObject minionPrefab;
-    [SerializeField] Transform[] minionSpawnPoints;
+    [SerializeField] Transform[] minionSpawnPoints;    // optional — leave empty to spawn around the boss
+    [SerializeField] int minionsPerWave = 3;           // used when no spawn points are assigned
+    [SerializeField] float minionSpawnRadius = 3f;     // ring radius around the boss for auto-spawning
     [SerializeField] float minionSpawnInterval = 30f;
 
     [Header("Debug")]
@@ -60,6 +69,7 @@ public class BossAI : MonoBehaviour
     State state;
     float lastSpeed01 = -1f;
     float introTimer;
+    float targetSwitchTimer;
 
     float attackTimer;
     bool hitApplied;
@@ -89,11 +99,10 @@ public class BossAI : MonoBehaviour
             Debug.LogError("[BossAI] No Damage component found on the boss or its children. " +
                            "Phase 2 and death will never trigger. Drag the boss's Damage into the field.", this);
 
-        if (player == null)
-        {
-            var found = GameObject.FindGameObjectWithTag("Player");
-            if (found != null) player = found.transform;
-        }
+        // Targeting is resolved dynamically at runtime (see UpdateTarget) so the boss
+        // chases whichever players actually exist and are active in the level —
+        // never a disabled/hidden prefab. Any inspector-assigned player is just an
+        // initial value that UpdateTarget will replace on the first frame.
     }
 
     void OnEnable()
@@ -138,6 +147,7 @@ public class BossAI : MonoBehaviour
 
     void Update()
     {
+        UpdateTarget(); // co-op: pick the nearest active player, re-scanning for new/removed ones
         if (player == null) return;
         if (state == State.Dead) return;
 
@@ -214,8 +224,11 @@ public class BossAI : MonoBehaviour
         {
             hitApplied = true;
             normalAttackCount++;
-            if (PlanarDistanceToPlayer() <= attackRange && player.TryGetComponent(out IDamageable target))
-                target.TakeDamage(normalDamage);
+            if (PlanarDistanceToPlayer() <= attackRange)
+            {
+                IDamageable target = player.GetComponentInParent<IDamageable>();
+                if (target != null) target.TakeDamage(normalDamage);
+            }
         }
 
         if (attackTimer >= normalAttackDuration)
@@ -233,7 +246,10 @@ public class BossAI : MonoBehaviour
 
     void TickHeavyAttack()
     {
-        FacePlayer();
+        // Only aim during the wind-up; once the hit lands, lock facing so the boss
+        // doesn't keep rotating through the strike and recovery.
+        if (!hitApplied) FacePlayer();
+
         attackTimer += Time.deltaTime;
 
         if (!hitApplied && attackTimer >= heavyHitDelay)
@@ -242,7 +258,8 @@ public class BossAI : MonoBehaviour
             DealAoeDamage();
         }
 
-        if (attackTimer >= heavyAttackDuration)
+        // Stay planted for the full clip PLUS a recovery hold before it may move again.
+        if (attackTimer >= heavyAttackDuration + heavyRecovery)
             EnterRetreat(); // always retreat after a heavy
     }
 
@@ -339,22 +356,37 @@ public class BossAI : MonoBehaviour
             Debug.LogWarning("[BossAI] Phase 2 fired but Minion Prefab is empty — no minions will spawn.", this);
             return;
         }
-        if (minionSpawnPoints == null || minionSpawnPoints.Length == 0)
+
+        // If spawn points are assigned, use them; otherwise spawn around the boss
+        // within minionSpawnRadius (default 3m), snapped onto the NavMesh.
+        if (minionSpawnPoints != null && minionSpawnPoints.Length > 0)
         {
-            Debug.LogWarning("[BossAI] Phase 2 fired but Minion Spawn Points is empty — no minions will spawn.", this);
-            return;
+            foreach (Transform point in minionSpawnPoints)
+            {
+                Vector3 pos = point != null ? point.position : transform.position;
+                Quaternion rot = point != null ? point.rotation : transform.rotation;
+                SpawnMinionAt(pos, rot);
+            }
         }
-
-        foreach (Transform point in minionSpawnPoints)
+        else
         {
-            Vector3 pos = point != null ? point.position : transform.position;
-            Quaternion rot = point != null ? point.rotation : transform.rotation;
-
-            if (NavMesh.SamplePosition(pos, out NavMeshHit hit, 3f, NavMesh.AllAreas))
-                pos = hit.position;
-
-            Instantiate(minionPrefab, pos, rot);
+            for (int i = 0; i < minionsPerWave; i++)
+            {
+                Vector2 offset = UnityEngine.Random.insideUnitCircle * minionSpawnRadius;
+                Vector3 pos = transform.position + new Vector3(offset.x, 0f, offset.y);
+                SpawnMinionAt(pos, transform.rotation);
+            }
         }
+    }
+
+    void SpawnMinionAt(Vector3 pos, Quaternion rot)
+    {
+        // Pull the point onto the nearest walkable NavMesh spot so the agent spawns valid.
+        if (NavMesh.SamplePosition(pos, out NavMeshHit hit, minionSpawnRadius + 2f, NavMesh.AllAreas))
+            pos = hit.position;
+
+        GameObject minion = Instantiate(minionPrefab, pos, rot);
+        minion.SetActive(true); // prefab may be saved disabled — turn the spawned copy on
     }
 
     void DealAoeDamage()
@@ -363,7 +395,10 @@ public class BossAI : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             if (aoeBuffer[i].transform.IsChildOf(transform)) continue; // skip self
-            if (aoeBuffer[i].TryGetComponent(out IDamageable target))
+
+            // search parents so a collider on a child still finds the health on the root
+            IDamageable target = aoeBuffer[i].GetComponentInParent<IDamageable>();
+            if (target != null)
                 target.TakeDamage(heavyDamage);
         }
     }
@@ -399,6 +434,52 @@ public class BossAI : MonoBehaviour
         Vector3 d = player.position - transform.position;
         d.y = 0f;
         return d.magnitude;
+    }
+
+    // CO-OP TARGETING
+    // Rotates the boss's focus between the active players every targetSwitchInterval
+    // seconds, so it doesn't fixate on one. Also switches immediately if the current
+    // target goes inactive or dies. Inactive objects (e.g. a disabled prefab) are
+    // filtered out, so a hidden player is never targeted.
+    void UpdateTarget()
+    {
+        targetSwitchTimer -= Time.deltaTime;
+
+        bool targetInvalid = player == null
+                             || !player.gameObject.activeInHierarchy
+                             || (ignoreDeadPlayers && player.TryGetComponent(out PlayerStats ps) && ps.IsDead());
+
+        if (!targetInvalid && targetSwitchTimer > 0f) return;
+
+        targetSwitchTimer = targetSwitchInterval;
+        player = PickDifferentPlayer();
+    }
+
+    Transform PickDifferentPlayer()
+    {
+        // gather every active (and, optionally, alive) player
+        GameObject[] tagged = GameObject.FindGameObjectsWithTag(playerTag);
+        List<Transform> valid = new List<Transform>();
+
+        foreach (GameObject p in tagged)
+        {
+            if (p == null || !p.activeInHierarchy) continue;
+            if (ignoreDeadPlayers && p.TryGetComponent(out PlayerStats ps) && ps.IsDead()) continue;
+            valid.Add(p.transform);
+        }
+
+        if (valid.Count == 0) return null;
+        if (valid.Count == 1) return valid[0]; // only one player — nothing to switch to
+
+        // pick a random player that isn't the current one, so the focus actually changes.
+        // With exactly two players this simply alternates between them.
+        List<Transform> others = new List<Transform>();
+        foreach (Transform t in valid)
+            if (t != player) others.Add(t);
+
+        return others.Count > 0
+            ? others[UnityEngine.Random.Range(0, others.Count)]
+            : valid[0];
     }
 
     void OnDrawGizmosSelected()

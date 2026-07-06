@@ -4,9 +4,14 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
-public class BossMinionAI : MonoBehaviour
+public class BossMinionAI : MonoBehaviour, IDamageable
 {
-    enum State { Chase, Attack }
+    enum State { Chase, Attack, Dead }
+
+    [Header("Health")]
+    [SerializeField] float maxHealth = 20f;
+    [SerializeField] float currentHealth = 20f; // shown in the inspector; drains live at runtime
+    [SerializeField] float deathDuration = 2f;  // how long the death clip plays before despawn
 
     [Header("Target")]
     [SerializeField] Transform player;
@@ -25,6 +30,10 @@ public class BossMinionAI : MonoBehaviour
     [Header("Animation")]
     [SerializeField] float speedDampTime = 0.1f;
 
+    public float MaxHealth => maxHealth;
+    public float CurrentHealth => currentHealth;
+    public bool IsDead => state == State.Dead || currentHealth <= 0f;
+
     NavMeshAgent agent;
     Animator animator;
     State state;
@@ -34,20 +43,21 @@ public class BossMinionAI : MonoBehaviour
 
     static readonly int SpeedHash = Animator.StringToHash("Speed");
     static readonly int AttackHash = Animator.StringToHash("Attack");
+    static readonly int DeathHash = Animator.StringToHash("Death");
 
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
-
-        // Targeting is resolved dynamically at runtime (see UpdateTarget) so the minion
-        // chases active players in the level — never a disabled/hidden prefab.
+        currentHealth = maxHealth;
     }
 
     void OnEnable() => state = State.Chase;
 
     void Update()
     {
+        if (state == State.Dead) return;
+
         UpdateTarget(); // co-op: rotate between active players every targetSwitchInterval
         if (player == null) return;
 
@@ -61,10 +71,34 @@ public class BossMinionAI : MonoBehaviour
         animator.SetFloat(SpeedHash, speed01, speedDampTime, Time.deltaTime);
     }
 
+    // IDamageable: the player's spells call this when they hit the minion.
+    public void TakeDamage(float amount)
+    {
+        if (IsDead || amount <= 0f) return;
+
+        currentHealth = Mathf.Max(0f, currentHealth - amount);
+        if (currentHealth <= 0f) Die();
+    }
+
+    void Die()
+    {
+        if (state == State.Dead) return;
+        state = State.Dead;
+
+        // stop moving and lock the agent
+        agent.isStopped = true;
+        agent.velocity = Vector3.zero;
+
+        // stop it being hit again while the death anim plays
+        if (TryGetComponent(out Collider col)) col.enabled = false;
+
+        animator.SetTrigger(DeathHash);
+        Destroy(gameObject, deathDuration); // despawn after the death clip finishes
+    }
+
     // CO-OP TARGETING
-    // Rotates the minion's focus between active players every targetSwitchInterval
-    // seconds so they don't all fixate on one. Switches immediately if the current
-    // target goes inactive or dies. Inactive objects (disabled prefabs) are filtered out.
+    // Rotates focus between active players every targetSwitchInterval seconds; switches
+    // immediately if the current target goes inactive or dies. Inactive objects filtered out.
     void UpdateTarget()
     {
         targetSwitchTimer -= Time.deltaTime;

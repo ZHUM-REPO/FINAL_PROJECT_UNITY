@@ -23,7 +23,7 @@ public class ChatNetworkHelper : NetworkBehaviour
         ReceiveChatClientRpc(message);
     }
 
-    [ClientRpc]
+    [ClientRpc] NetworkVariableWritePermission.Owner
     private void ReceiveChatClientRpc(string message)
     {
         TextChatManager.Instance?.DisplayMessage(message);

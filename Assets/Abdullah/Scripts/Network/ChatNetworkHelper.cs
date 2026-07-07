@@ -23,8 +23,8 @@ public class ChatNetworkHelper : NetworkBehaviour
         ReceiveChatClientRpc(message);
     }
 
-    [ClientRpc]
-    public void ReceiveChatClientRpc(string message)
+    [ClientRpc] 
+    private void ReceiveChatClientRpc(string message)
     {
         TextChatManager.Instance?.DisplayMessage(message);
     }

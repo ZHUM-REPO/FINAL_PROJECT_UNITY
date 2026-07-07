@@ -4073,8 +4073,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2181347c516c9254c8e92c3e6e9a39c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damage
-  maxHealth: 100
-  currentHealth: 100
+  maxHealth: 9999
+  currentHealth: 9999
 --- !u!114 &6812851918676840103
 MonoBehaviour:
   m_ObjectHideFlags: 0

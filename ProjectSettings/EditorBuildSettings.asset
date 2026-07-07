@@ -21,12 +21,12 @@ EditorBuildSettings:
     path: Assets/Tala/Scenes/Main-Menu.unity
     guid: 8a57d156655a90e4aa97d6fd46a90af5
   - enabled: 1
-    path: Assets/Tala/Scenes/Office-Level.unity
+    path: Assets/Tala/Scenes/Level-0.unity
     guid: ebc44c9905eb8de4a9c921e6380fa4f5
   - enabled: 1
     path: Assets/Abdulaziz/Scenes/Level-2.unity
     guid: ccda1b3679c311b41a5d8e01d96a162b
-  - enabled: 1
+  - enabled: 0
     path: Assets/Abdulaziz/Scenes/Level3Scene.unity
     guid: 821ab6e410e168a47b684c2aafdc08ad
   - enabled: 1

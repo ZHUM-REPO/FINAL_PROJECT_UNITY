@@ -214,6 +214,9 @@ GameObject:
   - component: {fileID: 3734755617600924393}
   - component: {fileID: 9174194200868887427}
   - component: {fileID: 6203865998143386877}
+  - component: {fileID: 8024258305293201200}
+  - component: {fileID: 3043142019790081670}
+  - component: {fileID: 869479564166100792}
   m_Layer: 3
   m_Name: Player (1)
   m_TagString: Player
@@ -1254,6 +1257,48 @@ MonoBehaviour:
       Synchronize: 1
       ParameterType: 4
   AnimatorParametersExpanded: 0
+--- !u!81 &8024258305293201200
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 455798501096455056}
+  m_Enabled: 1
+--- !u!114 &3043142019790081670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 455798501096455056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f4717aa64794ba4693ceffc6eeaf7b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractor
+  ShowTopMostFoldoutHeaderGroup: 1
+  aimCamera: {fileID: 0}
+  interactRange: 3
+  interactableLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  hitTriggers: 0
+  drawGizmos: 1
+--- !u!114 &869479564166100792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 455798501096455056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edd68b39d752346459a05154809b4c94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalPlayerAudio
+  ShowTopMostFoldoutHeaderGroup: 1
+  audioListener: {fileID: 8024258305293201200}
 --- !u!1 &458183076852621349
 GameObject:
   m_ObjectHideFlags: 0

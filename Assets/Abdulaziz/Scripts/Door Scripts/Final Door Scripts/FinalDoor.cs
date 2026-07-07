@@ -53,7 +53,9 @@ public class FinalDoor : MonoBehaviour
         }
     }
 
-    private bool AllCollected()
+    // Public so the custom editor's "Confirm" button can check it. Returns true
+    // when every assigned collectible reports IsCollected.
+    public bool AllCollected()
     {
         if (requiredItems == null || requiredItems.Length == 0) return true;
 
@@ -64,6 +66,9 @@ public class FinalDoor : MonoBehaviour
         }
         return true;
     }
+
+    // Read-only access to the requirement list for the editor's status report.
+    public ShapeCollectible[] RequiredItems => requiredItems;
 
     private void Teleport(Transform player, Transform destination)
     {
@@ -86,12 +91,33 @@ public class FinalDoor : MonoBehaviour
     {
         if (!drawGizmos) return;
 
-        // Cyan box: the door's trigger volume.
+        // Trigger volume, colored by health:
+        //   green  = collider present AND Is Trigger on  -> good to go
+        //   red    = collider present but NOT a trigger  -> OnTriggerEnter won't fire
+        //   red X  = no collider at all                  -> nothing to detect the player
         Collider col = GetComponent<Collider>();
         if (col != null)
         {
-            Gizmos.color = new Color(0f, 1f, 1f, 0.6f);
-            Gizmos.DrawWireCube(col.bounds.center, col.bounds.size);
+            if (col.isTrigger)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireCube(col.bounds.center, col.bounds.size);
+            }
+            else
+            {
+                // Collider exists but Is Trigger is off — the door can't detect the player.
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireCube(col.bounds.center, col.bounds.size);
+                DrawWarningCross(col.bounds.center, col.bounds.size);
+            }
+        }
+        else
+        {
+            // No collider at all — draw a warning marker at the door itself.
+            Gizmos.color = Color.red;
+            Vector3 size = Vector3.one;
+            Gizmos.DrawWireCube(transform.position, size);
+            DrawWarningCross(transform.position, size);
         }
 
         // Magenta lines: the collectibles this door requires.
@@ -121,5 +147,13 @@ public class FinalDoor : MonoBehaviour
             Gizmos.DrawLine(transform.position, spawnPoint.position);
             Gizmos.DrawWireSphere(spawnPoint.position, 0.3f);
         }
+    }
+
+    // Draws a big X across the box so a bad trigger is obvious in the Scene view.
+    private void DrawWarningCross(Vector3 center, Vector3 size)
+    {
+        Vector3 h = size * 0.5f;
+        Gizmos.DrawLine(center + new Vector3(-h.x, -h.y, 0f), center + new Vector3(h.x, h.y, 0f));
+        Gizmos.DrawLine(center + new Vector3(h.x, -h.y, 0f), center + new Vector3(-h.x, h.y, 0f));
     }
 }

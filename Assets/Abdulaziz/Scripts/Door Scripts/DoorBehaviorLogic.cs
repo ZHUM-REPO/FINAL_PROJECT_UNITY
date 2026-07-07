@@ -14,7 +14,28 @@ public class DoorBehaviorLogic : MonoBehaviour
     [Tooltip("Seconds before the same object can be teleported again.")]
     [SerializeField] private float teleportCooldown = 0.5f;
 
+    [Header("Audio")]
+    [Tooltip("The AudioSource that plays the teleport sound.")]
+    [SerializeField] private AudioSource audioSource;
+
+    [Tooltip("Sound played when the player is teleported.")]
+    [SerializeField] private AudioClip teleportSound;
+
+    [Header("Music")]
+    [Tooltip("The manager that controls which track is audible. Leaving through " +
+             "this door restores the previous track (the world-map theme).")]
+    [SerializeField] private MusicManager musicManager;
+
     private float _lastTeleportTime = -999f;
+
+    private void Awake()
+    {
+        // Error out loudly if the audio isn't set up.
+        if (audioSource == null)
+            Debug.LogError($"{name}: no Audio Source assigned on DoorBehaviorLogic.", this);
+        if (teleportSound == null)
+            Debug.LogError($"{name}: no Teleport Sound assigned on DoorBehaviorLogic.", this);
+    }
 
     private void Reset()
     {
@@ -32,6 +53,8 @@ public class DoorBehaviorLogic : MonoBehaviour
         }
 
         Teleport(other.transform, destination);
+        PlayTeleportSound();
+        ReturnMusic();                 // leaving the level -> restore the old track
         _lastTeleportTime = Time.time;
     }
 
@@ -43,6 +66,33 @@ public class DoorBehaviorLogic : MonoBehaviour
         player.SetPositionAndRotation(dest.position, dest.rotation);
 
         if (cc != null) cc.enabled = true;
+    }
+
+    private void PlayTeleportSound()
+    {
+        if (audioSource == null)
+        {
+            Debug.LogError($"{name}: tried to teleport but no Audio Source is assigned.", this);
+            return;
+        }
+        if (teleportSound == null)
+        {
+            Debug.LogError($"{name}: tried to teleport but no Teleport Sound is assigned.", this);
+            return;
+        }
+
+        audioSource.PlayOneShot(teleportSound);
+    }
+
+    private void ReturnMusic()
+    {
+        if (musicManager == null)
+        {
+            Debug.LogError($"{name}: no Music Manager assigned — can't restore the previous track.", this);
+            return;
+        }
+
+        musicManager.ReturnToPreviousMusic();
     }
 
 

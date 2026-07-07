@@ -25,21 +25,30 @@ public class CubePedestal : MonoBehaviour, IInteractable
              "element 1 = the rotation when the DIAMOND faces the player.")]
     [SerializeField] private Vector3[] _faceRotations;
 
-    private int _currentIndex = 0;
+    [Header("Current Shape (indicator)")]
+    [Tooltip("Shows which shape currently faces the player, and sets the starting " +
+             "shape. Watch it flip each time you interact. It must match the shape " +
+             "the cube actually shows at start, or the doors will be off by one.")]
+    [SerializeField] private CubeFace _currentFace = CubeFace.Club;
+
     private bool _isRotating = false;
     private Quaternion _start, _target;
     private float _angle;
 
+    // How many shapes exist (Club, Diamond) — used to cycle, so the array length
+    // can't accidentally pin the face on one shape.
+    private static readonly int FaceCount = Enum.GetValues(typeof(CubeFace)).Length;
+
     // Fired once the cube has snapped to its final facing and the selection is locked in.
     public event Action<CubeFace> FaceChanged;
 
-    /// <summary>The card face currently shown to the player.</summary>
-    public CubeFace CurrentFace => (CubeFace)_currentIndex;
+    /// <summary>The card face currently shown to the player. The doors read this.</summary>
+    public CubeFace CurrentFace => _currentFace;
 
     private void OnEnable()
     {
         // Announce the current face so listeners can sync up.
-        FaceChanged?.Invoke(CurrentFace);
+        FaceChanged?.Invoke(_currentFace);
     }
 
     private void OnDisable()
@@ -57,10 +66,16 @@ public class CubePedestal : MonoBehaviour, IInteractable
     {
         // checks if the object is rotating, if they are then it wont run this code.
         if (_isRotating) return;
-        // needs at least one face rotation to have a valid target.
-        if (_faceRotations == null || _faceRotations.Length == 0) return;
+        // needs a rotation entry for every shape, otherwise the cube can't face them.
+        if (_faceRotations == null || _faceRotations.Length < FaceCount)
+        {
+            Debug.LogWarning($"{name}: Face Rotations needs {FaceCount} entries (one per shape).", this);
+            return;
+        }
 
-        _currentIndex = (_currentIndex + 1) % _faceRotations.Length;
+        // Advance to the next shape. Cycling on FaceCount (not array length) means
+        // the face ALWAYS changes, so the doors always see the new selection.
+        _currentFace = (CubeFace)(((int)_currentFace + 1) % FaceCount);
         StartCoroutine(RotateCube());
     }
 
@@ -70,7 +85,7 @@ public class CubePedestal : MonoBehaviour, IInteractable
         _start = _cube.localRotation;
         // Absolute target: the exact rotation for the selected face.
         // No accumulated steps, so the cube always lands on club or diamond.
-        _target = Quaternion.Euler(_faceRotations[_currentIndex]);
+        _target = Quaternion.Euler(_faceRotations[(int)_currentFace]);
         _angle = Mathf.Max(Quaternion.Angle(_start, _target), 0.001f);
 
         float t = 0f;
@@ -86,7 +101,7 @@ public class CubePedestal : MonoBehaviour, IInteractable
         _isRotating = false;
 
         // New facing is locked in, so the selection is final -> tell listeners.
-        FaceChanged?.Invoke(CurrentFace);
+        FaceChanged?.Invoke(_currentFace);
     }
 
     [Header("Gizmos")]

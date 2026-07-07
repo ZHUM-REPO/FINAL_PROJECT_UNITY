@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 6f32ef91cb40afc4aaa897ac7acc5ba7
+guid: 2a5fb13af05a62d4f88379ec0b94fd2d
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -115,10 +115,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 369502
-  packageName: Unity Building Block - Vivox Voice and Text
-  packageVersion: 1.0
-  assetPath: Assets/Blocks/Common/Content/textures/icon_copy.png
-  uploadId: 887828

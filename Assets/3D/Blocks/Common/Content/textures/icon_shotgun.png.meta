@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: df27af4ba9765418b996241565443e0f
+guid: 30b344be5fb258046a893b43891791c6
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -115,10 +115,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 369502
-  packageName: Unity Building Block - Vivox Voice and Text
-  packageVersion: 1.0
-  assetPath: Assets/Blocks/Common/Content/textures/icon_shotgun.png
-  uploadId: 887828

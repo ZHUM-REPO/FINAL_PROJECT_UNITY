@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 3b5072ab3d04743bdb476633780e7d85
+guid: a92f8255fc0c39f40bfb09865820b368
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -115,10 +115,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 369502
-  packageName: Unity Building Block - Vivox Voice and Text
-  packageVersion: 1.0
-  assetPath: Assets/Blocks/Common/Content/textures/icon_pistol.png
-  uploadId: 887828

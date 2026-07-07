@@ -9,8 +9,6 @@ public class Torch : MonoBehaviour
     public ParticleSystem fireParticles;
 
     private bool isLit = false;
-
-    // هذه الإضافة الضرورية ليقرأها كود اللاعب المحدث عندك
     public bool IsLit => isLit;
 
     void Start()
@@ -38,6 +36,7 @@ public class Torch : MonoBehaviour
         }
     }
 
+    // تعيد المشعل إلى حالته الأصلية وتطفئ النار فوراً عند الخطأ
     public void Extinguish()
     {
         isLit = false;

@@ -2966,13 +2966,13 @@ GameObject:
   - component: {fileID: 606913298212820185}
   - component: {fileID: 6812851918676840099}
   - component: {fileID: 6812851918676840106}
+  - component: {fileID: 6812851918676840109}
   - component: {fileID: 6812851918676840105}
   - component: {fileID: 6812851918676840104}
   - component: {fileID: 6812851918676840103}
   - component: {fileID: 6812851918676840101}
   - component: {fileID: 6812851918676840107}
   - component: {fileID: 6812851918676840108}
-  - component: {fileID: 6812851918676840109}
   - component: {fileID: 6812851918676840110}
   m_Layer: 0
   m_Name: The Boss
@@ -4533,8 +4533,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2181347c516c9254c8e92c3e6e9a39c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damage
+  ShowTopMostFoldoutHeaderGroup: 1
   maxHealth: 500
-  currentHealth: 500
 --- !u!114 &6812851918676840103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4584,6 +4584,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef1b71d7af6ef0f4aba58920834ec7b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossAI
+  ShowTopMostFoldoutHeaderGroup: 1
   player: {fileID: 0}
   damageable: {fileID: 6812851918676840101}
   playerTag: Player

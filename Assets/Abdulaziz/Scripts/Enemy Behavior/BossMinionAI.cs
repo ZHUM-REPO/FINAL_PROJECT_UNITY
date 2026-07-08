@@ -1,29 +1,35 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
-public class BossMinionAI : MonoBehaviour, IDamageable
+public class BossMinionAI : NetworkBehaviour, IDamageable
 {
     enum State { Chase, Attack, Dead }
 
     [Header("Health")]
     [SerializeField] float maxHealth = 20f;
-    [SerializeField] float currentHealth = 20f; // shown in the inspector; drains live at runtime
     [SerializeField] float destroyDelay = 5f;   // seconds after death before the minion is destroyed
+
+    // shared health — server writes, everyone reads
+    private NetworkVariable<float> networkHealth = new NetworkVariable<float>(
+        20f,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
 
     [Header("Target")]
     [SerializeField] Transform player;
 
     [Header("Targeting")]
     [SerializeField] string playerTag = "Player";
-    [SerializeField] float targetSwitchInterval = 30f; // switch to a different player this often (seconds)
-    [SerializeField] bool ignoreDeadPlayers = true;    // skip downed players when picking a target
+    [SerializeField] float targetSwitchInterval = 30f;
+    [SerializeField] bool ignoreDeadPlayers = true;
 
     [Header("Attack")]
     [SerializeField] float attackRange = 2f;
-    [SerializeField] float damage = 4f;          // deliberately low
+    [SerializeField] float damage = 4f;
     [SerializeField] float hitDelay = 0.3f;
     [SerializeField] float attackDuration = 0.7f;
 
@@ -31,8 +37,8 @@ public class BossMinionAI : MonoBehaviour, IDamageable
     [SerializeField] float speedDampTime = 0.1f;
 
     public float MaxHealth => maxHealth;
-    public float CurrentHealth => currentHealth;
-    public bool IsDead => state == State.Dead || currentHealth <= 0f;
+    public float CurrentHealth => networkHealth.Value;
+    public bool IsDead => state == State.Dead || networkHealth.Value <= 0f;
 
     NavMeshAgent agent;
     Animator animator;
@@ -49,16 +55,29 @@ public class BossMinionAI : MonoBehaviour, IDamageable
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
-        currentHealth = maxHealth;
     }
 
-    void OnEnable() => state = State.Chase;
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
+        {
+            networkHealth.Value = maxHealth;
+            state = State.Chase;
+        }
+        else
+        {
+            // clients don't run the AI — the NavMeshAgent is server-driven,
+            // position comes via NetworkTransform
+            if (agent != null) agent.enabled = false;
+        }
+    }
 
     void Update()
     {
+        if (!IsServer) return;          // AI runs on the server only
         if (state == State.Dead) return;
 
-        UpdateTarget(); // co-op: rotate between active players every targetSwitchInterval
+        UpdateTarget();
         if (player == null) return;
 
         switch (state)
@@ -68,16 +87,24 @@ public class BossMinionAI : MonoBehaviour, IDamageable
         }
 
         float speed01 = agent.speed > 0f ? Mathf.Clamp01(agent.velocity.magnitude / agent.speed) : 0f;
-        animator.SetFloat(SpeedHash, speed01, speedDampTime, Time.deltaTime);
+        SetSpeedClientRpc(speed01);
     }
 
     // IDamageable: the player's spells call this when they hit the minion.
+    // Routes to the server so the shared health is the one that changes.
     public void TakeDamage(float amount)
     {
-        if (IsDead || amount <= 0f) return;
+        if (amount <= 0f) return;
+        TakeDamageServerRpc(amount);
+    }
 
-        currentHealth = Mathf.Max(0f, currentHealth - amount);
-        if (currentHealth <= 0f) Die();
+    [ServerRpc(RequireOwnership = false)]
+    private void TakeDamageServerRpc(float amount)
+    {
+        if (IsDead) return;
+
+        networkHealth.Value = Mathf.Max(0f, networkHealth.Value - amount);
+        if (networkHealth.Value <= 0f) Die();
     }
 
     void Die()
@@ -85,20 +112,29 @@ public class BossMinionAI : MonoBehaviour, IDamageable
         if (state == State.Dead) return;
         state = State.Dead;
 
-        // stop moving and lock the agent
         agent.isStopped = true;
         agent.velocity = Vector3.zero;
 
-        // stop it being hit again while the death anim plays
-        if (TryGetComponent(out Collider col)) col.enabled = false;
+        // play the death anim on everyone
+        DeathClientRpc();
 
-        animator.SetTrigger(DeathHash);
-        Destroy(gameObject, destroyDelay); // despawn after the death anim plays
+        // despawn the networked object after the death anim plays
+        StartCoroutine(DespawnAfterDelay());
     }
 
-    // CO-OP TARGETING
-    // Rotates focus between active players every targetSwitchInterval seconds; switches
-    // immediately if the current target goes inactive or dies. Inactive objects filtered out.
+    private System.Collections.IEnumerator DespawnAfterDelay()
+    {
+        yield return new WaitForSeconds(destroyDelay);
+
+        NetworkObject netObj = GetComponent<NetworkObject>();
+        if (netObj != null && netObj.IsSpawned)
+            netObj.Despawn();   // removes it for all clients
+        else
+            Destroy(gameObject);
+    }
+
+    // ─── Targeting (server-only) ──────────────────────────
+
     void UpdateTarget()
     {
         targetSwitchTimer -= Time.deltaTime;
@@ -126,9 +162,8 @@ public class BossMinionAI : MonoBehaviour, IDamageable
         }
 
         if (valid.Count == 0) return null;
-        if (valid.Count == 1) return valid[0]; // only one player — nothing to switch to
+        if (valid.Count == 1) return valid[0];
 
-        // pick a random player that isn't the current one; with two players this alternates
         List<Transform> others = new List<Transform>();
         foreach (Transform t in valid)
             if (t != player) others.Add(t);
@@ -137,6 +172,8 @@ public class BossMinionAI : MonoBehaviour, IDamageable
             ? others[Random.Range(0, others.Count)]
             : valid[0];
     }
+
+    // ─── State ticks (server-only) ────────────────────────
 
     void TickChase()
     {
@@ -185,7 +222,7 @@ public class BossMinionAI : MonoBehaviour, IDamageable
         hitApplied = false;
         agent.isStopped = true;
         agent.velocity = Vector3.zero;
-        animator.SetTrigger(AttackHash);
+        AttackClientRpc();
     }
 
     void FacePlayer()
@@ -201,5 +238,27 @@ public class BossMinionAI : MonoBehaviour, IDamageable
         Vector3 d = player.position - transform.position;
         d.y = 0f;
         return d.magnitude;
+    }
+
+    // ─── ClientRpcs: animation on all clients ─────────────
+
+    [ClientRpc]
+    private void SetSpeedClientRpc(float speed01)
+    {
+        animator.SetFloat(SpeedHash, speed01, speedDampTime, Time.deltaTime);
+    }
+
+    [ClientRpc]
+    private void AttackClientRpc()
+    {
+        animator.SetTrigger(AttackHash);
+    }
+
+    [ClientRpc]
+    private void DeathClientRpc()
+    {
+        agent.isStopped = true;
+        if (TryGetComponent(out Collider col)) col.enabled = false;
+        animator.SetTrigger(DeathHash);
     }
 }

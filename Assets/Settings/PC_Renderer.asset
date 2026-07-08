@@ -77,7 +77,7 @@ MonoBehaviour:
     NormalSamples: 1
     Intensity: 0.4
     DirectLightingStrength: 0.25
-    Radius: 0.3
+    Radius: 4.32
     Samples: 1
     BlurQuality: 0
     Falloff: 100
@@ -98,7 +98,7 @@ MonoBehaviour:
   injectionPoint: 600
   fetchColorBuffer: 1
   requirements: 0
-  passMaterial: {fileID: 2100000, guid: f4629c6b95894dd4486b0e8fb2b5fe73, type: 2}
+  passMaterial: {fileID: 2100000, guid: 94a31abb658cdce4293978385f2dbe01, type: 2}
   passIndex: 0
   bindDepthStencilAttachment: 0
   m_Version: 1

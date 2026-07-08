@@ -3,7 +3,10 @@ using UnityEngine;
 public class CrystalReceiver : MonoBehaviour
 {
     [Header("References")]
-    public DoorController door; // اسحب الباب هنا من الـ Inspector
+    public DoorController door; // اسحبي الباب هنا من الـ Inspector
+
+    [Tooltip("اسحبي مجسم الكريستالة الثانية الذي يحمل سكريبت SecondCrystalReward هنا")]
+    public SecondCrystalReward secondCrystalReward;
 
     [Header("Timer Settings")]
     public float requiredTime = 4f; // الوقت المطلوب بالثواني
@@ -12,7 +15,6 @@ public class CrystalReceiver : MonoBehaviour
     private bool isDoorOpened = false;
 
     [Header("Color Settings (HDR)")]
-    // يمكنك تحديد الألوان من الـ Inspector واجعلها HDR لتعطي توهجاً
     public Color normalColor = Color.gray;       // اللون الافتراضي (مطفي أو خافت)
     public Color fullyChargedColor = Color.green; // اللون عند اكتمال الشحن (مشع)
 
@@ -21,13 +23,10 @@ public class CrystalReceiver : MonoBehaviour
 
     void Start()
     {
-        // الحصول على الـ Renderer والـ Material الخاصة بالبلورة
         crystalRenderer = GetComponent<Renderer>();
         if (crystalRenderer != null)
         {
-            // نأخذ نسخة من الـ Material لكي لا نعدل على الأصل في المشروع بالكامل
             crystalMaterial = crystalRenderer.material;
-            // تعيين اللون المبدئي
             SetCrystalColor(normalColor);
         }
     }
@@ -43,23 +42,29 @@ public class CrystalReceiver : MonoBehaviour
         {
             currentTimer += Time.deltaTime;
 
-            // حساب النسبة المئوية للشحن (تتراوح بين 0 و 1)
             float progress = currentTimer / requiredTime;
 
-            // تغيير اللون تدريجياً بناءً على النسبة
             Color currentColor = Color.Lerp(normalColor, fullyChargedColor, progress);
             SetCrystalColor(currentColor);
 
             if (currentTimer >= requiredTime)
             {
-                door.OpenDoor();
+                // 1. فتح الباب الشفاف
+                if (door != null) door.OpenDoor();
+
+                // 2. تفعيل أمان الكريستالة الثانية لتصبح قابلة للأخذ فوراً!
+                if (secondCrystalReward != null)
+                {
+                    secondCrystalReward.OnSecondPuzzleSolved();
+                    Debug.Log("[CrystalReceiver] تم فتح أمان الكريستالة الثانية بنجاح!");
+                }
+
                 isDoorOpened = true;
-                SetCrystalColor(fullyChargedColor); // التأكيد على اللون النهائي
+                SetCrystalColor(fullyChargedColor);
             }
         }
         else if (!isHitThisFrame && !isDoorOpened)
         {
-            // إذا انقطع الليزر، يعود العداد للصفر، ويعود اللون للوضع الخافت تدريجياً أو فوراً
             if (currentTimer > 0)
             {
                 currentTimer = 0f;
@@ -70,27 +75,22 @@ public class CrystalReceiver : MonoBehaviour
         isHitThisFrame = false;
     }
 
-    // دالة مساعدة لتغيير لون الـ Material والـ Emission الخاص بها
     void SetCrystalColor(Color color)
     {
         if (crystalMaterial != null)
         {
-            // تغيير اللون الأساسي للبلورة
-            if (crystalMaterial.HasProperty("_BaseColor")) // لنظام URP
+            if (crystalMaterial.HasProperty("_BaseColor"))
                 crystalMaterial.SetColor("_BaseColor", color);
-            else if (crystalMaterial.HasProperty("_Color")) // للنظام العادي
+            else if (crystalMaterial.HasProperty("_Color"))
                 crystalMaterial.SetColor("_Color", color);
 
-            // تغيير لون التوهج (Emission) لتبدو مشعة
             crystalMaterial.SetColor("_EmissionColor", color);
-            // تفعيل الـ Emission في الـ Material برمجياً للتأكد من عمله
             crystalMaterial.EnableKeyword("_EMISSION");
         }
     }
 
     void OnDestroy()
     {
-        // تنظيف الـ Material من الذاكرة عند تدمير المجسم
         if (crystalMaterial != null)
             Destroy(crystalMaterial);
     }

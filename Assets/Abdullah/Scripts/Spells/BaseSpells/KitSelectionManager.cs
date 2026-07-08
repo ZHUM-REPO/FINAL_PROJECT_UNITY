@@ -119,7 +119,7 @@ public class KitSelectionManager : NetworkBehaviour
     }
 
     // tell the owning client to equip/unequip the kit on their KitManager
-    [ClientRpc]
+   [ClientRpc]
     private void EquipKitClientRpc(int kitIndex, ulong targetClient, bool equip)
     {
         if (NetworkManager.Singleton.LocalClientId != targetClient) return;
@@ -131,6 +131,23 @@ public class KitSelectionManager : NetworkBehaviour
             km.AddKit(allKits[kitIndex]);
         else
             km.RemoveKit(allKits[kitIndex]);
+
+        // save chosen kits to the persistent store so they carry across scenes
+        SaveChosenKitsToStore(km);
+    }
+
+    private void SaveChosenKitsToStore(KitManager km)
+    {
+        if (ProgressionStore.Instance == null) return;
+
+        ulong id = NetworkManager.Singleton.LocalClientId;
+        ProgressionData data = ProgressionStore.Instance.GetData(id);
+
+        data.chosenKits.Clear();
+        foreach (var kit in km.GetAssignedKits())
+            data.chosenKits.Add(kit.kitName);
+
+        ProgressionStore.Instance.SaveData(id, data);
     }
 
     private KitManager FindLocalKitManager()

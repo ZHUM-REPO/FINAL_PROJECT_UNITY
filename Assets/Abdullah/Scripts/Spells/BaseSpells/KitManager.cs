@@ -62,6 +62,10 @@ public class KitManager : MonoBehaviour
         if (spellSpawnPoint == null)
             Debug.LogWarning("SpellSpawnPoint is not assigned in KitManager!");
 
+        // try to restore chosen kits from the persistent store
+        if (TryLoadChosenKits()) return;
+
+        // fall back to the old solo-test / equipped-kit behavior
         if (soloTestMode && allKits != null && allKits.Length > 0)
         {
             SetAssignedKits(new List<KitDefinition>(allKits));
@@ -72,6 +76,7 @@ public class KitManager : MonoBehaviour
             EquipKit(equippedKit);
         }
     }
+
 
     // ─── Kit Equipping ────────────────────────────────────
 
@@ -299,5 +304,43 @@ public class KitManager : MonoBehaviour
 
         if (s1 != null) s1.ApplyUpgradeLevel(bought);
         if (s2 != null) s2.ApplyUpgradeLevel(bought);
+    }
+
+    public List<KitDefinition> GetAssignedKits()
+    {
+        return assignedKits;
+    }
+
+    private bool TryLoadChosenKits()
+    {
+        if (networkObject == null || !networkObject.IsOwner) return false;
+        if (ProgressionStore.Instance == null) return false;
+        if (allKits == null || allKits.Length == 0) return false;
+
+        ulong id = Unity.Netcode.NetworkManager.Singleton.LocalClientId;
+        ProgressionData data = ProgressionStore.Instance.GetData(id);
+
+        if (data.chosenKits == null || data.chosenKits.Count == 0)
+            return false;
+
+        // convert saved kit names back into KitDefinitions
+        List<KitDefinition> restored = new List<KitDefinition>();
+        foreach (string name in data.chosenKits)
+        {
+            foreach (var kit in allKits)
+            {
+                if (kit != null && kit.kitName == name)
+                {
+                    restored.Add(kit);
+                    break;
+                }
+            }
+        }
+
+        if (restored.Count == 0) return false;
+
+        SetAssignedKits(restored);
+        Debug.Log($"Restored {restored.Count} chosen kit(s) from store.");
+        return true;
     }
 }

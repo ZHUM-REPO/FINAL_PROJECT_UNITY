@@ -29,10 +29,12 @@ public class KitManager : MonoBehaviour
     private bool isHoldingCast = false;
 
     private NetworkObject networkObject;
+    private PlayerProgression progression;
 
     private void Awake()
     {
         networkObject = GetComponent<NetworkObject>();
+        progression = GetComponent<PlayerProgression>();
     }
 
     private void OnEnable()
@@ -60,6 +62,10 @@ public class KitManager : MonoBehaviour
         if (spellSpawnPoint == null)
             Debug.LogWarning("SpellSpawnPoint is not assigned in KitManager!");
 
+        // try to restore chosen kits from the persistent store
+        if (TryLoadChosenKits()) return;
+
+        // fall back to the old solo-test / equipped-kit behavior
         if (soloTestMode && allKits != null && allKits.Length > 0)
         {
             SetAssignedKits(new List<KitDefinition>(allKits));
@@ -70,6 +76,7 @@ public class KitManager : MonoBehaviour
             EquipKit(equippedKit);
         }
     }
+
 
     // ─── Kit Equipping ────────────────────────────────────
 
@@ -102,6 +109,18 @@ public class KitManager : MonoBehaviour
         }
 
         Debug.Log($"Kit equipped: {kit.kitName}");
+
+        // re-apply any purchased upgrades to the freshly spawned spells
+        if (progression != null && equippedKit != null)
+        {
+            int bought = progression.GetKitUpgradesBought(equippedKit.kitName);
+
+            SpellBase s1 = spellOne != null ? spellOne.GetComponent<SpellBase>() : null;
+            SpellBase s2 = spellTwo != null ? spellTwo.GetComponent<SpellBase>() : null;
+
+            if (s1 != null) s1.ApplyUpgradeLevel(bought);
+            if (s2 != null) s2.ApplyUpgradeLevel(bought);
+        }
     }
 
     private void AssignSpawnPoint(SpellBase spell)
@@ -136,6 +155,8 @@ public class KitManager : MonoBehaviour
     private void HandleCastSpell()
     {
         if (networkObject != null && !networkObject.IsOwner) return;
+        if (OfficeComputerUI.IsAnyComputerOpen) return;
+        if (LevelInfoPopup.AnyPopupOpen) return;
 
         SpellBase active = GetActiveSpell();
         if (active == null) return;
@@ -151,6 +172,7 @@ public class KitManager : MonoBehaviour
     private void HandleCastSpellCanceled()
     {
         if (networkObject != null && !networkObject.IsOwner) return;
+        if (OfficeComputerUI.IsAnyComputerOpen) return;
 
         isHoldingCast = false;
 
@@ -163,6 +185,7 @@ public class KitManager : MonoBehaviour
     private void HandleChangeSpell()
     {
         if (networkObject != null && !networkObject.IsOwner) return;
+        if (OfficeComputerUI.IsAnyComputerOpen) return;
 
         StopHeldSpells();
         activeSpellIndex = activeSpellIndex == 0 ? 1 : 0;
@@ -194,12 +217,14 @@ public class KitManager : MonoBehaviour
     private void HandleThrow()
     {
         if (networkObject != null && !networkObject.IsOwner) return;
+        if (OfficeComputerUI.IsAnyComputerOpen) return;
         if (gravityMove != null) gravityMove.TryThrow();
     }
 
     private void HandleDrop()
     {
         if (networkObject != null && !networkObject.IsOwner) return;
+        if (OfficeComputerUI.IsAnyComputerOpen) return;
         if (gravityMove != null) gravityMove.TryDrop();
     }
 
@@ -225,4 +250,97 @@ public class KitManager : MonoBehaviour
     }
 
     public int GetActiveSpellIndex() => activeSpellIndex;
+
+    public void AddKit(KitDefinition kit)
+    {
+        if (networkObject != null && !networkObject.IsOwner) return;
+        if (assignedKits.Contains(kit)) return;
+
+        assignedKits.Add(kit);
+
+        // equip it right away if it's the only kit
+        if (assignedKits.Count == 1)
+        {
+            activeKitIndex = 0;
+            EquipKit(assignedKits[0]);
+        }
+
+        Debug.Log($"Kit added: {kit.kitName}");
+    }
+
+    public void RemoveKit(KitDefinition kit)
+    {
+        if (networkObject != null && !networkObject.IsOwner) return;
+        if (!assignedKits.Contains(kit)) return;
+
+        assignedKits.Remove(kit);
+
+        // if we removed the equipped kit, equip another or clear
+        if (assignedKits.Count > 0)
+        {
+            activeKitIndex = 0;
+            EquipKit(assignedKits[0]);
+        }
+        else
+        {
+            if (spellOne != null) Destroy(spellOne.gameObject);
+            if (spellTwo != null) Destroy(spellTwo.gameObject);
+            spellOne = null;
+            spellTwo = null;
+            equippedKit = null;
+        }
+
+        Debug.Log($"Kit removed: {kit.kitName}");
+    }
+
+    public void ReapplyUpgrades()
+    {
+        if (progression == null || equippedKit == null) return;
+
+        int bought = progression.GetKitUpgradesBought(equippedKit.kitName);
+
+        SpellBase s1 = spellOne != null ? spellOne.GetComponent<SpellBase>() : null;
+        SpellBase s2 = spellTwo != null ? spellTwo.GetComponent<SpellBase>() : null;
+
+        if (s1 != null) s1.ApplyUpgradeLevel(bought);
+        if (s2 != null) s2.ApplyUpgradeLevel(bought);
+    }
+
+    public List<KitDefinition> GetAssignedKits()
+    {
+        return assignedKits;
+    }
+
+    private bool TryLoadChosenKits()
+    {
+        if (networkObject == null || !networkObject.IsOwner) return false;
+        if (ProgressionStore.Instance == null) return false;
+        if (allKits == null || allKits.Length == 0) return false;
+
+        ulong id = Unity.Netcode.NetworkManager.Singleton.LocalClientId;
+        ProgressionData data = ProgressionStore.Instance.GetData(id);
+
+        if (data.chosenKits == null || data.chosenKits.Count == 0)
+            return false;
+
+        // convert saved kit names back into KitDefinitions
+        List<KitDefinition> restored = new List<KitDefinition>();
+        foreach (string name in data.chosenKits)
+        {
+            foreach (var kit in allKits)
+            {
+                if (kit != null && kit.kitName == name)
+                {
+                    restored.Add(kit);
+                    break;
+                }
+            }
+        }
+
+        if (restored.Count == 0) return false;
+
+        SetAssignedKits(restored);
+        Debug.Log($"Restored {restored.Count} chosen kit(s) from store.");
+        return true;
+    }
 }

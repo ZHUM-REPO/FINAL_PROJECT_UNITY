@@ -22,6 +22,12 @@ public class GravityPushSpell : SpellBase
         if (pushParticles != null)
             Instantiate(pushParticles, transform.position, Quaternion.identity);
 
+        // tell the other players to spawn a visual copy of the push effect
+        SpellSyncer syncer = GetComponentInParent<SpellSyncer>();
+        if (syncer != null)
+            syncer.BroadcastSpellVisual((int)SpellVisualType.GravityPush,
+                                        transform.position, Quaternion.identity);
+
         Collider[] hits = Physics.OverlapSphere(transform.position, actualRadius);
         foreach (Collider hit in hits)
         {
@@ -49,5 +55,12 @@ public class GravityPushSpell : SpellBase
                 landing.Activate();
             }
         }
+    }
+
+    public override void ApplyUpgradeLevel(int upgradesBought)
+    {
+        upgradeLargerRadius    = upgradesBought >= 1;
+        upgradeIncreasedForce  = upgradesBought >= 2;
+        upgradeDamageOnLanding = upgradesBought >= 3;
     }
 }

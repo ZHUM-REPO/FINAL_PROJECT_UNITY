@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f16c1cc6bb74de64b88e4adf6bf08019
+guid: ca47f96f9039d4649b18edfac3d5fb52
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -93,19 +93,6 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites: []
@@ -128,11 +115,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 277702
-  packageName: AERO - Volumetric Fog and Mist
-  packageVersion: 1.8.0
-  assetPath: Assets/Mirza/_VFXToolkit/_Demo/Textures/Noise/Perlin Noise (Seamless,
-    Seed-86, Freq-4, Oct-3).png
-  uploadId: 933120

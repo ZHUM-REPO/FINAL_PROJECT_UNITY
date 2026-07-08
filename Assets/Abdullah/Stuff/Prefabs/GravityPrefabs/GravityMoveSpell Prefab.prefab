@@ -57,7 +57,7 @@ MonoBehaviour:
   manaPerSecond: 8
   grabbableMask:
     serializedVersion: 2
-    m_Bits: 384
+    m_Bits: 3200
   upgradeLongerRange: 0
   upgradeHeavierObjects: 0
   upgradeStrongerThrow: 0

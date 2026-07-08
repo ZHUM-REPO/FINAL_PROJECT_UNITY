@@ -15,6 +15,9 @@ TagManager:
   - Player
   - Water
   - UI
+  - Interactable
+  - Weights
+  - 
   - Ground
   - Enemy
   - Grabbable

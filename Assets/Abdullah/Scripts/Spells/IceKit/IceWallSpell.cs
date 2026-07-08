@@ -38,5 +38,17 @@ public class IceWallSpell : SpellBase
             iceWall.isWider = upgradeWiderWall;
             iceWall.freezeOnTouch = upgradeFreezeOnTouch;
         }
+
+        // tell the other players to spawn a visual copy of the wall
+        SpellSyncer syncer = GetComponentInParent<SpellSyncer>();
+        if (syncer != null)
+            syncer.BroadcastSpellVisual((int)SpellVisualType.IceWall, hit.point, wallRotation);
+    }
+
+    public override void ApplyUpgradeLevel(int upgradesBought)
+    {
+        upgradeLongerDuration = upgradesBought >= 1;
+        upgradeWiderWall      = upgradesBought >= 2;
+        upgradeFreezeOnTouch  = upgradesBought >= 3;
     }
 }

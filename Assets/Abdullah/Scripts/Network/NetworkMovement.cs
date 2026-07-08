@@ -10,6 +10,7 @@ public class NetworkMovement : NetworkBehaviour
     private UnityEngine.InputSystem.PlayerInput playerInput;
     private CinemachineCamera cinemachineCamera;
     private AudioListener audioListener;
+    private CharacterController characterController;
 
     private void Awake()
     {
@@ -19,6 +20,7 @@ public class NetworkMovement : NetworkBehaviour
         playerInput = GetComponent<UnityEngine.InputSystem.PlayerInput>();
         cinemachineCamera = GetComponentInChildren<CinemachineCamera>();
         audioListener = GetComponentInChildren<AudioListener>();
+        characterController = GetComponent<CharacterController>();
     }
 
     public override void OnNetworkSpawn()
@@ -31,13 +33,19 @@ public class NetworkMovement : NetworkBehaviour
 
     private void EnableLocalPlayer()
     {
-        if (movements != null) movements.enabled = true;
-        if (cameraScript != null) cameraScript.enabled = true;
+        if (movements != null)
+        {
+            movements.enabled = true;
+            movements.ResetVerticalVelocity();
+        }
+        if (cameraScript != null)
+        {
+            cameraScript.enabled = true;
+            cameraScript.ResetRotation();
+        }
         if (playerInputs != null) playerInputs.enabled = true;
         if (playerInput != null) playerInput.enabled = true;
         if (audioListener != null) audioListener.enabled = true;
-
-        // enable cinemachine camera for local player only
         if (cinemachineCamera != null) cinemachineCamera.enabled = true;
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -53,11 +61,22 @@ public class NetworkMovement : NetworkBehaviour
         if (playerInputs != null) playerInputs.enabled = false;
         if (playerInput != null) playerInput.enabled = false;
         if (audioListener != null) audioListener.enabled = false;
-
-        // disable cinemachine camera for remote players
-        // so it doesn't take over the local player's view
         if (cinemachineCamera != null) cinemachineCamera.enabled = false;
 
         Debug.Log($"Remote player {OwnerClientId} disabled.");
+    }
+
+    // Runs on the OWNER. The server calls this so the owning client
+    // moves its own player to the spawn point.
+    [Rpc(SendTo.Owner)]
+    public void TeleportToSpawnRpc(Vector3 position, Quaternion rotation)
+    {
+        if (characterController != null) characterController.enabled = false;
+        transform.SetPositionAndRotation(position, rotation);
+        if (characterController != null) characterController.enabled = true;
+
+        if (movements != null) movements.ResetVerticalVelocity();
+
+        Debug.Log($"Owner teleported to spawn: {position}");
     }
 }

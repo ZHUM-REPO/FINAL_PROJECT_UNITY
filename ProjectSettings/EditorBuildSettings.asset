@@ -8,7 +8,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/Abdullah/Scenes/AboodScene.unity
     guid: bfd47effdb3b81e4280dcc5a52574b50
   - enabled: 0
@@ -18,11 +18,20 @@ EditorBuildSettings:
     path: Assets/Tala/Scenes/MultiplayerScene.unity
     guid: 702366fec45fbae4dbea4e93446341bc
   - enabled: 1
+    path: Assets/Tala/Scenes/Main-Menu.unity
+    guid: 8a57d156655a90e4aa97d6fd46a90af5
+  - enabled: 1
     path: Assets/Tala/Scenes/Office-Level.unity
     guid: ebc44c9905eb8de4a9c921e6380fa4f5
   - enabled: 1
-    path: Assets/Tala/Scenes/Main-Menu.unity
-    guid: 8a57d156655a90e4aa97d6fd46a90af5
+    path: Assets/Abdulaziz/Scenes/Level-2.unity
+    guid: ccda1b3679c311b41a5d8e01d96a162b
+  - enabled: 1
+    path: Assets/Abdulaziz/Scenes/Level3Scene.unity
+    guid: 821ab6e410e168a47b684c2aafdc08ad
+  - enabled: 1
+    path: Assets/Abdulaziz/Scenes/Level-3.unity
+    guid: 99b4cad49fc9ab54ab899f24c9000fdf
   - enabled: 1
     path: Assets/Tala/Scenes/Level-1.unity
     guid: ccb0794ca7e7bbb4bb080f189e56855d

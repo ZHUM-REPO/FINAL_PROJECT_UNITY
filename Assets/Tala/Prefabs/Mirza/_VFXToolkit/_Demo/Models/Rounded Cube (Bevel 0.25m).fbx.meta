@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 5938cd444a01a9047b15715120884c04
+guid: 98ed6444a056c2140af0d5e42c6d8671
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -91,7 +91,7 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
-    globalScale: 0.01
+    globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0
@@ -108,10 +108,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 277702
-  packageName: AERO - Volumetric Fog and Mist
-  packageVersion: 1.8.0
-  assetPath: Assets/Mirza/_VFXToolkit/_Demo/Models/Rounded Cube (Bevel 0.25m).fbx
-  uploadId: 933120

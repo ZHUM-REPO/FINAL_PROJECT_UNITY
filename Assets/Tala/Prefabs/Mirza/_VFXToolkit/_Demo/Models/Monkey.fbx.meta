@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 977bed6889aa1d74dbfab11e0cdef1e7
+guid: 4e28ebb79a502e842976c75a761b233f
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -108,10 +108,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 277702
-  packageName: AERO - Volumetric Fog and Mist
-  packageVersion: 1.8.0
-  assetPath: Assets/Mirza/_VFXToolkit/_Demo/Models/Monkey.fbx
-  uploadId: 933120

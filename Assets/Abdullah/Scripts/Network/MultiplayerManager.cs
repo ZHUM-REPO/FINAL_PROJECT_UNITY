@@ -58,7 +58,7 @@ public class MultiplayerManager : MonoBehaviour
         }
     }
 
-    // ─── Host ─────────────────────────────────────────────
+    // ─── Host ───────────────────────────────────────────────
 
     public async Task<bool> Host()
     {
@@ -68,11 +68,13 @@ public class MultiplayerManager : MonoBehaviour
         {
             if (statusText != null) statusText.text = "Creating session...";
 
-            session = await MultiplayerService.Instance.CreateSessionAsync(
-                new SessionOptions { MaxPlayers = 4, IsPrivate = false }
-            );
+            // WithRelayNetwork() routes the connection through Unity Relay
+            // (works across the internet). The SDK starts the host
+            // connection itself — do NOT call StartHost() manually.
+            var options = new SessionOptions { MaxPlayers = 4, IsPrivate = false }
+                .WithRelayNetwork();
 
-            NetworkManager.Singleton.StartHost();
+            session = await MultiplayerService.Instance.CreateSessionAsync(options);
 
             voiceChannelName = "Voice_" + session.Code;
             await JoinVoiceChannel();
@@ -89,7 +91,7 @@ public class MultiplayerManager : MonoBehaviour
         }
     }
 
-    // ─── Join ─────────────────────────────────────────────
+    // ─── Join ───────────────────────────────────────────────
 
     public async Task<bool> Join(string code)
     {
@@ -104,9 +106,10 @@ public class MultiplayerManager : MonoBehaviour
         {
             if (statusText != null) statusText.text = "Joining...";
 
+            // Joining a relay-configured session connects this client
+            // through Relay automatically — do NOT call StartClient().
+            // Netcode scene sync then pulls us into the host's scene.
             session = await MultiplayerService.Instance.JoinSessionByCodeAsync(code);
-
-            NetworkManager.Singleton.StartClient();
 
             voiceChannelName = "Voice_" + code;
             await JoinVoiceChannel();
@@ -123,16 +126,28 @@ public class MultiplayerManager : MonoBehaviour
         }
     }
 
-    // ─── Solo ─────────────────────────────────────────────
+    // ─── Solo ───────────────────────────────────────────────
 
     public void StartSolo()
     {
+        if (NetworkManager.Singleton == null)
+        {
+            Debug.LogWarning("NetworkManager not found — loading office directly.");
+            SceneManager.LoadScene("Office-Level");
+            return;
+        }
+
         NetworkManager.Singleton.StartHost();
+
+        // load the office through the NETWORKED scene manager (same as hosting)
+        // so scene NetworkObjects like KitSelectionManager spawn properly
+        NetworkManager.Singleton.SceneManager.LoadScene("Office-Level", LoadSceneMode.Single);
+
         if (statusText != null) statusText.text = "Solo mode.";
         Debug.Log("Started solo session.");
     }
 
-    // ─── Voice ────────────────────────────────────────────
+    // ─── Voice ──────────────────────────────────────────────
 
     private async Task JoinVoiceChannel()
     {
@@ -166,7 +181,7 @@ public class MultiplayerManager : MonoBehaviour
         }
     }
 
-    // ─── Scene Loading ────────────────────────────────────
+    // ─── Scene Loading ──────────────────────────────────────
 
     public void LoadOfficeScene()
     {
@@ -184,7 +199,7 @@ public class MultiplayerManager : MonoBehaviour
             sceneName, LoadSceneMode.Single);
     }
 
-    // ─── Leave Session ────────────────────────────────────
+    // ─── Leave Session ──────────────────────────────────────
 
     public async void LeaveSession()
     {
@@ -198,11 +213,11 @@ public class MultiplayerManager : MonoBehaviour
                 session = null;
             }
 
-            NetworkManager.Singleton.Shutdown();
-            if (statusText != null) statusText.text = "Left session.";
+            if (NetworkManager.Singleton != null)
+                NetworkManager.Singleton.Shutdown();
 
-            // go back to main menu
-            SceneManager.LoadScene("MainMenu");
+            if (statusText != null) statusText.text = "Left session.";
+            SceneManager.LoadScene("Main-Menu");
         }
         catch (Exception e)
         {
@@ -210,10 +225,10 @@ public class MultiplayerManager : MonoBehaviour
         }
     }
 
-    // ─── Getters ──────────────────────────────────────────
+    // ─── Getters ────────────────────────────────────────────
 
     public string GetSessionCode() => session?.Code ?? "";
     public int GetPlayerCount() => session?.Players.Count ?? 1;
-    public bool IsHost() => NetworkManager.Singleton.IsHost;
+    public bool IsHost() => NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost;
     public bool IsInitialized() => isInitialized;
 }

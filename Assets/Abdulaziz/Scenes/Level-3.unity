@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &21310591
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 21310592}
+  m_Layer: 0
+  m_Name: MinionsSpawnPoints (5)
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &21310592
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 21310591}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -542.26, y: 13.94, z: 157.43}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &58405621 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8071396744955028048, guid: 68c0e3593fdd5c7448ad51ceac510e51, type: 3}
@@ -410,6 +441,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 151101483}
   m_CullTransparentMesh: 1
+--- !u!1 &218062063
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 218062064}
+  m_Layer: 0
+  m_Name: MinionsSpawnPoints (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &218062064
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218062063}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -514.85, y: 13.94, z: 163.44}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &244944400 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4648966192043416720, guid: 760e8a5945ef5ee478c6e4f152df2d72, type: 3}
@@ -488,9 +550,41 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 871352155653711405, guid: 760e8a5945ef5ee478c6e4f152df2d72, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2111624859}
+    - target: {fileID: 871352155653711405, guid: 760e8a5945ef5ee478c6e4f152df2d72, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: QuitGame
+      objectReference: {fileID: 0}
+    - target: {fileID: 1002440422179161406, guid: 760e8a5945ef5ee478c6e4f152df2d72, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2111624859}
+    - target: {fileID: 1002440422179161406, guid: 760e8a5945ef5ee478c6e4f152df2d72, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ResumeGame
+      objectReference: {fileID: 0}
     - target: {fileID: 2450101323138960441, guid: 760e8a5945ef5ee478c6e4f152df2d72, type: 3}
       propertyPath: m_Name
       value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208296394433969339, guid: 760e8a5945ef5ee478c6e4f152df2d72, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2111624859}
+    - target: {fileID: 4208296394433969339, guid: 760e8a5945ef5ee478c6e4f152df2d72, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OpenSettings
+      objectReference: {fileID: 0}
+    - target: {fileID: 4480930753809268308, guid: 760e8a5945ef5ee478c6e4f152df2d72, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2111624859}
+    - target: {fileID: 4480930753809268308, guid: 760e8a5945ef5ee478c6e4f152df2d72, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ReturnToMainMenu
       objectReference: {fileID: 0}
     - target: {fileID: 5166216362388028424, guid: 760e8a5945ef5ee478c6e4f152df2d72, type: 3}
       propertyPath: m_SizeDelta.y
@@ -731,7 +825,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376046851666383660, guid: 6f4c98ee2bbab3c40b172a22cc668ede, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -534.09
+      value: -530.7
       objectReference: {fileID: 0}
     - target: {fileID: 8376046851666383660, guid: 6f4c98ee2bbab3c40b172a22cc668ede, type: 3}
       propertyPath: m_LocalPosition.y
@@ -739,7 +833,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376046851666383660, guid: 6f4c98ee2bbab3c40b172a22cc668ede, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 427.38
+      value: 426.47
       objectReference: {fileID: 0}
     - target: {fileID: 8376046851666383660, guid: 6f4c98ee2bbab3c40b172a22cc668ede, type: 3}
       propertyPath: m_LocalRotation.w
@@ -860,6 +954,68 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2540817853737639666, guid: d31f6218409a38248841c35d9efbe290, type: 3}
+--- !u!1 &692232433
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 692232434}
+  m_Layer: 0
+  m_Name: MinionsSpawnPoints (8)
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &692232434
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692232433}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -553.62, y: 13.94, z: 192.54}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &758356014
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 758356015}
+  m_Layer: 0
+  m_Name: MinionsSpawnPoints (7)
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &758356015
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 758356014}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -557.19, y: 13.94, z: 178.86}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1006292955
 GameObject:
   m_ObjectHideFlags: 0
@@ -989,6 +1145,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 606913298212820185}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1013668856
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1013668857}
+  m_Layer: 0
+  m_Name: MinionsSpawnPoints (10)
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1013668857
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013668856}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -536.75, y: 14.24, z: 178.39}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1026426283 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2965385366151640508, guid: 68c0e3593fdd5c7448ad51ceac510e51, type: 3}
@@ -1016,6 +1203,37 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 7857590630482128698, guid: d31f6218409a38248841c35d9efbe290, type: 3}
+--- !u!1 &1027359118
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1027359119}
+  m_Layer: 0
+  m_Name: MinionsSpawnPoints (4)
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1027359119
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027359118}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -528.14, y: 13.94, z: 153.62}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1072080226 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7267880506970120463, guid: 68c0e3593fdd5c7448ad51ceac510e51, type: 3}
@@ -1343,6 +1561,99 @@ MonoBehaviour:
   disableOnStart: 1
   triggerOnce: 1
   disableColliderAfter: 1
+--- !u!1 &1255100769
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1255100770}
+  m_Layer: 0
+  m_Name: MinionsSpawnPoints (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1255100770
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255100769}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -517.95, y: 13.94, z: 199.85}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1273078507
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1273078508}
+  m_Layer: 0
+  m_Name: MinionsSpawnPoints (6)
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1273078508
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273078507}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -553.12, y: 13.94, z: 164.84}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1281703238
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1281703239}
+  m_Layer: 0
+  m_Name: MinionsSpawnPoints
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1281703239
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1281703238}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -506.5, y: 12.741, z: 174.21556}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1345233497
 GameObject:
   m_ObjectHideFlags: 0
@@ -1481,7 +1792,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9068062822282161320, guid: e2ba6789a89c0d94493a15cae5102176, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -534.09
+      value: -533.46
       objectReference: {fileID: 0}
     - target: {fileID: 9068062822282161320, guid: e2ba6789a89c0d94493a15cae5102176, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1489,7 +1800,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9068062822282161320, guid: e2ba6789a89c0d94493a15cae5102176, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 427.38
+      value: 427.21
       objectReference: {fileID: 0}
     - target: {fileID: 9068062822282161320, guid: e2ba6789a89c0d94493a15cae5102176, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1662,6 +1973,37 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 2023878069}
   m_SourcePrefab: {fileID: 100100000, guid: 68c0e3593fdd5c7448ad51ceac510e51, type: 3}
+--- !u!1 &1408571915
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1408571916}
+  m_Layer: 0
+  m_Name: MinionsSpawnPoints (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1408571916
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408571915}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -506.5, y: 12.741, z: 186.97}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1471519468 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7107936377669087856, guid: 68c0e3593fdd5c7448ad51ceac510e51, type: 3}
@@ -2079,7 +2421,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3569396562959850639, guid: 5eb435b031b799443bf14a5ef1c7da3e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -534.09
+      value: -538.41
       objectReference: {fileID: 0}
     - target: {fileID: 3569396562959850639, guid: 5eb435b031b799443bf14a5ef1c7da3e, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2087,7 +2429,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3569396562959850639, guid: 5eb435b031b799443bf14a5ef1c7da3e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 427.38
+      value: 428.54
       objectReference: {fileID: 0}
     - target: {fileID: 3569396562959850639, guid: 5eb435b031b799443bf14a5ef1c7da3e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2172,7 +2514,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3507473803875673171, guid: 4d79a0facb3c4ab46a9b7c047d969dce, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -534.09
+      value: -535.91
       objectReference: {fileID: 0}
     - target: {fileID: 3507473803875673171, guid: 4d79a0facb3c4ab46a9b7c047d969dce, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2180,7 +2522,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3507473803875673171, guid: 4d79a0facb3c4ab46a9b7c047d969dce, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 427.38
+      value: 427.87
       objectReference: {fileID: 0}
     - target: {fileID: 3507473803875673171, guid: 4d79a0facb3c4ab46a9b7c047d969dce, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2228,6 +2570,80 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3507473803875673171, guid: 4d79a0facb3c4ab46a9b7c047d969dce, type: 3}
   m_PrefabInstance: {fileID: 1912925744}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1967409689
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1967409692}
+  - component: {fileID: 1967409691}
+  - component: {fileID: 1967409690}
+  m_Layer: 0
+  m_Name: LevelCompletion
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1967409690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1967409689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9fecd160448b81478bf5bc342ed0d82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelCompletion
+  ShowTopMostFoldoutHeaderGroup: 1
+  levelSceneName: Level-3
+  rewardScore: 2000
+--- !u!114 &1967409691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1967409689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 207521060
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  <InScenePlaced>k__BackingField: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!4 &1967409692
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1967409689}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 20.15185, y: 0, z: 93.76506}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1989376554 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8627457536389456156, guid: 68c0e3593fdd5c7448ad51ceac510e51, type: 3}
@@ -2282,6 +2698,37 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -8954372375517954808, guid: d31f6218409a38248841c35d9efbe290, type: 3}
+--- !u!1 &2045145361
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2045145362}
+  m_Layer: 0
+  m_Name: MinionsSpawnPoints (9)
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2045145362
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2045145361}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -540.19, y: 13.94, z: 203.13}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2079354706 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4652435933578366730, guid: 68c0e3593fdd5c7448ad51ceac510e51, type: 3}
@@ -2462,6 +2909,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c01d9221a35a04a4f979f7005105fe4a, type: 3}
+--- !u!114 &2111624859 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3276349662309224645, guid: c01d9221a35a04a4f979f7005105fe4a, type: 3}
+  m_PrefabInstance: {fileID: 2111624858}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2db427e5103227e4d8dcb746cfe64e18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseMenuUI
 --- !u!1 &93420370756822849
 GameObject:
   m_ObjectHideFlags: 0
@@ -4073,8 +4531,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2181347c516c9254c8e92c3e6e9a39c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damage
-  maxHealth: 100
-  currentHealth: 100
+  maxHealth: 500
+  currentHealth: 500
 --- !u!114 &6812851918676840103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4151,11 +4609,22 @@ MonoBehaviour:
   maxRetreatTime: 3
   secondPhaseHealthFraction: 0.5
   minionPrefab: {fileID: 1749192107002448545, guid: cf3c7b9c87f927f408edd6b35865de07, type: 3}
-  minionSpawnPoints: []
+  minionSpawnPoints:
+  - {fileID: 1281703239}
+  - {fileID: 1408571916}
+  - {fileID: 1255100770}
+  - {fileID: 218062064}
+  - {fileID: 1027359119}
+  - {fileID: 21310592}
+  - {fileID: 1273078508}
+  - {fileID: 758356015}
+  - {fileID: 692232434}
+  - {fileID: 2045145362}
+  - {fileID: 1013668857}
   minionsPerWave: 3
-  minionSpawnRadius: 3
-  minionSpawnInterval: 30
-  debugLogs: 1
+  minionSpawnRadius: 5
+  minionSpawnInterval: 15
+  debugLogs: 0
 --- !u!195 &6812851918676840106
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -4940,3 +5409,15 @@ SceneRoots:
   - {fileID: 1349387372}
   - {fileID: 1247464243}
   - {fileID: 1617286636}
+  - {fileID: 1967409692}
+  - {fileID: 1281703239}
+  - {fileID: 1408571916}
+  - {fileID: 1255100770}
+  - {fileID: 218062064}
+  - {fileID: 1027359119}
+  - {fileID: 21310592}
+  - {fileID: 1273078508}
+  - {fileID: 758356015}
+  - {fileID: 692232434}
+  - {fileID: 2045145362}
+  - {fileID: 1013668857}

@@ -51,7 +51,7 @@ MonoBehaviour:
   castParticles: {fileID: 0}
   impactParticles: {fileID: 0}
   pushRadius: 5
-  pushForce: 15
+  pushForce: 30
   damage: 10
   pushParticles: {fileID: 0}
   upgradeLargerRadius: 0

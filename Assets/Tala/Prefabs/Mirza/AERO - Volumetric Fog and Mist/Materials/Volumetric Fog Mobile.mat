@@ -190,7 +190,7 @@ Material:
     - _Height_Mask_Blend: 0.96
     - _Height_Mask_Distance: 1
     - _Height_Mask_Falloff: 4
-    - _Height_Mask_Length: 1
+    - _Height_Mask_Length: -0.87
     - _Height_Mask_Offset: 0.5
     - _Height_Mask_Remap_Max: 1
     - _Height_Mask_Remap_Min: 0

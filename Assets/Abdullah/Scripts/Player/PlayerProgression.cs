@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerProgression : MonoBehaviour
+public class PlayerProgression : NetworkBehaviour
 {
     [Header("Score")]
     public int score = 0;
@@ -16,22 +17,15 @@ public class PlayerProgression : MonoBehaviour
     public float manaUpgradeAmount = 20f;
     public float enduranceUpgradeAmount = 20f;
 
-    [Header("Kit XP")]
-    // key: kit name, value: current XP in that kit
     public Dictionary<string, float> kitXP = new Dictionary<string, float>();
-
-    // key: kit name, value: current level (0, 1, 2, 3)
     public Dictionary<string, int> kitLevels = new Dictionary<string, int>();
 
     public const int maxKitLevel = 3;
-
-    // XP required per level — index 0 = level 0→1, index 1 = level 1→2, index 2 = level 2→3
     public float[] xpPerLevel = { 100f, 250f, 500f };
 
     [Header("Kit Upgrade Costs (per tier: 1, 2, 3)")]
     public int[] kitUpgradeCosts = { 100, 200, 400 };
 
-    // key: kit name, value: how many upgrades bought (0..3)
     private Dictionary<string, int> kitUpgradesBought = new Dictionary<string, int>();
 
     private PlayerStats playerStats;
@@ -41,11 +35,63 @@ public class PlayerProgression : MonoBehaviour
         playerStats = GetComponent<PlayerStats>();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        if (!IsOwner) return;
+        LoadFromStore();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (!IsOwner) return;
+        SaveToStore();
+    }
+
+    // ─── Persistence ────────────────────────────────────────
+
+    private void LoadFromStore()
+    {
+        if (ProgressionStore.Instance == null) return;
+
+        ProgressionData data = ProgressionStore.Instance.GetData(OwnerClientId);
+
+        score = data.score;
+        kitXP = new Dictionary<string, float>(data.kitXP);
+        kitLevels = new Dictionary<string, int>(data.kitLevels);
+        kitUpgradesBought = new Dictionary<string, int>(data.kitUpgradesBought);
+
+        // re-apply persisted stat upgrades to this fresh player
+        if (playerStats != null)
+        {
+            playerStats.maxHealth += data.bonusMaxHealth;
+            playerStats.maxMana += data.bonusMaxMana;
+            playerStats.maxEndurance += data.bonusMaxEndurance;
+            playerStats.myHealth = playerStats.maxHealth;
+            playerStats.myMana = playerStats.maxMana;
+            playerStats.myEndurance = playerStats.maxEndurance;
+        }
+    }
+
+    private void SaveToStore()
+    {
+        if (ProgressionStore.Instance == null) return;
+
+        ProgressionData data = ProgressionStore.Instance.GetData(OwnerClientId);
+
+        data.score = score;
+        data.kitXP = new Dictionary<string, float>(kitXP);
+        data.kitLevels = new Dictionary<string, int>(kitLevels);
+        data.kitUpgradesBought = new Dictionary<string, int>(kitUpgradesBought);
+
+        ProgressionStore.Instance.SaveData(OwnerClientId, data);
+    }
+
     // ─── Score ──────────────────────────────────────────────
 
     public void AddScore(int amount)
     {
         score += amount;
+        SaveToStore();   // persist immediately so rewards aren't lost
     }
 
     public bool SpendScore(int amount)
@@ -61,6 +107,8 @@ public class PlayerProgression : MonoBehaviour
     {
         if (!SpendScore(healthUpgradeCost)) return false;
         playerStats.UpgradeMaxHealth(healthUpgradeAmount);
+        RecordStatBonus(healthUpgradeAmount, 0f, 0f);
+        SaveToStore();
         return true;
     }
 
@@ -68,6 +116,8 @@ public class PlayerProgression : MonoBehaviour
     {
         if (!SpendScore(manaUpgradeCost)) return false;
         playerStats.UpgradeMaxMana(manaUpgradeAmount);
+        RecordStatBonus(0f, manaUpgradeAmount, 0f);
+        SaveToStore();
         return true;
     }
 
@@ -75,7 +125,19 @@ public class PlayerProgression : MonoBehaviour
     {
         if (!SpendScore(enduranceUpgradeCost)) return false;
         playerStats.UpgradeMaxEndurance(enduranceUpgradeAmount);
+        RecordStatBonus(0f, 0f, enduranceUpgradeAmount);
+        SaveToStore();
         return true;
+    }
+
+    // remember stat upgrades so they persist across scenes
+    private void RecordStatBonus(float hp, float mp, float end)
+    {
+        if (ProgressionStore.Instance == null) return;
+        ProgressionData data = ProgressionStore.Instance.GetData(OwnerClientId);
+        data.bonusMaxHealth += hp;
+        data.bonusMaxMana += mp;
+        data.bonusMaxEndurance += end;
     }
 
     // ─── Kit XP & Levels ────────────────────────────────────
@@ -92,18 +154,19 @@ public class PlayerProgression : MonoBehaviour
     public void AddKitXP(string kitName, float amount)
     {
         if (!kitXP.ContainsKey(kitName)) RegisterKit(kitName);
-        if (kitLevels[kitName] >= maxKitLevel) return; // already max level
+        if (kitLevels[kitName] >= maxKitLevel) return;
 
         kitXP[kitName] += amount;
 
-        // check for level up
         float required = xpPerLevel[kitLevels[kitName]];
         if (kitXP[kitName] >= required)
         {
             kitXP[kitName] -= required;
             kitLevels[kitName]++;
-            OnKitLevelUp(kitName, kitLevels[kitName]);
+            Debug.Log($"{kitName} reached level {kitLevels[kitName]}!");
         }
+
+        SaveToStore();
     }
 
     public int GetKitLevel(string kitName)
@@ -116,14 +179,7 @@ public class PlayerProgression : MonoBehaviour
     {
         if (!kitXP.ContainsKey(kitName)) return 0f;
         if (kitLevels[kitName] >= maxKitLevel) return 1f;
-
         return kitXP[kitName] / xpPerLevel[kitLevels[kitName]];
-    }
-
-    private void OnKitLevelUp(string kitName, int newLevel)
-    {
-        // spells check GetKitLevel() themselves to unlock upgrades
-        Debug.Log($"{kitName} reached level {newLevel}!");
     }
 
     // ─── Kit Upgrades ───────────────────────────────────────
@@ -133,20 +189,18 @@ public class PlayerProgression : MonoBehaviour
         return kitUpgradesBought.TryGetValue(kitName, out int v) ? v : 0;
     }
 
-    // can the player buy the NEXT upgrade for this kit right now?
     public bool CanBuyKitUpgrade(string kitName)
     {
         int bought = GetKitUpgradesBought(kitName);
-        if (bought >= 3) return false;                          // all bought
+        if (bought >= 3) return false;
 
-        int requiredLevel = bought + 1;                         // upgrade 1 needs level 1, etc.
-        if (GetKitLevel(kitName) < requiredLevel) return false; // not high enough level
+        int requiredLevel = bought + 1;
+        if (GetKitLevel(kitName) < requiredLevel) return false;
 
         int cost = kitUpgradeCosts[bought];
-        return score >= cost;                                   // can afford
+        return score >= cost;
     }
 
-    // returns true if the purchase succeeded
     public bool BuyKitUpgrade(string kitName)
     {
         if (!CanBuyKitUpgrade(kitName)) return false;
@@ -157,11 +211,11 @@ public class PlayerProgression : MonoBehaviour
         if (!SpendScore(cost)) return false;
 
         kitUpgradesBought[kitName] = bought + 1;
+        SaveToStore();
         Debug.Log($"Bought upgrade {bought + 1} for {kitName} (cost {cost}).");
         return true;
     }
 
-    // cost of the NEXT upgrade (for UI display); -1 if none left
     public int GetNextKitUpgradeCost(string kitName)
     {
         int bought = GetKitUpgradesBought(kitName);

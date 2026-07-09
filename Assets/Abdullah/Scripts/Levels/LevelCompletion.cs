@@ -4,18 +4,18 @@ using UnityEngine;
 public class LevelCompletion : NetworkBehaviour
 {
     [Header("This Level")]
-    public string levelSceneName = "Level-3";   // exact scene name
+    public string levelSceneName = "Level-3";
     public int rewardScore = 2000;
 
     [Header("Win Condition")]
-    public BossAI boss;                 // drag the boss here (Level 3)
-    public float returnDelay = 4f;      // wait after the boss dies before returning
+    public BossAI boss;
+    public float returnDelay = 4f;
 
     private bool completed = false;
 
     public override void OnNetworkSpawn()
     {
-        // listen for the boss's death (server drives completion)
+        Debug.Log($"[LevelCompletion] Spawned. Boss assigned = {boss != null}");
         if (boss != null)
             boss.Died += OnBossDied;
     }
@@ -28,7 +28,7 @@ public class LevelCompletion : NetworkBehaviour
 
     private void OnBossDied()
     {
-        // only the server runs completion
+        Debug.Log($"[LevelCompletion] Boss died event received. IsServer={IsServer}");
         if (!IsServer) return;
         CompleteLevel();
     }
@@ -39,33 +39,43 @@ public class LevelCompletion : NetworkBehaviour
         if (completed) return;
         completed = true;
 
-        // mark it done so it shows completed in the briefing
-        LevelProgressManager.Instance?.MarkCompleted(levelSceneName);
+        Debug.Log("[LevelCompletion] Completing level...");
 
-        // give every player the reward
+        // mark completed (guarded so it can't stop the flow)
+        if (LevelProgressManager.Instance != null)
+        {
+            try { LevelProgressManager.Instance.MarkCompleted(levelSceneName); }
+            catch (System.Exception e) { Debug.LogWarning($"MarkCompleted failed: {e.Message}"); }
+        }
+
+        // give rewards to everyone
         GiveRewardsClientRpc(rewardScore);
 
-        // return to the office after a short delay (lets the death anim play)
+        // return to office after a delay
         StartCoroutine(ReturnToOfficeAfterDelay());
     }
 
     private System.Collections.IEnumerator ReturnToOfficeAfterDelay()
     {
         yield return new WaitForSeconds(returnDelay);
-        MultiplayerManager.Instance.LoadGameScene("Office-Level");
+
+        Debug.Log("[LevelCompletion] Returning to office...");
+        if (MultiplayerManager.Instance != null)
+            MultiplayerManager.Instance.LoadGameScene("Office-Level");
+        else
+            Debug.LogError("[LevelCompletion] MultiplayerManager missing — can't return to office!");
     }
 
     [ClientRpc]
     private void GiveRewardsClientRpc(int reward)
     {
-        // add the reward to the local player's progression
         foreach (var pp in FindObjectsByType<PlayerProgression>(FindObjectsSortMode.None))
         {
             NetworkObject no = pp.GetComponent<NetworkObject>();
             if (no != null && no.IsOwner)
             {
                 pp.AddScore(reward);
-                Debug.Log($"Level complete! Reward: +{reward} score");
+                Debug.Log($"[LevelCompletion] Reward: +{reward} score");
                 break;
             }
         }

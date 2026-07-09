@@ -1,15 +1,15 @@
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
-/// Standalone reaction: when the scale becomes balanced (solved), drop a reward
-/// object down so the player can pick it up. The reward carries a ShapeCollectible,
-/// so collecting it counts toward opening the FinalDoor.
+/// Standalone reaction: when the scale is solved, drop a reward object down so the
+/// player can pick it up. Only the SERVER performs the drop (it moves the reward),
+/// and the reward's movement replicates to clients via its NetworkTransform — so
+/// everyone sees it fall to the same spot. Clients don't move it themselves.
 ///
-/// Same pattern as ScaleColorReaction — subscribes to BalanceChanged in OnEnable,
-/// unsubscribes in OnDisable — so it can sit alongside other reactions on one scale.
-/// The drop is coroutine-driven (no Rigidbody), matching the falling-object approach
-/// used elsewhere in the project.
+/// Stays a plain MonoBehaviour; it checks NetworkManager for server authority.
+/// The REWARD object needs a NetworkObject + NetworkTransform for the drop to sync.
 /// </summary>
 [DisallowMultipleComponent]
 public class ScaleReward : MonoBehaviour
@@ -20,7 +20,7 @@ public class ScaleReward : MonoBehaviour
 
     [Header("Reward")]
     [Tooltip("The object that drops down. Give it a ShapeCollectible so the " +
-             "player can pick it up for the final door.")]
+             "player can pick it up, plus a NetworkObject + NetworkTransform.")]
     [SerializeField] private Transform reward;
 
     [Tooltip("Where the reward drops to — a spot within the player's reach.")]
@@ -32,6 +32,9 @@ public class ScaleReward : MonoBehaviour
     private bool _dropped;
     private Coroutine _dropRoutine;
 
+    // Only the server drives the drop; the NetworkTransform replicates it.
+    private bool IsServer => NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
+
     private void OnEnable()
     {
         if (scale != null) scale.BalanceChanged += HandleBalanceChanged;
@@ -41,7 +44,6 @@ public class ScaleReward : MonoBehaviour
     {
         if (scale != null) scale.BalanceChanged -= HandleBalanceChanged;
 
-        // If disabled mid-drop, snap to the target so it can't hang in the air.
         if (_dropRoutine != null && reward != null && dropTarget != null)
         {
             reward.position = dropTarget.position;
@@ -51,8 +53,10 @@ public class ScaleReward : MonoBehaviour
 
     private void HandleBalanceChanged(bool balanced)
     {
-        // Drop once, the first time the scale is solved. A later unbalance
-        // won't raise it back up — a collected reward shouldn't reset.
+        // BalanceChanged fires on every machine, but only the server should move
+        // the reward — clients receive the movement through NetworkTransform.
+        if (!IsServer) return;
+
         if (!balanced || _dropped) return;
         if (reward == null || dropTarget == null) return;
 
@@ -69,12 +73,11 @@ public class ScaleReward : MonoBehaviour
         while (t < 1f)
         {
             t += Time.deltaTime / dropDuration;
-            // t * t eases in, so it accelerates like a fall.
-            reward.position = Vector3.Lerp(start, end, t * t);
+            reward.position = Vector3.Lerp(start, end, t * t);   // ease-in like a fall
             yield return null;
         }
 
-        reward.position = end;   // land exactly on target
+        reward.position = end;
         _dropRoutine = null;
     }
 
@@ -85,7 +88,6 @@ public class ScaleReward : MonoBehaviour
     {
         if (!drawGizmos || reward == null || dropTarget == null) return;
 
-        // Yellow line: the path the reward will fall along.
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(reward.position, dropTarget.position);
         Gizmos.color = Color.green;

@@ -5,7 +5,9 @@ using UnityEngine;
 /// <summary>
 /// Draws a real clickable "Rotate Cube (Interact)" button in the CubePedestal
 /// Inspector, below the normal fields. Editor-only, so it won't affect builds.
-/// Interact() starts a coroutine, so the button only animates in Play mode.
+/// Calls ForceRotate(), which bypasses the proximity check so you can test the
+/// turn without walking the player into range. Rotation is a coroutine, so the
+/// button only animates in Play mode.
 /// </summary>
 [CustomEditor(typeof(CubePedestal))]
 public class CubePedestalEditor : Editor
@@ -23,7 +25,7 @@ public class CubePedestalEditor : Editor
         using (new EditorGUI.DisabledScope(!Application.isPlaying))
         {
             if (GUILayout.Button("Rotate Cube (Interact)"))
-                pedestal.Interact();
+                pedestal.ForceRotate();
         }
 
         if (!Application.isPlaying)

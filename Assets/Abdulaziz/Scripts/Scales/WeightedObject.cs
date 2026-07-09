@@ -1,48 +1,73 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class WeightedObject : MonoBehaviour
+/// <summary>
+/// A weighable prop. Its logical weight is SERVER-AUTHORITATIVE, stored in a
+/// NetworkVariable so every client agrees on it. The magic script must change the
+/// weight on the server (directly, or through a ServerRpc) — clients can't write it.
+///
+/// Requires a NetworkObject. For a pan on the server to detect this object where
+/// clients actually see it, this object also needs its movement synced
+/// (NetworkTransform), since the server scans using its own physics positions.
+/// </summary>
+public class WeightedObject : NetworkBehaviour
 {
-    [Tooltip("The logical weight this object contributes to a pan. Not kilograms, just a number.")]
+    [Tooltip("Starting logical weight. Seeded into the networked weight on spawn. " +
+             "Not kilograms, just a number.")]
     [SerializeField] private float weight = 1f;
 
     [Tooltip("Optional ID so a scale can require *specific* objects, not just matching totals.")]
     [SerializeField] private string objectId = "";
 
-    /// Fires whenever the weight changes so pans can recalculate.
+    // Server-authoritative weight, replicated to all clients.
+    private readonly NetworkVariable<float> _netWeight = new NetworkVariable<float>();
+
+    /// Fires (on every machine) whenever the weight changes so pans can recalculate.
     public event System.Action<WeightedObject> WeightChanged;
 
-    /// <summary>
-    /// Fired in OnDisable so a pan can drop this object immediately instead of
-    /// waiting for its next timed scan. Lets removal be event-driven, not polled.
-    /// </summary>
+    /// Fired in OnDisable so a pan can drop this object immediately.
     public event System.Action<WeightedObject> Disabled;
 
     public string ObjectId => objectId;
 
     /// <summary>
-    /// Preferred way for the magic script to change weight:
-    ///   myObject.GetComponent<WeightedObject>().Weight = 0f;
-    /// Setting this auto-notifies the scale.
+    /// The networked weight. Getter reads the synced value on any machine.
+    /// Setter is SERVER-ONLY (writing the NetworkVariable) — call it from the
+    /// magic script on the server, e.g. inside a ServerRpc.
     /// </summary>
     public float Weight
     {
-        get => weight;
+        get => _netWeight.Value;
         set
         {
-            if (Mathf.Approximately(weight, value)) return;
-            weight = value;
-            WeightChanged?.Invoke(this);
+            if (!IsServer)
+            {
+                Debug.LogWarning($"{name}: Weight can only be set on the server.", this);
+                return;
+            }
+            if (Mathf.Approximately(_netWeight.Value, value)) return;
+            _netWeight.Value = value;   // replicates -> OnValueChanged -> WeightChanged
         }
     }
 
-    /// <summary>
-    /// Call this only if the magic script changed the weight some other way
-    /// (e.g. wrote the serialized field directly) and you need to force a refresh.
-    /// </summary>
+    public override void OnNetworkSpawn()
+    {
+        // Seed the starting weight on the server BEFORE subscribing, so the initial
+        // value doesn't count as a change.
+        if (IsServer) _netWeight.Value = weight;
+
+        _netWeight.OnValueChanged += OnNetWeightChanged;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        _netWeight.OnValueChanged -= OnNetWeightChanged;
+    }
+
+    private void OnNetWeightChanged(float previous, float current) => WeightChanged?.Invoke(this);
+
+    /// <summary>Force a refresh if the weight was changed some other way.</summary>
     public void NotifyWeightChanged() => WeightChanged?.Invoke(this);
 
-    // No OnEnable: this component has nothing to subscribe to on enable, and empty
-    // Unity message methods still get invoked by the engine, so adding one would be
-    // dead overhead. The lifecycle hook lives only where it does real work.
     private void OnDisable() => Disabled?.Invoke(this);
 }

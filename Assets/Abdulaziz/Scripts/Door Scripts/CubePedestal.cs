@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>The card faces the cube can land on. Order matters:
@@ -10,7 +11,12 @@ public enum CubeFace
     Diamond = 1
 }
 
-public class CubePedestal : MonoBehaviour, IInteractable
+/// <summary>
+/// Rotating pedestal. Interaction runs through PlayerInputs.OnInteractInput (the
+/// permanent input event) plus a proximity check — walk close and press Interact,
+/// same pattern as LevelHolder. No dependency on a raycast interactor.
+/// </summary>
+public class CubePedestal : MonoBehaviour
 {
     [Header("Cube")]
     [Tooltip("The cube object on the pedestal that visually rotates.")]
@@ -31,6 +37,16 @@ public class CubePedestal : MonoBehaviour, IInteractable
              "the cube actually shows at start, or the doors will be off by one.")]
     [SerializeField] private CubeFace _currentFace = CubeFace.Club;
 
+    [Header("Interaction")]
+    [Tooltip("How close the local player must be to interact with the pedestal.")]
+    [SerializeField] private float interactRange = 3f;
+
+    [Tooltip("Optional 'Press E' prompt, hidden until the player is in range.")]
+    [SerializeField] private GameObject interactPrompt;
+
+    private Transform localPlayer;
+    private bool inRange = false;
+
     private bool _isRotating = false;
     private Quaternion _start, _target;
     private float _angle;
@@ -45,28 +61,53 @@ public class CubePedestal : MonoBehaviour, IInteractable
     /// <summary>The card face currently shown to the player. The doors read this.</summary>
     public CubeFace CurrentFace => _currentFace;
 
-    private void OnEnable()
+    private void Start()
     {
-        // Announce the current face so listeners can sync up.
+        if (interactPrompt != null) interactPrompt.SetActive(false);
+
+        // Make the cube actually show the indicated starting face.
+        if (_cube != null && _faceRotations != null && (int)_currentFace < _faceRotations.Length)
+            _cube.localRotation = Quaternion.Euler(_faceRotations[(int)_currentFace]);
+
         FaceChanged?.Invoke(_currentFace);
     }
 
-    private void OnDisable()
+    // Subscribe to the permanent interact event in OnEnable, unsubscribe in OnDisable.
+    private void OnEnable()  { PlayerInputs.OnInteractInput += HandleInteract; }
+    private void OnDisable() { PlayerInputs.OnInteractInput -= HandleInteract; }
+
+    private void Update()
     {
-        // Snap to the target facing and reset, so a mid-spin disable can't
-        // leave _isRotating stuck true.
-        if (_isRotating)
+        // Find the local player once it exists, then track proximity each frame.
+        if (localPlayer == null) { localPlayer = FindLocalPlayer(); return; }
+
+        float dist = Vector3.Distance(localPlayer.position, transform.position);
+        bool nowInRange = dist <= interactRange;
+
+        if (nowInRange != inRange)
         {
-            if (_cube != null) _cube.localRotation = _target;
-            _isRotating = false;
+            inRange = nowInRange;
+            if (interactPrompt != null) interactPrompt.SetActive(inRange);
         }
     }
 
-    public void Interact()
+    // Fired by PlayerInputs when the local player presses Interact.
+    private void HandleInteract()
     {
-        // checks if the object is rotating, if they are then it wont run this code.
+        if (!inRange) return;
+        Rotate();
+    }
+
+    /// <summary>Rotate to the next face, ignoring proximity. Used by the editor
+    /// test button so it works without walking the player into range.</summary>
+    public void ForceRotate() => Rotate();
+
+    // Advance the face and start the turn. Shared by the interact event and the
+    // editor button.
+    private void Rotate()
+    {
         if (_isRotating) return;
-        // needs a rotation entry for every shape, otherwise the cube can't face them.
+
         if (_faceRotations == null || _faceRotations.Length < FaceCount)
         {
             Debug.LogWarning($"{name}: Face Rotations needs {FaceCount} entries (one per shape).", this);
@@ -84,12 +125,10 @@ public class CubePedestal : MonoBehaviour, IInteractable
         _isRotating = true;
         _start = _cube.localRotation;
         // Absolute target: the exact rotation for the selected face.
-        // No accumulated steps, so the cube always lands on club or diamond.
         _target = Quaternion.Euler(_faceRotations[(int)_currentFace]);
         _angle = Mathf.Max(Quaternion.Angle(_start, _target), 0.001f);
 
         float t = 0f;
-        // here it does the rotation
         while (t < 1f)
         {
             t += (_rotationSpeed * Time.deltaTime) / _angle;
@@ -100,8 +139,16 @@ public class CubePedestal : MonoBehaviour, IInteractable
         _cube.localRotation = _target;   // snap to an exact facing so it never drifts
         _isRotating = false;
 
-        // New facing is locked in, so the selection is final -> tell listeners.
         FaceChanged?.Invoke(_currentFace);
+    }
+
+    // The local player's object (owner). Same idea as LevelHolder's lookup.
+    private Transform FindLocalPlayer()
+    {
+        NetworkManager nm = NetworkManager.Singleton;
+        if (nm != null && nm.LocalClient != null && nm.LocalClient.PlayerObject != null)
+            return nm.LocalClient.PlayerObject.transform;
+        return null;
     }
 
     [Header("Gizmos")]
@@ -110,6 +157,10 @@ public class CubePedestal : MonoBehaviour, IInteractable
     private void OnDrawGizmos()
     {
         if (!drawGizmos) return;
+
+        // Interact range: green while the local player is in range, yellow otherwise.
+        Gizmos.color = inRange ? Color.green : Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, interactRange);
 
         Gizmos.color = Color.white;
         Gizmos.DrawWireSphere(transform.position, 0.2f);

@@ -8,9 +8,9 @@ public class GravityPushSpell : SpellBase
     public float damage = 10f;
     public ParticleSystem pushParticles;
 
-    [HideInInspector] public bool upgradeLargerRadius = false;      // level 1
-    [HideInInspector] public bool upgradeIncreasedForce = false;    // level 2
-    [HideInInspector] public bool upgradeDamageOnLanding = false;   // level 3
+    [HideInInspector] public bool upgradeLargerRadius = false;
+    [HideInInspector] public bool upgradeIncreasedForce = false;
+    [HideInInspector] public bool upgradeDamageOnLanding = false;
 
     protected override void Cast()
     {
@@ -22,7 +22,6 @@ public class GravityPushSpell : SpellBase
         if (pushParticles != null)
             Instantiate(pushParticles, transform.position, Quaternion.identity);
 
-        // tell the other players to spawn a visual copy of the push effect
         SpellSyncer syncer = GetComponentInParent<SpellSyncer>();
         if (syncer != null)
             syncer.BroadcastSpellVisual((int)SpellVisualType.GravityPush,
@@ -33,20 +32,31 @@ public class GravityPushSpell : SpellBase
         {
             if (hit.CompareTag("Player")) continue;
 
-            // push rigidbody if it has one (objects & ragdolls)
-            Rigidbody rb = hit.GetComponent<Rigidbody>();
-            if (rb != null)
+            Vector3 direction = (hit.transform.position - transform.position).normalized;
+            direction.y = 0.3f;   // add a slight upward arc so they get knocked up a bit
+            Vector3 force = direction.normalized * actualForce;
+
+            // MINION: route the push through the server (handles NavMeshAgent + networking)
+            BossMinionAI minion = hit.GetComponentInParent<BossMinionAI>();
+            if (minion != null)
             {
-                Vector3 direction = (hit.transform.position - transform.position).normalized;
-                rb.AddForce(direction * actualForce, ForceMode.Impulse);
+                minion.ApplyGravityPush(force);
+
+                // minions take damage too
+                minion.TakeDamage(damage);
+                continue;
             }
 
-            // damage enemy
+            // REGULAR physics object (crates, etc.) — push directly
+            Rigidbody rb = hit.GetComponent<Rigidbody>();
+            if (rb != null)
+                rb.AddForce(force, ForceMode.Impulse);
+
+            // boss or other enemy health
             EnemyHealth enemy = hit.GetComponent<EnemyHealth>();
             if (enemy != null)
                 enemy.TakeDamage(damage);
 
-            // level 3 upgrade — add landing damage component to track collision
             if (upgradeDamageOnLanding)
             {
                 GravityLandingDamage landing = hit.gameObject

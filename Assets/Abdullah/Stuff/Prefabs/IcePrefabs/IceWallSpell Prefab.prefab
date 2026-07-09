@@ -55,7 +55,7 @@ MonoBehaviour:
   maxPlaceDistance: 15
   placementMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 576
   upgradeLongerDuration: 0
   upgradeWiderWall: 0
   upgradeFreezeOnTouch: 0

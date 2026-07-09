@@ -54,9 +54,6 @@ public class BossAI : NetworkBehaviour
     [SerializeField] float minionSpawnRadius = 3f;
     [SerializeField] float minionSpawnInterval = 30f;
 
-    [Header("Debug")]
-    [SerializeField] bool debugLogs = true;
-
     public event Action StoodUp;
     public event Action FightStarted;
     public event Action PhaseTwoStarted;
@@ -81,6 +78,8 @@ public class BossAI : NetworkBehaviour
     bool secondPhaseStarted;
     float minionSpawnTimer;
 
+    bool fightBegun = false;   // stays dormant until the arena trigger wakes it
+
     readonly Collider[] aoeBuffer = new Collider[16];
 
     void Awake()
@@ -93,17 +92,16 @@ public class BossAI : NetworkBehaviour
         if (damageable == null) damageable = GetComponentInChildren<Damage>();
 
         if (damageable == null)
-            Debug.LogError("[BossAI] No Damage component found.", this);
+            Debug.LogError("[BossAI] No Damage component found on the boss.", this);
     }
 
     public override void OnNetworkSpawn()
     {
-        // clients don't run the AI — disable the agent so it can't move locally.
-        // the NetworkTransform syncs position from the server instead.
+        // clients don't run the AI — disable the agent so position comes
+        // from the NetworkTransform instead of local navigation
         if (!IsServer && agent != null)
             agent.enabled = false;
 
-        // everyone subscribes to health events (for UI + phase reactions)
         if (damageable != null)
         {
             damageable.HealthChanged += OnHealthChanged;
@@ -130,15 +128,24 @@ public class BossAI : NetworkBehaviour
         normalAttackCount = 0;
         heavyCooldownTimer = heavyCooldown;
         secondPhaseStarted = false;
+        fightBegun = false;
         StopAgent();
 
         if (damageable != null)
-            damageable.Invulnerable = true;
+            damageable.Invulnerable = true;   // invulnerable until stood up
+    }
+
+    // called on everyone by the arena trigger; only the server acts
+    public void BeginFight()
+    {
+        if (!IsServer) return;
+        fightBegun = true;
     }
 
     void Update()
     {
-        if (!IsServer) return;   // AI runs on the server only
+        if (!IsServer) return;
+        if (!fightBegun) return;   // dormant until a player enters the arena
 
         UpdateTarget();
         if (player == null) return;
@@ -177,7 +184,7 @@ public class BossAI : NetworkBehaviour
         {
             state = State.StandUp;
             introTimer = 0f;
-            StoodUpClientRpc();   // broadcast stand-up to everyone
+            StoodUpClientRpc();
         }
     }
 
@@ -305,8 +312,6 @@ public class BossAI : NetworkBehaviour
 
     void OnHealthChanged(float current)
     {
-        // this runs on everyone (health is networked), but only the server
-        // makes phase-2 gameplay decisions
         if (!IsServer) return;
         if (secondPhaseStarted || damageable.IsDead) return;
 
@@ -358,7 +363,6 @@ public class BossAI : NetworkBehaviour
         if (NavMesh.SamplePosition(pos, out NavMeshHit hit, minionSpawnRadius + 2f, NavMesh.AllAreas))
             pos = hit.position;
 
-        // network-spawn the minion so all clients see it
         GameObject minion = Instantiate(minionPrefab, pos, rot);
         NetworkObject netObj = minion.GetComponent<NetworkObject>();
         if (netObj != null)
@@ -450,7 +454,7 @@ public class BossAI : NetworkBehaviour
             : valid[0];
     }
 
-    // ─── ClientRpcs: broadcast animation/events to everyone ──
+    // ─── ClientRpcs: broadcast animations/events to all players ──
 
     [ClientRpc] void StoodUpClientRpc() => StoodUp?.Invoke();
     [ClientRpc] void FightStartedClientRpc() => FightStarted?.Invoke();

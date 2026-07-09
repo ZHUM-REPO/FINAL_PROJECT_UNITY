@@ -7,15 +7,14 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Animator))]
 public class BossMinionAI : NetworkBehaviour, IDamageable
 {
-    enum State { Chase, Attack, Dead }
+    enum State { Spawning, Chase, Attack, Dead }
 
     [Header("Health")]
     [SerializeField] float maxHealth = 20f;
-    [SerializeField] float destroyDelay = 5f;   // seconds after death before the minion is destroyed
+    [SerializeField] float destroyDelay = 5f;
 
-    // shared health — server writes, everyone reads
     private NetworkVariable<float> networkHealth = new NetworkVariable<float>(
-        20f,
+        -1f,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
@@ -36,16 +35,24 @@ public class BossMinionAI : NetworkBehaviour, IDamageable
     [Header("Animation")]
     [SerializeField] float speedDampTime = 0.1f;
 
+    [Header("Gravity Reaction")]
+    [SerializeField] float gravityRecoverTime = 2f;   // how long agent stays off after being flung
+
     public float MaxHealth => maxHealth;
     public float CurrentHealth => networkHealth.Value;
-    public bool IsDead => state == State.Dead || networkHealth.Value <= 0f;
+    public bool IsDead => state == State.Dead
+                          || (networkHealth.Value >= 0f && networkHealth.Value <= 0f);
 
     NavMeshAgent agent;
     Animator animator;
-    State state;
+    Rigidbody rb;
+    State state = State.Spawning;
     float attackTimer;
     bool hitApplied;
     float targetSwitchTimer;
+
+    bool underGravityControl = false;
+    float gravityRecoverTimer = 0f;
 
     static readonly int SpeedHash = Animator.StringToHash("Speed");
     static readonly int AttackHash = Animator.StringToHash("Attack");
@@ -55,6 +62,7 @@ public class BossMinionAI : NetworkBehaviour, IDamageable
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
     }
 
     public override void OnNetworkSpawn()
@@ -66,16 +74,26 @@ public class BossMinionAI : NetworkBehaviour, IDamageable
         }
         else
         {
-            // clients don't run the AI — the NavMeshAgent is server-driven,
-            // position comes via NetworkTransform
             if (agent != null) agent.enabled = false;
+            state = State.Chase;
         }
     }
 
     void Update()
     {
-        if (!IsServer) return;          // AI runs on the server only
+        if (!IsServer) return;
         if (state == State.Dead) return;
+        if (state == State.Spawning) return;
+
+        // if being flung by gravity, let physics take over and count down recovery
+        if (underGravityControl)
+        {
+            gravityRecoverTimer -= Time.deltaTime;
+            if (gravityRecoverTimer <= 0f)
+                EndGravityControl();
+            else
+                return;   // skip AI while airborne
+        }
 
         UpdateTarget();
         if (player == null) return;
@@ -90,8 +108,123 @@ public class BossMinionAI : NetworkBehaviour, IDamageable
         SetSpeedClientRpc(speed01);
     }
 
-    // IDamageable: the player's spells call this when they hit the minion.
-    // Routes to the server so the shared health is the one that changes.
+    // ─── Gravity control (called by the gravity spells) ───
+
+    // GRAVITY PUSH: apply a knockback impulse. Runs through the server.
+    public void ApplyGravityPush(Vector3 force)
+    {
+        if (IsServer) DoGravityPush(force);
+        else GravityPushServerRpc(force);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void GravityPushServerRpc(Vector3 force)
+    {
+        DoGravityPush(force);
+    }
+
+    private void DoGravityPush(Vector3 force)
+    {
+        if (IsDead) return;
+        BeginGravityControl();
+        if (rb != null)
+            rb.AddForce(force, ForceMode.Impulse);
+    }
+
+    // GRAVITY MOVE: the spell holds/moves the minion. Server sets its position.
+    public void SetGravityHold(bool held)
+    {
+        if (IsServer) DoSetGravityHold(held);
+        else SetGravityHoldServerRpc(held);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetGravityHoldServerRpc(bool held)
+    {
+        DoSetGravityHold(held);
+    }
+
+    private void DoSetGravityHold(bool held)
+    {
+        if (IsDead) return;
+        if (held) BeginGravityControl();
+        else
+        {
+            // when released/thrown, give a recovery window before the agent resumes
+            gravityRecoverTimer = gravityRecoverTime;
+        }
+    }
+
+    // move the minion to a position while held (server authoritative)
+    public void MoveWhileHeld(Vector3 position)
+    {
+        if (IsServer) transform.position = position;
+        else MoveWhileHeldServerRpc(position);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void MoveWhileHeldServerRpc(Vector3 position)
+    {
+        transform.position = position;
+    }
+
+    // throw: apply an impulse and start recovery
+    public void ThrowMinion(Vector3 force)
+    {
+        if (IsServer) DoThrow(force);
+        else ThrowServerRpc(force);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ThrowServerRpc(Vector3 force)
+    {
+        DoThrow(force);
+    }
+
+    private void DoThrow(Vector3 force)
+    {
+        if (IsDead) return;
+        BeginGravityControl();
+        if (rb != null)
+            rb.AddForce(force, ForceMode.Impulse);
+    }
+
+    private void BeginGravityControl()
+    {
+        underGravityControl = true;
+        gravityRecoverTimer = gravityRecoverTime;
+
+        // turn OFF the agent so physics can move the minion
+        if (agent != null && agent.enabled)
+            agent.enabled = false;
+
+        // let the rigidbody move freely
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+        }
+    }
+
+    private void EndGravityControl()
+    {
+        underGravityControl = false;
+
+        // snap the minion back onto the NavMesh and re-enable the agent
+        if (agent != null)
+        {
+            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5f, NavMesh.AllAreas))
+                transform.position = hit.position;
+
+            agent.enabled = true;
+        }
+
+        if (rb != null)
+            rb.isKinematic = true;   // agent drives movement again
+    }
+
+    // ─── Damage ────────────────────────────────────────────
+
     public void TakeDamage(float amount)
     {
         if (amount <= 0f) return;
@@ -101,7 +234,8 @@ public class BossMinionAI : NetworkBehaviour, IDamageable
     [ServerRpc(RequireOwnership = false)]
     private void TakeDamageServerRpc(float amount)
     {
-        if (IsDead) return;
+        if (state == State.Dead) return;
+        if (networkHealth.Value < 0f) return;
 
         networkHealth.Value = Mathf.Max(0f, networkHealth.Value - amount);
         if (networkHealth.Value <= 0f) Die();
@@ -112,13 +246,13 @@ public class BossMinionAI : NetworkBehaviour, IDamageable
         if (state == State.Dead) return;
         state = State.Dead;
 
-        agent.isStopped = true;
-        agent.velocity = Vector3.zero;
+        if (agent != null && agent.enabled)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+        }
 
-        // play the death anim on everyone
         DeathClientRpc();
-
-        // despawn the networked object after the death anim plays
         StartCoroutine(DespawnAfterDelay());
     }
 
@@ -128,12 +262,12 @@ public class BossMinionAI : NetworkBehaviour, IDamageable
 
         NetworkObject netObj = GetComponent<NetworkObject>();
         if (netObj != null && netObj.IsSpawned)
-            netObj.Despawn();   // removes it for all clients
+            netObj.Despawn();
         else
             Destroy(gameObject);
     }
 
-    // ─── Targeting (server-only) ──────────────────────────
+    // ─── Targeting ─────────────────────────────────────────
 
     void UpdateTarget()
     {
@@ -168,12 +302,10 @@ public class BossMinionAI : NetworkBehaviour, IDamageable
         foreach (Transform t in valid)
             if (t != player) others.Add(t);
 
-        return others.Count > 0
-            ? others[Random.Range(0, others.Count)]
-            : valid[0];
+        return others.Count > 0 ? others[Random.Range(0, others.Count)] : valid[0];
     }
 
-    // ─── State ticks (server-only) ────────────────────────
+    // ─── State ticks ───────────────────────────────────────
 
     void TickChase()
     {
@@ -212,7 +344,7 @@ public class BossMinionAI : NetworkBehaviour, IDamageable
     void EnterChase()
     {
         state = State.Chase;
-        agent.isStopped = false;
+        if (agent.enabled) agent.isStopped = false;
     }
 
     void EnterAttack()
@@ -220,8 +352,11 @@ public class BossMinionAI : NetworkBehaviour, IDamageable
         state = State.Attack;
         attackTimer = 0f;
         hitApplied = false;
-        agent.isStopped = true;
-        agent.velocity = Vector3.zero;
+        if (agent.enabled)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+        }
         AttackClientRpc();
     }
 
@@ -240,24 +375,14 @@ public class BossMinionAI : NetworkBehaviour, IDamageable
         return d.magnitude;
     }
 
-    // ─── ClientRpcs: animation on all clients ─────────────
+    // ─── ClientRpcs ────────────────────────────────────────
 
-    [ClientRpc]
-    private void SetSpeedClientRpc(float speed01)
-    {
-        animator.SetFloat(SpeedHash, speed01, speedDampTime, Time.deltaTime);
-    }
-
-    [ClientRpc]
-    private void AttackClientRpc()
-    {
-        animator.SetTrigger(AttackHash);
-    }
-
+    [ClientRpc] private void SetSpeedClientRpc(float speed01) => animator.SetFloat(SpeedHash, speed01, speedDampTime, Time.deltaTime);
+    [ClientRpc] private void AttackClientRpc() => animator.SetTrigger(AttackHash);
     [ClientRpc]
     private void DeathClientRpc()
     {
-        agent.isStopped = true;
+        if (agent != null && agent.enabled) agent.isStopped = true;
         if (TryGetComponent(out Collider col)) col.enabled = false;
         animator.SetTrigger(DeathHash);
     }

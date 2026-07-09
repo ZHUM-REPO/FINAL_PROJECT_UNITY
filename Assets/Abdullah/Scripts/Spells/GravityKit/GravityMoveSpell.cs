@@ -4,20 +4,20 @@ public class GravityMoveSpell : SpellBase
 {
     [Header("Gravity Move Settings")]
     public float grabRange = 10f;
-    public float maxWeight = 50f;       // Rigidbody mass limit
-    public float holdDistance = 3f;     // how far in front of player object floats
+    public float maxWeight = 50f;
+    public float holdDistance = 3f;
     public float throwForce = 20f;
     public float manaPerSecond = 8f;
     public LayerMask grabbableMask;
 
-    [HideInInspector] public bool upgradeLongerRange = false;       // level 1
-    [HideInInspector] public bool upgradeHeavierObjects = false;    // level 2
-    [HideInInspector] public bool upgradeStrongerThrow = false;     // level 3
+    [HideInInspector] public bool upgradeLongerRange = false;
+    [HideInInspector] public bool upgradeHeavierObjects = false;
+    [HideInInspector] public bool upgradeStrongerThrow = false;
 
-    private Rigidbody heldObject = null;
+    private Rigidbody heldObject = null;     // for regular physics objects
+    private BossMinionAI heldMinion = null;  // for networked minions
     private bool isHolding = false;
 
-    // TryCast starts the grab, TryThrow throws, TryDrop drops
     public new bool TryCast()
     {
         if (isOnCooldown || isHolding) return false;
@@ -32,6 +32,19 @@ public class GravityMoveSpell : SpellBase
         if (!Physics.Raycast(ray, out RaycastHit hit, actualRange, grabbableMask))
             return false;
 
+        // MINION grab
+        BossMinionAI minion = hit.collider.GetComponentInParent<BossMinionAI>();
+        if (minion != null)
+        {
+            heldMinion = minion;
+            heldMinion.SetGravityHold(true);   // server disables its agent
+            isHolding = true;
+            playerStats.SetCasting(true);
+            PlayCastParticles();
+            return true;
+        }
+
+        // REGULAR physics object grab
         Rigidbody rb = hit.collider.GetComponent<Rigidbody>();
         if (rb == null || rb.mass > actualMaxWeight) return false;
 
@@ -45,29 +58,42 @@ public class GravityMoveSpell : SpellBase
 
     public void TryThrow()
     {
-        if (!isHolding || heldObject == null) return;
+        if (!isHolding) return;
 
-        heldObject.useGravity = true;
         float actualForce = upgradeStrongerThrow ? throwForce * 1.5f : throwForce;
-        heldObject.AddForce(Camera.main.transform.forward * actualForce,
-                            ForceMode.Impulse);
+        Vector3 force = Camera.main.transform.forward * actualForce;
+
+        if (heldMinion != null)
+        {
+            heldMinion.ThrowMinion(force);   // server applies the throw
+        }
+        else if (heldObject != null)
+        {
+            heldObject.useGravity = true;
+            heldObject.AddForce(force, ForceMode.Impulse);
+        }
+
         ReleaseObject();
         GrantXP();
     }
 
     public void TryDrop()
     {
-        if (!isHolding || heldObject == null) return;
+        if (!isHolding) return;
         ReleaseObject();
         GrantXP();
     }
 
     private void ReleaseObject()
     {
+        if (heldMinion != null)
+            heldMinion.SetGravityHold(false);   // server lets the agent recover
+
         if (heldObject != null)
             heldObject.useGravity = true;
 
         heldObject = null;
+        heldMinion = null;
         isHolding = false;
         playerStats.SetCasting(false);
         StartCooldown();
@@ -75,26 +101,34 @@ public class GravityMoveSpell : SpellBase
         if (castParticles != null) castParticles.Stop();
     }
 
-    protected override void Cast() { } // not used — uses TryCast/TryThrow/TryDrop
+    protected override void Cast() { }
 
     protected override void Update()
     {
         base.Update();
 
-        if (!isHolding || heldObject == null) return;
+        if (!isHolding) return;
 
         // drain mana while holding
         if (!playerStats.ConsumeMana(manaPerSecond * Time.deltaTime))
         {
-            TryDrop(); // out of mana — drop it
+            TryDrop();
             return;
         }
 
-        // float object in front of camera at holdDistance
         Vector3 targetPos = Camera.main.transform.position
                           + Camera.main.transform.forward * holdDistance;
-        heldObject.MovePosition(
-            Vector3.Lerp(heldObject.position, targetPos, Time.deltaTime * 10f));
+
+        if (heldMinion != null)
+        {
+            // tell the server to move the minion to the hold point
+            heldMinion.MoveWhileHeld(targetPos);
+        }
+        else if (heldObject != null)
+        {
+            heldObject.MovePosition(
+                Vector3.Lerp(heldObject.position, targetPos, Time.deltaTime * 10f));
+        }
     }
 
     public override void ApplyUpgradeLevel(int upgradesBought)

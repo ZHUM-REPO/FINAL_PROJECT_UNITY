@@ -7,6 +7,9 @@ public class KitDefinition : ScriptableObject
     public string kitName;
     public Sprite kitIcon;
 
+    [Header("Wand Model")]
+    public GameObject wandPrefab;   // the wand model for this kit
+
     [Header("Spells")]
     // these are the prefabs that have SpellBase components on them
     public GameObject spellOnePrefab;

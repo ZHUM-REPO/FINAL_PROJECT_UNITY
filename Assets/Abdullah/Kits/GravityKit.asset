@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KitDefinition
   kitName: Gravity
   kitIcon: {fileID: 0}
+  wandPrefab: {fileID: 8190756189439202145, guid: 05d388a48053fe74eaad1411c04ea387, type: 3}
   spellOnePrefab: {fileID: 1222225931087844141, guid: 47e104b659c917f44b52de96dca2328d, type: 3}
   spellTwoPrefab: {fileID: 3533481840844380622, guid: 3fe0e6e53718de843997a37b38aa9ad6, type: 3}
   upgradeOneDescription: 

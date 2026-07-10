@@ -16,6 +16,10 @@ public class KitManager : MonoBehaviour
     private SpellBase spellTwo;
     private int activeSpellIndex = 0;
 
+    [Header("Wand")]
+    [SerializeField] private Transform wandHolder;   // where the wand model attaches (e.g. MagicStick)
+    private GameObject currentWand;                  // the currently spawned wand instance
+
     [Header("References")]
     public Transform spellSpawnPoint;
 
@@ -30,11 +34,13 @@ public class KitManager : MonoBehaviour
 
     private NetworkObject networkObject;
     private PlayerProgression progression;
+    private NetworkWand networkWand;
 
     private void Awake()
     {
         networkObject = GetComponent<NetworkObject>();
         progression = GetComponent<PlayerProgression>();
+        networkWand = GetComponent<NetworkWand>();
     }
 
     private void OnEnable()
@@ -89,6 +95,12 @@ public class KitManager : MonoBehaviour
         activeSpellIndex = 0;
         fireBreath = null;
         gravityMove = null;
+        // swap the wand model to match this kit
+        SwapWand(kit);
+
+        // swap the visible wand model to match this kit (networked to all players)
+        if (networkWand != null)
+            networkWand.SetWandForKit(kit);
 
         if (kit.spellOnePrefab != null)
         {
@@ -342,5 +354,24 @@ public class KitManager : MonoBehaviour
         SetAssignedKits(restored);
         Debug.Log($"Restored {restored.Count} chosen kit(s) from store.");
         return true;
+    }
+
+    private void SwapWand(KitDefinition kit)
+    {
+        // remove the old wand
+        if (currentWand != null)
+        {
+            Destroy(currentWand);
+            currentWand = null;
+        }
+
+        // spawn the new kit's wand
+        if (kit != null && kit.wandPrefab != null && wandHolder != null)
+        {
+            currentWand = Instantiate(kit.wandPrefab, wandHolder);
+            currentWand.transform.localPosition = Vector3.zero;
+            currentWand.transform.localRotation = Quaternion.identity;
+            currentWand.transform.localScale = Vector3.one;
+        }
     }
 }

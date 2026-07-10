@@ -214,6 +214,7 @@ GameObject:
   - component: {fileID: 3734755617600924393}
   - component: {fileID: 9174194200868887427}
   - component: {fileID: 6203865998143386877}
+  - component: {fileID: 8830286788417520712}
   m_Layer: 3
   m_Name: Player (1)
   m_TagString: Player
@@ -689,6 +690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc73733a4ce54646b43a8cb97803f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerProgression
+  ShowTopMostFoldoutHeaderGroup: 1
   score: 0
   healthUpgradeCost: 50
   manaUpgradeCost: 50
@@ -726,6 +728,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KitManager
   equippedKit: {fileID: 0}
+  wandHolder: {fileID: 8025867316997487644}
   spellSpawnPoint: {fileID: 6144023745086927370}
   soloTestMode: 0
   allKits:
@@ -1267,6 +1270,21 @@ MonoBehaviour:
       Synchronize: 1
       ParameterType: 9
   AnimatorParametersExpanded: 0
+--- !u!114 &8830286788417520712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 455798501096455056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edc492dff56ecf44bae0503e1d0fd806, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkWand
+  ShowTopMostFoldoutHeaderGroup: 1
+  allKits: []
+  wandHolder: {fileID: 0}
 --- !u!1 &458183076852621349
 GameObject:
   m_ObjectHideFlags: 0
@@ -1685,6 +1703,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 771863737392743767}
+  - {fileID: 8025867316997487644}
   m_Father: {fileID: 3011355395178382043}
   m_LocalEulerAnglesHint: {x: 0, y: -148.716, z: 0}
 --- !u!114 &7587564603866792766
@@ -2150,7 +2169,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3607678078607613380}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -2258,6 +2277,37 @@ Transform:
   - {fileID: 156049304347811012}
   m_Father: {fileID: 3011355395178382043}
   m_LocalEulerAnglesHint: {x: 0, y: -367.273, z: 0}
+--- !u!1 &3970747718821226558
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8025867316997487644}
+  m_Layer: 3
+  m_Name: MagicHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8025867316997487644
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3970747718821226558}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalPosition: {x: 0.2179999, y: -0.31, z: 0.617}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 8938166694594207768}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!1 &4004438792003643781
 GameObject:
   m_ObjectHideFlags: 0

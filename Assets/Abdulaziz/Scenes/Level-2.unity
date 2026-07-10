@@ -7315,6 +7315,108 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -784566545644147505, guid: 34e9f0a8ab912954aa5053bb0c7c1093, type: 3}
+--- !u!1 &907957881
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 907957885}
+  - component: {fileID: 907957884}
+  - component: {fileID: 907957882}
+  - component: {fileID: 907957883}
+  m_Layer: 0
+  m_Name: PuzzleLevelExit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &907957882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907957881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 665208964
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  <InScenePlaced>k__BackingField: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &907957883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907957881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d23d5e7d6e42362479521a65125bb3a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuzzleLevelExit
+  ShowTopMostFoldoutHeaderGroup: 1
+  levelSceneName: Level-2
+  rewardScore: 1000
+  playerTag: Player
+  useTriggerZone: 1
+  useButton: 0
+  interactRange: 3
+  interactPrompt: {fileID: 0}
+  returnDelay: 2
+--- !u!65 &907957884
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907957881}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.9473267, y: 3.9514847, z: 1}
+  m_Center: {x: -0.19670105, y: 1.4757423, z: 0}
+--- !u!4 &907957885
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907957881}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -164.8898, y: -40.91934, z: -822.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &942746546
 GameObject:
   m_ObjectHideFlags: 0
@@ -76253,3 +76355,4 @@ SceneRoots:
   - {fileID: 4298436352705817956}
   - {fileID: 7335577890454913923}
   - {fileID: 1991083855}
+  - {fileID: 907957885}

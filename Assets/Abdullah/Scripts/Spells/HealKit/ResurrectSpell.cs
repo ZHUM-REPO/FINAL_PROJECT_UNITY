@@ -3,19 +3,23 @@ using UnityEngine;
 public class ResurrectSpell : SpellBase
 {
     [Header("Resurrect Settings")]
-    public float resurrectHealthPercent = 0.30f; // revived with 30% health
+    public float resurrectHealthPercent = 0.30f;
     public float maxResurrectDistance = 5f;
     public LayerMask deadPlayerMask;
 
-    [HideInInspector] public bool upgradeMoreHealth = false;        // level 1
-    [HideInInspector] public bool upgradeFasterQTE = false;         // level 2 — fewer buttons
-    [HideInInspector] public bool upgradeFullRevive = false;        // level 3
+    [HideInInspector] public bool upgradeMoreHealth = false;
+    [HideInInspector] public bool upgradeFasterQTE = false;
+    [HideInInspector] public bool upgradeFullRevive = false;
 
     private PlayerStats targetStats;
     private PlayerDeath targetDeath;
 
     protected override void Cast()
     {
+        // a dead caster can't resurrect
+        PlayerDeath myDeath = GetComponentInParent<PlayerDeath>();
+        if (myDeath != null && myDeath.IsDead()) return;
+
         Ray ray = Camera.main.ScreenPointToRay(
             new Vector3(Screen.width / 2, Screen.height / 2));
 
@@ -26,18 +30,16 @@ public class ResurrectSpell : SpellBase
             return;
         }
 
-        targetDeath = hit.collider.GetComponent<PlayerDeath>();
+        targetDeath = hit.collider.GetComponentInParent<PlayerDeath>();
         if (targetDeath == null || !targetDeath.IsDead())
         {
             Debug.Log("Target is not dead.");
             return;
         }
 
-        targetStats = hit.collider.GetComponent<PlayerStats>();
+        targetStats = hit.collider.GetComponentInParent<PlayerStats>();
         playerStats.SetCasting(true);
 
-        // resurrect QTE is harder — more buttons, less time per input
-        // upgradeFasterQTE reduces the sequence length as a reward
         int qteLength = upgradeFasterQTE ? 5 : 8;
         QTEManager.Instance.StartQTE(OnQTEComplete, qteLength);
     }
@@ -46,7 +48,7 @@ public class ResurrectSpell : SpellBase
     {
         playerStats.SetCasting(false);
 
-        if (result.grade == QTEGrade.Fail || targetStats == null)
+        if (result.grade == QTEGrade.Fail || targetDeath == null)
         {
             Debug.Log("Resurrection failed.");
             return;
@@ -62,6 +64,7 @@ public class ResurrectSpell : SpellBase
             healthPercent = Mathf.Lerp(0.10f, resurrectHealthPercent,
                                         result.effectMultiplier);
 
+        // routes through the server now (PlayerDeath.Resurrect sends a ServerRpc)
         targetDeath.Resurrect(healthPercent);
         PlayCastParticles();
 

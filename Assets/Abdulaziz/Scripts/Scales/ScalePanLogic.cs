@@ -1,16 +1,13 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
 /// One side of the scale. Detects WeightedObjects by polling an overlap volume
-/// instead of relying on OnTrigger callbacks. This means NO Rigidbody is required
-/// anywhere — it works with CharacterController-driven objects, kinematic objects,
-/// static colliders, or props teleported in by the magic script.
-///
-/// Setup: add a BoxCollider to this GameObject (set it as a trigger so it doesn't
-/// block movement) and size it to cover the pan surface. It's used only to DEFINE
-/// the detection zone — the actual detection is a region query, not a physics event.
-/// If you prefer, skip the BoxCollider and set zoneSize/zoneCenter manually.
+/// (no Rigidbody required). In multiplayer, only the SERVER scans — the puzzle is
+/// server-authoritative, so client-side scans would be redundant and could disagree.
+/// This stays a plain MonoBehaviour; it checks NetworkManager to know if it's the
+/// server, so it needs no NetworkObject of its own.
 /// </summary>
 public class ScalePan : MonoBehaviour
 {
@@ -37,7 +34,10 @@ public class ScalePan : MonoBehaviour
     /// <summary>Fires when an object is added/removed OR an object's weight changes.</summary>
     public event System.Action ContentsChanged;
 
-    /// <summary>Sum of every WeightedObject currently resting on this pan.</summary>
+    // Only the server runs the puzzle detection.
+    private bool IsServer => NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
+
+    /// <summary>Sum of every WeightedObject currently resting on this pan. (Server.)</summary>
     public float TotalWeight
     {
         get
@@ -53,13 +53,10 @@ public class ScalePan : MonoBehaviour
 
     private void OnEnable()
     {
-        // Re-hook anything still tracked (e.g. after this pan was disabled then
-        // re-enabled — OnDisable removed those subscriptions), then scan now so we
-        // don't sit blind until the first timed scan.
         for (int i = 0; i < contents.Count; i++)
             Subscribe(contents[i]);
 
-        Scan();
+        if (IsServer) Scan();
         scanTimer = scanInterval;
     }
 
@@ -71,6 +68,8 @@ public class ScalePan : MonoBehaviour
 
     private void Update()
     {
+        if (!IsServer) return;   // clients don't scan; they get the result from BalanceScale
+
         scanTimer -= Time.deltaTime;
         if (scanTimer > 0f) return;
         scanTimer = scanInterval;
@@ -96,7 +95,6 @@ public class ScalePan : MonoBehaviour
 
         bool changed = false;
 
-        // Remove objects that left the zone.
         for (int i = contents.Count - 1; i >= 0; i--)
         {
             if (!found.Contains(contents[i]))
@@ -107,7 +105,6 @@ public class ScalePan : MonoBehaviour
             }
         }
 
-        // Add objects that entered the zone.
         foreach (var w in found)
         {
             if (!contents.Contains(w))
@@ -153,9 +150,6 @@ public class ScalePan : MonoBehaviour
     }
 
     private void HandleWeightChanged(WeightedObject w) => ContentsChanged?.Invoke();
-
-    // An object turned off (destroyed-by-disable, pooled, etc.) drops out instantly
-    // rather than lingering until the next scan.
     private void HandleObjectDisabled(WeightedObject w) => Remove(w);
 
     // ---- Manual placement (magic teleports an object in/out by code) ------
@@ -175,7 +169,6 @@ public class ScalePan : MonoBehaviour
         ContentsChanged?.Invoke();
     }
 
-    /// <summary>True if an object with this ID is currently on the pan.</summary>
     public bool Contains(string objectId)
     {
         for (int i = 0; i < contents.Count; i++)
@@ -183,7 +176,6 @@ public class ScalePan : MonoBehaviour
         return false;
     }
 
-    // Draws the detection zone in the Scene view so you can size it visually.
     private void OnDrawGizmosSelected()
     {
         GetZone(out Vector3 center, out Vector3 halfExtents, out Quaternion orientation);

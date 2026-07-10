@@ -1,16 +1,20 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
-/// Owns the game's music. Every track plays continuously and loops from the start —
-/// the manager never stops any of them, it only changes volume: the active track at
-/// Active Volume, the rest at 0. Each track is paired with the door that triggers it
-/// and the clip it should play, so passing through a specific door makes that
-/// specific clip audible.
+/// Owns the game's music. Every track plays continuously and loops — the manager
+/// never stops any of them, it only changes volume: the active track at Active
+/// Volume, the rest at 0. Each track is paired with the door that triggers it.
 ///
-/// Put this on one always-active object and drag it into the doors that switch music.
+/// Server-driven, heard by everyone: the server decides in OnNetworkSpawn and
+/// broadcasts a ClientRpc so each machine starts its own local music. Audio is
+/// local to each machine, so this is how all players hear the soundtrack.
+///
+/// Requires a NetworkObject on this GameObject (in-scene placed object). Put this on
+/// one always-active object and drag it into the doors that switch music.
 /// </summary>
-public class MusicManager : MonoBehaviour
+public class MusicManager : NetworkBehaviour
 {
     /// <summary>Pairs a level door with the clip + AudioSource that should play
     /// when the player goes through it.</summary>
@@ -24,7 +28,7 @@ public class MusicManager : MonoBehaviour
         public AudioClip clip;
 
         [Tooltip("The AudioSource the clip plays through. The manager loads the clip " +
-                 "onto it, loops it, and mutes it at launch until the door is used.")]
+                 "onto it, loops it, and mutes it until the door is used.")]
         public AudioSource track;
     }
 
@@ -45,8 +49,8 @@ public class MusicManager : MonoBehaviour
     [SerializeField] private AudioSource finalTrack;
 
     [Header("World Map")]
-    [Tooltip("The default clip: audible at start and restored when the player " +
-             "leaves a level.")]
+    [Tooltip("The default clip: audible when music starts and restored when the " +
+             "player leaves a level.")]
     [SerializeField] private AudioClip worldMapClip;
 
     [Tooltip("The AudioSource the world-map clip plays through.")]
@@ -59,30 +63,31 @@ public class MusicManager : MonoBehaviour
     // What's audible now, and the trail to fall back through when leaving levels.
     private AudioSource _current;
     private readonly Stack<AudioSource> _history = new Stack<AudioSource>();
+    private bool _started;
 
-    private void Awake()
+    public override void OnNetworkSpawn()
     {
-        // World map FIRST, so its clip is playing the instant the scene loads.
-        Prepare(worldMapTrack, worldMapClip);
-        if (worldMapTrack != null)
-        {
-            worldMapTrack.volume = activeVolume;
-            _current = worldMapTrack;
-        }
-
-        // Then start every other track playing + looping + muted in the background,
-        // so none of them ever stop and switching is just a volume change.
-        if (doorTracks != null)
-            for (int i = 0; i < doorTracks.Length; i++)
-                if (doorTracks[i] != null) Prepare(doorTracks[i].track, doorTracks[i].clip);
-
-        Prepare(finalTrack, finalClip);
+        // Server decides, every client starts its own local music (audio is local
+        // to each machine, so this is how all players hear the soundtrack).
+        if (IsServer) BeginMusicClientRpc();
     }
 
-    /// <summary>Called by a level door when the player passes through it. Plays the
-    /// clip/source paired with that door in the Door Tracks list.</summary>
+    [ClientRpc]
+    private void BeginMusicClientRpc() => BeginMusic();
+
+    /// <summary>Start all tracks and play the world-map theme. Starts the tracks
+    /// from the top, so it's best called once a listener exists.</summary>
+    public void BeginMusic()
+    {
+        EnsureStarted();
+        PlayWorldMapMusic();
+    }
+
+    /// <summary>Called by a level door when the player passes through it.</summary>
     public void PlayForDoor(DoorRoomPedestal door)
     {
+        EnsureStarted();
+
         AudioSource track = FindTrack(door);
         if (track == null)
         {
@@ -96,6 +101,8 @@ public class MusicManager : MonoBehaviour
     /// <summary>Called by the FinalDoor when the player reaches the final area.</summary>
     public void PlayForFinalDoor(FinalDoor door)
     {
+        EnsureStarted();
+
         if (finalDoor != null && door != finalDoor)
         {
             Debug.LogWarning($"{name}: PlayForFinalDoor called by an unexpected door '{(door != null ? door.name : "null")}'.", this);
@@ -113,6 +120,8 @@ public class MusicManager : MonoBehaviour
     /// <summary>Leave a level: fall back to whatever was audible before (the world map).</summary>
     public void ReturnToPreviousMusic()
     {
+        EnsureStarted();
+
         AudioSource previous = _history.Count > 0 ? _history.Pop() : worldMapTrack;
         if (previous == null || previous == _current) return;
 
@@ -121,15 +130,32 @@ public class MusicManager : MonoBehaviour
         _current = previous;
     }
 
-    /// <summary>Jump straight back to the world-map theme and forget the history.</summary>
+    /// <summary>Play the world-map theme and forget the history.</summary>
     public void PlayWorldMapMusic()
     {
+        EnsureStarted();
+
         _history.Clear();
         if (worldMapTrack == null || worldMapTrack == _current) return;
 
         if (_current != null) _current.volume = 0f;
         worldMapTrack.volume = activeVolume;
         _current = worldMapTrack;
+    }
+
+    // Start every track playing, looping, and muted — once. Called lazily by the
+    // public methods so the first music request also boots the tracks up.
+    private void EnsureStarted()
+    {
+        if (_started) return;
+        _started = true;
+
+        if (doorTracks != null)
+            for (int i = 0; i < doorTracks.Length; i++)
+                if (doorTracks[i] != null) Prepare(doorTracks[i].track, doorTracks[i].clip);
+
+        Prepare(finalTrack, finalClip);
+        Prepare(worldMapTrack, worldMapClip);
     }
 
     // Find the source paired with a given door.
@@ -154,8 +180,7 @@ public class MusicManager : MonoBehaviour
         _current = track;
     }
 
-    // Load the clip onto the source, then get it looping, muted, and playing so
-    // it's ready to be un-muted later.
+    // Load the clip onto the source, then get it looping, muted, and playing.
     private void Prepare(AudioSource source, AudioClip clip)
     {
         if (source == null) return;

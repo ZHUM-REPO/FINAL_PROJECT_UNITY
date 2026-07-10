@@ -30,6 +30,14 @@ public class FinalDoor : MonoBehaviour
     [Tooltip("Seconds before the door can teleport again.")]
     [SerializeField] private float teleportCooldown = 1f;
 
+    [Header("Audio")]
+    [Tooltip("The source used to play door feedback. Add an AudioSource to " +
+             "this door (or a child) and drag it here.")]
+    [SerializeField] private AudioSource audioSource;
+
+    [Tooltip("Played when the player is accepted and sent to the next area.")]
+    [SerializeField] private AudioClip acceptedClip;
+
     private float _lastTeleportTime = -999f;
 
     // Fired when the player is turned away for missing shapes.
@@ -45,6 +53,7 @@ public class FinalDoor : MonoBehaviour
         if (AllCollected())
         {
             Teleport(other.transform, nextArea);
+            PlayClip(acceptedClip);
         }
         else
         {
@@ -82,6 +91,14 @@ public class FinalDoor : MonoBehaviour
         player.SetPositionAndRotation(destination.position, destination.rotation);
 
         if (cc != null) cc.enabled = true;
+    }
+
+    // Plays a one-shot clip if both the source and clip are assigned.
+    // PlayOneShot doesn't interrupt anything already playing on the source.
+    private void PlayClip(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+            audioSource.PlayOneShot(clip);
     }
 
     [Header("Gizmos")]

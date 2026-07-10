@@ -45,7 +45,7 @@ Material:
     m_Floats:
     - _CloudsHeight: -0.13
     - _CloudsOffset: 0.22
-    - _CloudsRotationSpeed: 0
+    - _CloudsRotationSpeed: 1
     - _Exposure: 1
     - _MoonSize: 0.92
     - _StarsExtinction: 10

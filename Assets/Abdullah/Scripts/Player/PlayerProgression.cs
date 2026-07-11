@@ -28,12 +28,6 @@ public class PlayerProgression : MonoBehaviour
     // XP required per level — index 0 = level 0→1, index 1 = level 1→2, index 2 = level 2→3
     public float[] xpPerLevel = { 100f, 250f, 500f };
 
-    [Header("Kit Upgrade Costs (per tier: 1, 2, 3)")]
-    public int[] kitUpgradeCosts = { 100, 200, 400 };
-
-    // key: kit name, value: how many upgrades bought (0..3)
-    private Dictionary<string, int> kitUpgradesBought = new Dictionary<string, int>();
-
     private PlayerStats playerStats;
 
     private void Awake()
@@ -41,7 +35,7 @@ public class PlayerProgression : MonoBehaviour
         playerStats = GetComponent<PlayerStats>();
     }
 
-    // ─── Score ──────────────────────────────────────────────
+    // ─── Score ────────────────────────────────────────────
 
     public void AddScore(int amount)
     {
@@ -55,7 +49,7 @@ public class PlayerProgression : MonoBehaviour
         return true;
     }
 
-    // ─── Stat Upgrades ──────────────────────────────────────
+    // ─── Stat Upgrades ────────────────────────────────────
 
     public bool UpgradeHealth()
     {
@@ -78,7 +72,7 @@ public class PlayerProgression : MonoBehaviour
         return true;
     }
 
-    // ─── Kit XP & Levels ────────────────────────────────────
+    // ─── Kit XP & Levels ─────────────────────────────────
 
     public void RegisterKit(string kitName)
     {
@@ -124,48 +118,5 @@ public class PlayerProgression : MonoBehaviour
     {
         // spells check GetKitLevel() themselves to unlock upgrades
         Debug.Log($"{kitName} reached level {newLevel}!");
-    }
-
-    // ─── Kit Upgrades ───────────────────────────────────────
-
-    public int GetKitUpgradesBought(string kitName)
-    {
-        return kitUpgradesBought.TryGetValue(kitName, out int v) ? v : 0;
-    }
-
-    // can the player buy the NEXT upgrade for this kit right now?
-    public bool CanBuyKitUpgrade(string kitName)
-    {
-        int bought = GetKitUpgradesBought(kitName);
-        if (bought >= 3) return false;                          // all bought
-
-        int requiredLevel = bought + 1;                         // upgrade 1 needs level 1, etc.
-        if (GetKitLevel(kitName) < requiredLevel) return false; // not high enough level
-
-        int cost = kitUpgradeCosts[bought];
-        return score >= cost;                                   // can afford
-    }
-
-    // returns true if the purchase succeeded
-    public bool BuyKitUpgrade(string kitName)
-    {
-        if (!CanBuyKitUpgrade(kitName)) return false;
-
-        int bought = GetKitUpgradesBought(kitName);
-        int cost = kitUpgradeCosts[bought];
-
-        if (!SpendScore(cost)) return false;
-
-        kitUpgradesBought[kitName] = bought + 1;
-        Debug.Log($"Bought upgrade {bought + 1} for {kitName} (cost {cost}).");
-        return true;
-    }
-
-    // cost of the NEXT upgrade (for UI display); -1 if none left
-    public int GetNextKitUpgradeCost(string kitName)
-    {
-        int bought = GetKitUpgradesBought(kitName);
-        if (bought >= 3) return -1;
-        return kitUpgradeCosts[bought];
     }
 }

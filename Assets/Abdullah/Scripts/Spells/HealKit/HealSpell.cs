@@ -69,11 +69,4 @@ public class HealSpell : SpellBase
                 teammate.Heal(amount);
         }
     }
-
-    public override void ApplyUpgradeLevel(int upgradesBought)
-    {
-        upgradeIncreasedHeal = upgradesBought >= 1;
-        upgradeHealOverTime  = upgradesBought >= 2;
-        upgradeAuraHeal      = upgradesBought >= 3;
-    }
 }

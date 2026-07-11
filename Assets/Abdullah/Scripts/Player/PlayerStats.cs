@@ -1,7 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 
-public class PlayerStats : NetworkBehaviour, IDamageable
+public class PlayerStats : MonoBehaviour
 {
     [Header("Health")]
     public float maxHealth = 100f;
@@ -31,8 +31,9 @@ public class PlayerStats : NetworkBehaviour, IDamageable
 
     private void Update()
     {
-        // only the owner updates their own stats
-        if (!IsOwner) return;
+         // only the owner updates their own stats
+        NetworkObject netObj = GetComponent<NetworkObject>();
+        if (netObj != null && !netObj.IsOwner) return;
 
         HandleManaRegen();
     }
@@ -64,62 +65,16 @@ public class PlayerStats : NetworkBehaviour, IDamageable
 
     // ─── Health ───────────────────────────────────────────
 
-    // IDamageable: the boss and minions call this when they hit the player.
-    // The boss runs on the server, so damage is applied server-side and
-    // synced down to the owner so it can't be overwritten by client updates.
     public void TakeDamage(float amount)
-    {
-        if (amount <= 0f) return;
-
-        if (IsServer)
-            ApplyDamage(amount);
-        else
-            TakeDamageServerRpc(amount);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void TakeDamageServerRpc(float amount)
-    {
-        ApplyDamage(amount);
-    }
-
-    private void ApplyDamage(float amount)
     {
         myHealth -= amount;
         myHealth = Mathf.Clamp(myHealth, 0f, maxHealth);
-
-        // tell the owner their new health so their local value matches
-        SyncHealthClientRpc(myHealth);
     }
 
     public void Heal(float amount)
     {
-        if (amount <= 0f) return;
-
-        if (IsServer)
-        {
-            myHealth += amount;
-            myHealth = Mathf.Clamp(myHealth, 0f, maxHealth);
-            SyncHealthClientRpc(myHealth);
-        }
-        else
-        {
-            HealServerRpc(amount);
-        }
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void HealServerRpc(float amount)
-    {
         myHealth += amount;
         myHealth = Mathf.Clamp(myHealth, 0f, maxHealth);
-        SyncHealthClientRpc(myHealth);
-    }
-
-    [ClientRpc]
-    private void SyncHealthClientRpc(float newHealth)
-    {
-        myHealth = newHealth;
     }
 
     public bool IsDead() => myHealth <= 0f;
@@ -146,8 +101,8 @@ public class PlayerStats : NetworkBehaviour, IDamageable
 
     // ─── Stat Upgrades (called by PlayerProgression) ──────
 
-    public void UpgradeMaxHealth(float amount)
-    {
+    public void UpgradeMaxHealth(float amount) 
+    { 
         maxHealth += amount;
         myHealth += amount; // current health scales up with the upgrade
     }

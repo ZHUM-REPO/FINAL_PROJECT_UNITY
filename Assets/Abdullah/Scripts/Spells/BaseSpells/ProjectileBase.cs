@@ -11,9 +11,6 @@ public class ProjectileBase : MonoBehaviour
     public ParticleSystem impactParticles;
     public ParticleSystem trailParticles;
 
-    // set true on remote copies so they show but don't deal damage
-    [HideInInspector] public bool isVisualOnly = false;
-
     private float lifetimeTimer;
 
     protected virtual void Start()
@@ -25,6 +22,7 @@ public class ProjectileBase : MonoBehaviour
 
     protected virtual void Update()
     {
+        // move forward in straight line
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
 
         lifetimeTimer -= Time.deltaTime;
@@ -34,18 +32,18 @@ public class ProjectileBase : MonoBehaviour
 
     protected virtual void OnTriggerEnter(Collider other)
     {
+        // ignore the caster
         if (other.CompareTag("Player")) return;
 
-        // remote visual copies skip damage but still show impact + despawn
-        if (!isVisualOnly)
-            OnHit(other);
-
+        OnHit(other);
         SpawnImpact();
         DestroyProjectile();
     }
 
+    // override in each spell projectile to add unique hit effects
     protected virtual void OnHit(Collider other)
     {
+        // apply damage if enemy
         EnemyHealth enemy = other.GetComponent<EnemyHealth>();
         if (enemy != null)
             enemy.TakeDamage(damage);
@@ -61,6 +59,7 @@ public class ProjectileBase : MonoBehaviour
     {
         if (trailParticles != null)
         {
+            // detach trail so it finishes playing before destroying
             trailParticles.transform.SetParent(null);
             trailParticles.Stop();
             Destroy(trailParticles.gameObject, 2f);

@@ -34,13 +34,4 @@ public class AbodiCamera : MonoBehaviour
         myCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
     }
-
-    // ─── Network Reset ──────────────────────────────────────
-
-    public void ResetRotation()
-    {
-        xRotation = 0f;
-        lookInput = Vector2.zero;
-        myCamera.transform.localRotation = Quaternion.identity;
-    }
 }

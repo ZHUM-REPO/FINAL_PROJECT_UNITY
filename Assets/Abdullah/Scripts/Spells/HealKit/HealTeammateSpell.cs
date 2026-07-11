@@ -82,11 +82,4 @@ public class HealTeammateSpell : SpellBase
             break; // only one chain target
         }
     }
-
-    public override void ApplyUpgradeLevel(int upgradesBought)
-    {
-        upgradeIncreasedHeal = upgradesBought >= 1;
-        upgradeLongerRange   = upgradesBought >= 2;
-        upgradeChainHeal     = upgradesBought >= 3;
-    }
 }

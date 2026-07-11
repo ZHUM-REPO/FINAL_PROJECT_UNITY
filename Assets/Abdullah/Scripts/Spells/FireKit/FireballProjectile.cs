@@ -13,7 +13,9 @@ public class FireballProjectile : ProjectileBase
         if (other.CompareTag("Player")) return;
 
         // direct hit damage
-        ApplyDamage(other, damage);
+        EnemyHealth enemy = other.GetComponent<EnemyHealth>();
+        if (enemy != null)
+            enemy.TakeDamage(damage);
 
         // explosion upgrade — damages everything in radius
         if (hasExplosion)
@@ -22,30 +24,13 @@ public class FireballProjectile : ProjectileBase
             foreach (Collider hit in hits)
             {
                 if (hit.CompareTag("Player")) continue;
-                ApplyDamage(hit, explosionDamage);
+                EnemyHealth e = hit.GetComponent<EnemyHealth>();
+                if (e != null)
+                    e.TakeDamage(explosionDamage);
             }
 
             if (explosionParticles != null)
                 Instantiate(explosionParticles, transform.position, Quaternion.identity);
         }
-    }
-
-    // Boss & minions implement IDamageable (via the Damage component);
-    // legacy enemies use EnemyHealth. Check the collider and its parents so it
-    // works whether the health component sits on the collider or the root.
-    private void ApplyDamage(Collider target, float amount)
-    {
-        if (amount <= 0f) return;
-
-        IDamageable damageable = target.GetComponentInParent<IDamageable>();
-        if (damageable != null)
-        {
-            damageable.TakeDamage(amount);
-            return;
-        }
-
-        EnemyHealth enemy = target.GetComponentInParent<EnemyHealth>();
-        if (enemy != null)
-            enemy.TakeDamage(amount);
     }
 }

@@ -21,31 +21,37 @@ public class PlayerInputs : NetworkBehaviour
 
     private bool IsLocalPlayer => IsOwner;
 
-    // true when any blocking UI is open (popup, computer, or pause)
-    private bool UIOpen =>
-        PauseMenuUI.isPaused ||
-        OfficeComputerUI.IsAnyComputerOpen ||
-        LevelInfoPopup.AnyPopupOpen;
-
     public void MoveInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (UIOpen) return;
+
+        if (PauseMenuUI.isPaused)
+        {
+            OnMoveInput?.Invoke(Vector2.zero);
+            return;
+        }
+
         OnMoveInput?.Invoke(context.ReadValue<Vector2>());
     }
 
     public void LookInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (UIOpen) return;
-        if (context.performed)
-            OnLookInput?.Invoke(context.ReadValue<Vector2>());
+        if (!context.performed) return;
+
+        if (PauseMenuUI.isPaused)
+        {
+            OnLookInput?.Invoke(Vector2.zero);
+            return;
+        }
+
+        OnLookInput?.Invoke(context.ReadValue<Vector2>());
     }
 
     public void JumpInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (UIOpen) return;
+        if (PauseMenuUI.isPaused) return;
         if (context.performed)
             OnJumpInput?.Invoke();
     }
@@ -53,7 +59,7 @@ public class PlayerInputs : NetworkBehaviour
     public void CrouchInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (UIOpen) return;
+        if (PauseMenuUI.isPaused) return;
         if (context.performed)
             OnCrouchInput?.Invoke();
     }
@@ -61,7 +67,7 @@ public class PlayerInputs : NetworkBehaviour
     public void SprintInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (UIOpen) return;
+        if (PauseMenuUI.isPaused) return;
         if (context.performed)
             OnSprintInput?.Invoke();
     }
@@ -69,11 +75,6 @@ public class PlayerInputs : NetworkBehaviour
     public void PauseInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-
-        // don't open the pause menu while the computer or a popup is open
-        if (OfficeComputerUI.IsAnyComputerOpen) return;
-        if (LevelInfoPopup.AnyPopupOpen) return;
-
         if (context.performed)
         {
             Debug.Log("ESC Pressed From Input System");
@@ -84,25 +85,19 @@ public class PlayerInputs : NetworkBehaviour
     public void CastSpellInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-
-        // always allow release so held spells (Fire Breath) can stop,
-        // even if a UI opened mid-cast
-        if (context.canceled)
-        {
-            OnCastSpellCanceled?.Invoke();
-            return;
-        }
-
-        if (UIOpen) return;
+        if (PauseMenuUI.isPaused) return;
 
         if (context.performed)
             OnCastSpellInput?.Invoke();
+
+        if (context.canceled)
+            OnCastSpellCanceled?.Invoke();
     }
 
     public void ChangeSpellInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (UIOpen) return;
+        if (PauseMenuUI.isPaused) return;
         if (context.performed)
             OnChangeSpellInput?.Invoke();
     }
@@ -110,7 +105,7 @@ public class PlayerInputs : NetworkBehaviour
     public void ChangeKitInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (UIOpen) return;
+        if (PauseMenuUI.isPaused) return;
         if (context.performed)
             OnChangeKitInput?.Invoke();
     }
@@ -118,7 +113,7 @@ public class PlayerInputs : NetworkBehaviour
     public void ThrowInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (UIOpen) return;
+        if (PauseMenuUI.isPaused) return;
         if (context.performed)
             OnThrowInput?.Invoke();
     }
@@ -126,7 +121,7 @@ public class PlayerInputs : NetworkBehaviour
     public void DropInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-        if (UIOpen) return;
+        if (PauseMenuUI.isPaused) return;
         if (context.performed)
             OnDropInput?.Invoke();
     }
@@ -134,11 +129,7 @@ public class PlayerInputs : NetworkBehaviour
     public void InteractInput(InputAction.CallbackContext context)
     {
         if (!IsLocalPlayer) return;
-
-        // Interact must still work while the computer is open (E closes it).
-        // Only block it when paused.
         if (PauseMenuUI.isPaused) return;
-
         if (context.performed)
             OnInteractInput?.Invoke();
     }

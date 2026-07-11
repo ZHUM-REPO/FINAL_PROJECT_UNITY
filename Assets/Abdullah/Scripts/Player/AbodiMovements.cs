@@ -11,15 +11,16 @@ public class AbodiMovements : MonoBehaviour
     [SerializeField] private float normalHeight = 2f;
     [SerializeField] private float crouchHeight = 1f;
     [SerializeField] private PlayerStats playerStats;
-
     private float mySpeed;
     private float verticalVelocity = 0f;
+    // private float myHeight;
     private Vector2 moveInput;
     private Vector3 moveDirection;
     private Vector3 finalDirection;
     private bool isJumping = false;
     private bool isCrouching = false;
     private bool isSprinting = false;
+
 
     private void OnEnable()
     {
@@ -36,16 +37,16 @@ public class AbodiMovements : MonoBehaviour
         PlayerInputs.OnCrouchInput -= HandleCrouchInput;
         PlayerInputs.OnSprintInput -= HandleSprintInput;
     }
-
-    private void Start()
+    void Start()
     {
-        if (myCharacter == null)
-            myCharacter = GetComponent<CharacterController>();
-
+        myCharacter = GetComponent<CharacterController>();
         mySpeed = moveSpeed;
+        // myHeight = normalHeight;
     }
-
-    private void HandleMoveInput(Vector2 mInput) => moveInput = mInput;
+    private void HandleMoveInput(Vector2 mInput)
+    {
+        moveInput = mInput;
+    }
 
     private void HandleJumpInput()
     {
@@ -58,76 +59,78 @@ public class AbodiMovements : MonoBehaviour
 
     private void HandleCrouchInput()
     {
-        if (!myCharacter.isGrounded) return;
-
-        isCrouching = !isCrouching;
-
-        if (isCrouching) isSprinting = false;
+        if (myCharacter.isGrounded && !isCrouching)
+        {
+            isCrouching = true;
+        }
+        else if (myCharacter.isGrounded && isCrouching)
+        {
+            isCrouching = false;
+        }
     }
 
     private void HandleSprintInput()
     {
-        if (!myCharacter.isGrounded || isCrouching) return;
-
-        if (!isSprinting && playerStats.canSprint)
+        if (myCharacter.isGrounded && !isSprinting && !isCrouching && playerStats.canSprint)
+        {
             isSprinting = true;
-        else
+        }
+        else if (myCharacter.isGrounded && isSprinting)
+        {
             isSprinting = false;
+        }
     }
 
     private void GravityLogic()
     {
+        verticalVelocity += gravity * Time.deltaTime;
         if (myCharacter.isGrounded && verticalVelocity < 0)
         {
             verticalVelocity = -2f;
             isJumping = false;
         }
-        verticalVelocity += gravity * Time.deltaTime;
     }
+    
+    private void Update()
+    {   
+        GravityLogic();
 
-    private void SpeedLogic()
-    {
         if (isCrouching)
         {
+            // myHeight = crouchHeight;
+            myCharacter.height = crouchHeight;
             mySpeed = crouchSpeed;
-            return;
         }
+        else if (!isCrouching)
+        {
+            // myHeight = normalHeight;
+            myCharacter.height = normalHeight;
+            mySpeed = moveSpeed;
+        }
+
+        // myCharacter.height = myHeight;
 
         if (isSprinting)
         {
             if (!playerStats.canSprint)
             {
-                isSprinting = false;
-                mySpeed = moveSpeed;
+                isSprinting = false; 
+                mySpeed = moveSpeed; 
                 return;
             }
-
             playerStats.EnduranceDrain();
             mySpeed = moveSpeed * sprintMultiplier;
         }
-        else
+        else if (!isSprinting && !isCrouching)
         {
             playerStats.EnduranceRegain();
             mySpeed = moveSpeed;
         }
-    }
 
-    private void Update()
-    {
-        GravityLogic();
-        SpeedLogic();
-
-        myCharacter.height = isCrouching ? crouchHeight : normalHeight;
-
+        // HandleMoveInput(playerInputs.inputMove);
         moveDirection = moveInput.x * transform.right + moveInput.y * transform.forward;
         finalDirection = moveDirection * mySpeed;
         finalDirection.y = verticalVelocity;
         myCharacter.Move(finalDirection * Time.deltaTime);
-    }
-
-    public void ResetVerticalVelocity()
-    {
-        verticalVelocity = 0f;
-        isJumping = false;
     }
 }

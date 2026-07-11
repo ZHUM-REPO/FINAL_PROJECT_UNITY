@@ -9,16 +9,15 @@ public class FireBreathSpell : SpellBase
     public float manaPerSecond = 10f;
     public Transform spawnPoint;
 
-    [Header("Flame Prefab")]
-    public GameObject flamePrefab;   // drag the vfx_Flamethrower_01 PREFAB here
-
-    [HideInInspector] public bool upgradeLongerRange = false;
-    [HideInInspector] public bool upgradeWiderCone = false;
-    [HideInInspector] public bool upgradeIncreasedDamage = false;
+    // upgrade flags
+    [HideInInspector] public bool upgradeLongerRange = false;       // level 1
+    [HideInInspector] public bool upgradeWiderCone = false;         // level 2
+    [HideInInspector] public bool upgradeIncreasedDamage = false;   // level 3
 
     private bool isBrething = false;
-    private GameObject flameInstance;   // spawned copy that lives during the breath
 
+    // FireBreath is held — TryCast() starts it, TryStop() ends it
+    // override TryCast so it doesn't consume all mana upfront
     public new bool TryCast()
     {
         if (isOnCooldown || isBrething) return false;
@@ -26,8 +25,8 @@ public class FireBreathSpell : SpellBase
 
         isBrething = true;
         playerStats.SetCasting(true);
-
-        SpawnFlame();
+        PlayCastParticles();
+        if (castParticles != null) castParticles.Play();
         return true;
     }
 
@@ -40,10 +39,10 @@ public class FireBreathSpell : SpellBase
         StartCooldown();
         GrantXP();
 
-        DestroyFlame();
+        if (castParticles != null) castParticles.Stop();
     }
 
-    protected override void Cast() { }
+    protected override void Cast() { } // not used — fire breath uses TryCast/TryStop
 
     protected override void Update()
     {
@@ -51,47 +50,16 @@ public class FireBreathSpell : SpellBase
 
         if (!isBrething) return;
 
-        AimFlame();
-
+        // drain mana per second
         float drain = manaPerSecond * Time.deltaTime;
         if (!playerStats.ConsumeMana(drain))
         {
+            // out of mana — force stop
             TryStop();
             return;
         }
 
         ApplyBreathDamage();
-    }
-
-    private void SpawnFlame()
-    {
-        if (flamePrefab == null)
-        {
-            Debug.LogWarning("FireBreath: flamePrefab not assigned!");
-            return;
-        }
-
-        Vector3 pos = spawnPoint != null ? spawnPoint.position : transform.position;
-        Vector3 forward = Camera.main != null ? Camera.main.transform.forward : transform.forward;
-
-        flameInstance = Instantiate(flamePrefab, pos, Quaternion.LookRotation(forward));
-    }
-
-    private void AimFlame()
-    {
-        if (flameInstance == null) return;
-
-        Vector3 pos = spawnPoint != null ? spawnPoint.position : transform.position;
-        Vector3 forward = Camera.main != null ? Camera.main.transform.forward : transform.forward;
-
-        flameInstance.transform.SetPositionAndRotation(pos, Quaternion.LookRotation(forward));
-    }
-
-    private void DestroyFlame()
-    {
-        if (flameInstance != null)
-            Destroy(flameInstance);
-        flameInstance = null;
     }
 
     private void ApplyBreathDamage()
@@ -100,44 +68,20 @@ public class FireBreathSpell : SpellBase
         float actualAngle = upgradeWiderCone ? coneAngle * 1.4f : coneAngle;
         float actualDPS = upgradeIncreasedDamage ? damagePerSecond * 1.5f : damagePerSecond;
 
-        Vector3 origin = spawnPoint != null ? spawnPoint.position : transform.position;
-        Vector3 forward = Camera.main != null ? Camera.main.transform.forward : transform.forward;
-
-        Collider[] hits = Physics.OverlapSphere(origin, actualRange);
+        // find all colliders in range
+        Collider[] hits = Physics.OverlapSphere(spawnPoint.position, actualRange);
         foreach (Collider hit in hits)
         {
             if (hit.CompareTag("Player")) continue;
 
-            Vector3 dirToTarget = (hit.transform.position - origin).normalized;
-            float angle = Vector3.Angle(forward, dirToTarget);
+            // check if within cone angle
+            Vector3 dirToTarget = (hit.transform.position - spawnPoint.position).normalized;
+            float angle = Vector3.Angle(spawnPoint.forward, dirToTarget);
             if (angle > actualAngle) continue;
 
-            ApplyDamage(hit, actualDPS * Time.deltaTime);
+            EnemyHealth enemy = hit.GetComponent<EnemyHealth>();
+            if (enemy != null)
+                enemy.TakeDamage(actualDPS * Time.deltaTime);
         }
-    }
-
-    // Boss & minions implement IDamageable (via the Damage component);
-    // legacy enemies use EnemyHealth. Check the collider and its parents.
-    private void ApplyDamage(Collider target, float amount)
-    {
-        if (amount <= 0f) return;
-
-        IDamageable damageable = target.GetComponentInParent<IDamageable>();
-        if (damageable != null)
-        {
-            damageable.TakeDamage(amount);
-            return;
-        }
-
-        EnemyHealth enemy = target.GetComponentInParent<EnemyHealth>();
-        if (enemy != null)
-            enemy.TakeDamage(amount);
-    }
-
-    public override void ApplyUpgradeLevel(int upgradesBought)
-    {
-        upgradeLongerRange = upgradesBought >= 1;
-        upgradeWiderCone = upgradesBought >= 2;
-        upgradeIncreasedDamage = upgradesBought >= 3;
     }
 }

@@ -3,17 +3,19 @@ using UnityEngine;
 
 public class NetworkKitSelection : NetworkBehaviour
 {
+    // synced kit lock state across all clients
+    // this is on the player that owns the lock
     public NetworkVariable<Unity.Collections.FixedString64Bytes> lockedKitOne =
         new NetworkVariable<Unity.Collections.FixedString64Bytes>(
         "",
         NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server);   // was Owner
+        NetworkVariableWritePermission.Owner);
 
     public NetworkVariable<Unity.Collections.FixedString64Bytes> lockedKitTwo =
         new NetworkVariable<Unity.Collections.FixedString64Bytes>(
         "",
         NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server);   // was Owner
+        NetworkVariableWritePermission.Owner);
 
     private KitManager kitManager;
 
@@ -22,37 +24,40 @@ public class NetworkKitSelection : NetworkBehaviour
         kitManager = GetComponent<KitManager>();
     }
 
+    // called when player locks a kit in lobby
     public void LockKit(string kitName, int slot)
     {
         if (!IsOwner) return;
-        // route the write through the server since it's now server-write
-        SetLockServerRpc(kitName, slot, (int)OwnerClientId);
+
+        if (slot == 0) lockedKitOne.Value = kitName;
+        if (slot == 1) lockedKitTwo.Value = kitName;
+
+        // tell server to update global kit lock
+        LockKitServerRpc(kitName, (int)OwnerClientId);
     }
 
     public void UnlockKit(string kitName)
     {
         if (!IsOwner) return;
-        ClearLockServerRpc(kitName, (int)OwnerClientId);
+
+        if (lockedKitOne.Value == kitName) lockedKitOne.Value = "";
+        if (lockedKitTwo.Value == kitName) lockedKitTwo.Value = "";
+
+        UnlockKitServerRpc(kitName, (int)OwnerClientId);
     }
 
     // ─── Server RPCs ──────────────────────────────────────
 
     [ServerRpc]
-    private void SetLockServerRpc(string kitName, int slot, int playerID)
+    private void LockKitServerRpc(string kitName, int playerID)
     {
-        // server writes the variables (now allowed)
-        if (slot == 0) lockedKitOne.Value = kitName;
-        if (slot == 1) lockedKitTwo.Value = kitName;
-
+        // tell all clients this kit is now locked
         LockKitClientRpc(kitName, playerID);
     }
 
     [ServerRpc]
-    private void ClearLockServerRpc(string kitName, int playerID)
+    private void UnlockKitServerRpc(string kitName, int playerID)
     {
-        if (lockedKitOne.Value == kitName) lockedKitOne.Value = "";
-        if (lockedKitTwo.Value == kitName) lockedKitTwo.Value = "";
-
         UnlockKitClientRpc(kitName, playerID);
     }
 

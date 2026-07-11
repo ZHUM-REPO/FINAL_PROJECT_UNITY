@@ -100,21 +100,18 @@ public class PlayerSpawner : MonoBehaviour
 
         GameObject player = Instantiate(playerPrefab, spawnPos, spawnRot);
 
-        NetworkObject netObj = player.GetComponent<NetworkObject>();
-        netObj.SpawnAsPlayerObject(clientId, true);
-
-        // place the host's own copy (works because host = owner of its player)
+        // disable CharacterController before repositioning to avoid
+        // physics push-out from overlapping geometry at spawn time
         CharacterController cc = player.GetComponent<CharacterController>();
         if (cc != null) cc.enabled = false;
-        player.transform.SetPositionAndRotation(spawnPos, spawnRot);
+
+        player.transform.position = spawnPos;
+        player.transform.rotation = spawnRot;
+
         if (cc != null) cc.enabled = true;
 
-        // ask the OWNING client to place ITS player at the spawn point.
-        // with client-authoritative movement only the owner can move
-        // its own player, so the server must request it via RPC.
-        NetworkMovement netMovement = player.GetComponent<NetworkMovement>();
-        if (netMovement != null)
-            netMovement.TeleportToSpawnRpc(spawnPos, spawnRot);
+        NetworkObject netObj = player.GetComponent<NetworkObject>();
+        netObj.SpawnAsPlayerObject(clientId, true);
 
         Debug.Log($"Spawned player for ClientId: {clientId} at {spawnPos}");
     }

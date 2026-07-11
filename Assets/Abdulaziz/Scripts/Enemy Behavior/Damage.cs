@@ -65,7 +65,3 @@ public class Damage : NetworkBehaviour, IDamageable
     }
 }
 
-public interface IDamageable
-{
-    void TakeDamage(float amount);
-}
